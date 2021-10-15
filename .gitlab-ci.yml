@@ -1,0 +1,110 @@
+image: mcr.microsoft.com/dotnet/sdk:5.0
+
+stages:
+  - build
+  - test
+  - publish
+
+.test-script: &test_script
+  stage: test
+  dependencies:
+    - build
+  script:
+    - dotnet test
+      --configuration $CONFIGURATION
+      --framework $FRAMEWORK
+      --logger:"junit;LogFilePath=..\artifacts\$CONFIGURATION\$FRAMEWORK\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+      --collect:"XPlat Code Coverage"
+#    - ~/.dotnet/tools/reportgenerator
+#      -reports:'**/coverage.cobertura.xml'
+#      -targetdir:coverage
+#      -reporttypes:'JsonSummary;Cobertura'
+#    - jq .summary coverage/Summary.json
+  parallel:
+    matrix:
+      - CONFIGURATION:
+        - Debug
+        - Release
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - integration-tests/junit.xml
+      cobertura:
+        - coverage/Cobertuba.xml
+
+.test-using-test-server: &test_using_test_server
+  secrets:
+    DEEPL_AUTH_KEY:
+      vault: jenkins/client_libraries/test_auth_key@backend
+      file: false
+    DEEPL_SERVER_URL:
+      vault: jenkins/client_libraries/test_server_url@backend
+      file: false
+
+.test-using-mock-server: &test_using_mock_server
+  variables:
+    DEEPL_AUTH_KEY: mock_server
+    DEEPL_SERVER_URL: http://localhost:3000
+    DEEPL_MOCK_SERVER_PORT: 3000
+
+build:
+  stage: build
+  parallel:
+    matrix:
+      - CONFIGURATION:
+          - Debug
+          - Release
+  script:
+    - dotnet build --configuration $CONFIGURATION
+  artifacts:
+    paths:
+      - DeepL/bin/
+      - DeepL/obj/
+      - DeepLTests/bin/
+      - DeepLTests/obj/
+
+package:
+  stage: build
+  needs: ["build"]
+  script:
+    - dotnet pack --no-restore --configuration Release -o package/Release
+  artifacts:
+    paths:
+      - package/
+
+test .NET Core 3.1 using test server:
+  image: mcr.microsoft.com/dotnet/sdk:3.1
+  variables:
+    FRAMEWORK: netcoreapp3.1
+  <<: *test_script
+  <<: *test_using_test_server
+
+test .NET 5.0 using test server:
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  variables:
+    FRAMEWORK: net5.0
+  <<: *test_script
+  <<: *test_using_test_server
+
+#test .NET Framework 4.6.1 using test server:
+#  image: mcr.microsoft.com/dotnet/sdk:5.0
+#  variables:
+#    FRAMEWORK: net461
+#  <<: *test_script
+#  <<: *test_using_test_server
+
+publish:
+  stage: publish
+  dependencies:
+    - build
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
+  script:
+    - dotnet pack --no-restore --configuration Release -o package/Release
+    - dotnet nuget push package/Release/DeepL.net.*.nupkg --api-key $NUGET_API_KEY
+      --source https://api.nuget.org/v3/index.json --timeout 30
+  secrets:
+    NUGET_API_KEY:
+      vault: jenkins/client_libraries/nuget_api_key@backend
+      file: false

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>DeepL.net is the official DeepL .NET client.</Description>
+    <AssemblyTitle>DeepL.net</AssemblyTitle>
+    <Version>0.0.1</Version>
+    <PackageVersion>0.0.1</PackageVersion>
+    <FileVersion>0.0.1.0</FileVersion>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <RootNamespace>DeepL</RootNamespace>
+    <Authors>DeepL GmbH</Authors>
+    <Company>DeepL GmbH</Company>
+    <AssemblyName>DeepL.net</AssemblyName>
+    <PackageId>DeepL.net</PackageId>
+    <PackageTags>deepl;translation</PackageTags>
+    <PackageProjectUrl>https://github.com/DeepLcom/deepl-dotnet</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <IsPackable>true</IsPackable>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="5.0.1" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

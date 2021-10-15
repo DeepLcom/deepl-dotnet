@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepL", "DeepL\DeepL.csproj", "{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepLTests", "DeepLTests\DeepLTests.csproj", "{3582DAA3-A216-4D58-83C8-BA91B4EE2260}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
