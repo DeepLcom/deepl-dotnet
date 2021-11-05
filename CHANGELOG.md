@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
+- Add missing properties in package, e.g. icon.
+- Introduce GlossaryEntries class to encapsulate glossary entries.
 ### Deprecated
 ### Removed
 ### Fixed

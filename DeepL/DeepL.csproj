@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>DeepL.net is the official DeepL .NET client.</Description>
+    <Description>DeepL.net is the official DeepL .NET client library.</Description>
     <AssemblyTitle>DeepL.net</AssemblyTitle>
     <Version>0.1.0</Version>
     <PackageVersion>0.1.0</PackageVersion>
@@ -17,9 +17,12 @@
     <Company>DeepL GmbH</Company>
     <AssemblyName>DeepL.net</AssemblyName>
     <PackageId>DeepL.net</PackageId>
-    <PackageTags>deepl;translation</PackageTags>
+    <PackageTags>deepl;translation;api</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageProjectUrl>https://github.com/DeepLcom/deepl-dotnet</PackageProjectUrl>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Release notes can be found at https://github.com/DeepLcom/deepl-dotnet/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -32,7 +35,8 @@
 
 
   <ItemGroup>
-    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath=""/>
+    <None Include="..\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
