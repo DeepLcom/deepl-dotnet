@@ -6,10 +6,11 @@ using System;
 using System.Globalization;
 using System.Text.Json.Serialization;
 
-namespace DeepL {
+namespace DeepL.Model {
   /// <summary>
   ///   A language supported by DeepL translation. The <see cref="Translator" /> class provides functions to retrieve
-  ///   the available source and target languages.
+  ///   the available source and target languages. <see cref="Language" /> objects are considered equal if their
+  ///   language codes match.
   /// </summary>
   /// <seealso cref="Translator.GetSourceLanguagesAsync" />
   /// <seealso cref="Translator.GetTargetLanguagesAsync" />
@@ -68,7 +69,7 @@ namespace DeepL {
 
     /// <summary>
     ///   Determines whether this instance and a specified object, which must also be a <see cref="Language" /> object,
-    ///   have the same value.
+    ///   have the same value. <see cref="Language" /> objects are considered equal if their language codes match.
     /// </summary>
     /// <param name="obj">The Language to compare to this instance.</param>
     /// <returns>
@@ -117,6 +118,11 @@ namespace DeepL {
     /// <summary>Initializes a new Language object.</summary>
     /// <param name="code">The language code.</param>
     /// <param name="name">The name of the language in English.</param>
+    /// <remarks>
+    ///   The constructor for this class (and all other Model classes) should not be used by library users. Ideally it
+    ///   would be marked <see langword="internal" />, but needs to be <see langword="public" /> for JSON deserialization.
+    ///   In future this function may have backwards-incompatible changes.
+    /// </remarks>
     [JsonConstructor]
     public SourceLanguage(string code, string name) : base(code, name) {
     }
@@ -133,6 +139,11 @@ namespace DeepL {
     ///   <c>true</c> if this language supports the <see cref="Formality" /> parameter for
     ///   translations, otherwise <c>false</c>.
     /// </param>
+    /// <remarks>
+    ///   The constructor for this class (and all other Model classes) should not be used by library users. Ideally it
+    ///   would be marked <see langword="internal" />, but needs to be <see langword="public" /> for JSON deserialization.
+    ///   In future this function may have backwards-incompatible changes.
+    /// </remarks>
     [JsonConstructor]
     public TargetLanguage(string code, string name, bool supportsFormality) : base(code, name) {
       SupportsFormality = supportsFormality;

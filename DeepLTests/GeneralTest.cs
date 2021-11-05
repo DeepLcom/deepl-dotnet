@@ -86,8 +86,8 @@ namespace DeepLTests {
       var glossaryLanguages = await translator.GetGlossaryLanguagesAsync();
       Assert.True(glossaryLanguages.Length > 0);
       foreach (var glossaryLanguagePair in glossaryLanguages) {
-        Assert.True(glossaryLanguagePair.SourceLanguage.Length > 0);
-        Assert.True(glossaryLanguagePair.TargetLanguage.Length > 0);
+        Assert.True(glossaryLanguagePair.SourceLanguageCode.Length > 0);
+        Assert.True(glossaryLanguagePair.TargetLanguageCode.Length > 0);
       }
     }
 
@@ -140,7 +140,7 @@ namespace DeepLTests {
       Assert.Contains("Characters: 0 of 20", usage.ToString()!);
       Assert.Contains("Documents: 0 of 1", usage.ToString()!);
 
-      var tempDir = Path.GetTempPath();
+      var tempDir = TempDir();
       var inputPath = Path.Combine(tempDir, "example_document.txt");
       File.WriteAllText(inputPath, new string('a', characterLimit));
       var outputPath = Path.Combine(tempDir, "example_document_output.txt");
@@ -162,13 +162,14 @@ namespace DeepLTests {
                   "DE"));
       File.Delete(outputPath);
 
-      await Assert.ThrowsAsync<QuotaExceededException>(
+      var exception = await Assert.ThrowsAsync<DocumentTranslationException>(
             () =>
                   translator.TranslateDocumentAsync(new FileInfo(inputPath), new FileInfo(outputPath), null, "DE"));
+      Assert.Null(exception.DocumentHandle);
+      Assert.Equal(typeof(QuotaExceededException), exception.InnerException!.GetType());
 
       await Assert.ThrowsAsync<QuotaExceededException>(
-            () =>
-                  translator.TranslateTextAsync(ExampleText("en"), null, "DE"));
+            () => translator.TranslateTextAsync(ExampleText("en"), null, "DE"));
     }
 
     [MockServerOnlyFact]
@@ -190,7 +191,7 @@ namespace DeepLTests {
       Assert.DoesNotContain("Documents", usage.ToString()!);
       Assert.Contains("Team documents: 0 of 1", usage.ToString()!);
 
-      var tempDir = Path.GetTempPath();
+      var tempDir = TempDir();
       var inputPath = Path.Combine(tempDir, "example_document.txt");
       File.WriteAllText(inputPath, "a");
       var outputPath = Path.Combine(tempDir, "example_document_output.txt");

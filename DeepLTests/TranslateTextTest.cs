@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DeepL;
+using DeepL.Model;
 using Xunit;
 
 namespace DeepLTests {
@@ -16,7 +17,7 @@ namespace DeepLTests {
       var translator = CreateTestTranslator();
       var result = await translator.TranslateTextAsync(ExampleText("en"), null, LanguageCode.German);
       Assert.Equal(ExampleText("de"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguage);
+      Assert.Equal("en", result.DetectedSourceLanguageCode);
       Assert.Equal(ExampleText("de"), $"{result}");
     }
 
@@ -33,7 +34,7 @@ namespace DeepLTests {
     public async Task TestSourceLang() {
       void CheckResult(TextResult result) {
         Assert.Equal(ExampleText("de"), result.Text);
-        Assert.Equal("en", result.DetectedSourceLanguage);
+        Assert.Equal("en", result.DetectedSourceLanguageCode);
       }
 
       var translator = CreateTestTranslator();
@@ -52,7 +53,7 @@ namespace DeepLTests {
     public async Task TestTargetLang() {
       void CheckResult(TextResult result) {
         Assert.Equal(ExampleText("de"), result.Text);
-        Assert.Equal("en", result.DetectedSourceLanguage);
+        Assert.Equal("en", result.DetectedSourceLanguageCode);
       }
 
       var translator = CreateTestTranslator();
@@ -66,8 +67,8 @@ namespace DeepLTests {
       CheckResult(await translator.TranslateTextAsync(ExampleText("en"), null, targetLanguageDe));
 
       // Check that EN and PT as target languages throw an exception
-      await Assert.ThrowsAsync<DeepLException>(() => translator.TranslateTextAsync(ExampleText("de"), null, "EN"));
-      await Assert.ThrowsAsync<DeepLException>(() => translator.TranslateTextAsync(ExampleText("de"), null, "PT"));
+      await Assert.ThrowsAsync<ArgumentException>(() => translator.TranslateTextAsync(ExampleText("de"), null, "EN"));
+      await Assert.ThrowsAsync<ArgumentException>(() => translator.TranslateTextAsync(ExampleText("de"), null, "PT"));
     }
 
     [Fact]
@@ -95,9 +96,9 @@ namespace DeepLTests {
       var timeAfter = DateTime.Now;
       Assert.Equal(2, result.Length);
       Assert.Equal(ExampleText("de"), result[0].Text);
-      Assert.Equal("en", result[0].DetectedSourceLanguage);
+      Assert.Equal("en", result[0].DetectedSourceLanguageCode);
       Assert.Equal(ExampleText("de"), result[1].Text);
-      Assert.Equal("ja", result[1].DetectedSourceLanguage);
+      Assert.Equal("ja", result[1].DetectedSourceLanguageCode);
       Assert.True(timeAfter - timeBefore > TimeSpan.FromSeconds(1));
     }
 
@@ -143,17 +144,17 @@ namespace DeepLTests {
             text,
             null,
             "DE",
-            new TextTranslateOptions { SplitSentences = SplitSentences.Off });
+            new TextTranslateOptions { SentenceSplittingMode = SentenceSplittingMode.Off });
       await translator.TranslateTextAsync(
             text,
             null,
             "DE",
-            new TextTranslateOptions { SplitSentences = SplitSentences.All });
+            new TextTranslateOptions { SentenceSplittingMode = SentenceSplittingMode.All });
       await translator.TranslateTextAsync(
             text,
             null,
             "DE",
-            new TextTranslateOptions { SplitSentences = SplitSentences.NoNewlines });
+            new TextTranslateOptions { SentenceSplittingMode = SentenceSplittingMode.NoNewlines });
     }
 
     [MockServerOnlyFact]
@@ -196,13 +197,6 @@ namespace DeepLTests {
     }
 
     [Fact]
-    public async Task TestInvalidUrl() {
-      var translator = new Translator(AuthKey, new TranslatorOptions { ServerUrl = "https://example.com" });
-
-      await Assert.ThrowsAsync<NotFoundException>(() => translator.TranslateTextAsync("Hello, world!", null, "DE"));
-    }
-
-    [Fact]
     public void TextEmptyAuthKey() => Assert.Throws<ArgumentException>(() => new Translator(""));
 
     [Fact]
@@ -229,7 +223,7 @@ namespace DeepLTests {
     [Fact]
     public async Task TestEmptyText() {
       var translator = CreateTestTranslator();
-      await Assert.ThrowsAsync<DeepLException>(() => translator.TranslateTextAsync("", null, "DE"));
+      await Assert.ThrowsAsync<ArgumentException>(() => translator.TranslateTextAsync("", null, "DE"));
     }
 
     [Fact]
@@ -238,19 +232,19 @@ namespace DeepLTests {
       TextResult result;
       result = await translator.TranslateTextAsync(ExampleText("en"), null, "pt-pt");
       Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguage);
+      Assert.Equal("en", result.DetectedSourceLanguageCode);
 
       result = await translator.TranslateTextAsync(ExampleText("en"), null, "PT-pt");
       Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguage);
+      Assert.Equal("en", result.DetectedSourceLanguageCode);
 
       result = await translator.TranslateTextAsync(ExampleText("en"), "en", "PT-PT");
       Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguage);
+      Assert.Equal("en", result.DetectedSourceLanguageCode);
 
       result = await translator.TranslateTextAsync(ExampleText("en"), "eN", "PT-PT");
       Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguage);
+      Assert.Equal("en", result.DetectedSourceLanguageCode);
     }
   }
 }

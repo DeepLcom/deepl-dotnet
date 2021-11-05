@@ -17,7 +17,7 @@ using Microsoft.Extensions.Http;
 using Polly;
 using Polly.Timeout;
 
-namespace DeepL {
+namespace DeepL.Internal {
   /// <summary>Internal class implementing HTTP requests.</summary>
   internal class DeepLClient : IDisposable {
     /// <summary>HTTP status code returned by DeepL API to indicate servers are currently under high load.</summary>
@@ -42,14 +42,26 @@ namespace DeepL {
     /// <param name="serverUrl">Base server URL to apply to all relative URLs in requests.</param>
     /// <param name="clientFactory">Factory function to obtain <see cref="HttpClient" /> used for requests.</param>
     /// <param name="headers">HTTP headers applied to all requests.</param>
+    /// <exception cref="ArgumentNullException">If any argument is null.</exception>
     internal DeepLClient(
           Uri serverUrl,
           Func<HttpClientAndDisposeFlag> clientFactory,
           IEnumerable<KeyValuePair<string, string?>> headers) {
+      if (serverUrl == null) {
+        throw new ArgumentNullException($"{nameof(serverUrl)}");
+      }
+
       _serverUrl = serverUrl;
       var clientAndDisposeFlag = clientFactory();
       _httpClient = clientAndDisposeFlag.HttpClient;
       _disposeClient = clientAndDisposeFlag.DisposeClient;
+
+      if (_httpClient == null) {
+        throw new ArgumentNullException(
+              $"{nameof(clientAndDisposeFlag.HttpClient)}",
+              $"HttpClient returned by {nameof(clientFactory)} was null");
+      }
+
       _headers = headers.ToArray();
     }
 
@@ -126,7 +138,7 @@ namespace DeepL {
     /// <exception cref="AuthorizationException">If authorization failed.</exception>
     /// <exception cref="QuotaExceededException">If the translation quota has been exceeded.</exception>
     /// <exception cref="GlossaryNotFoundException">If the specified glossary was not found.</exception>
-    /// <exception cref="TooManyRequestsException">If too many requests are </exception>
+    /// <exception cref="TooManyRequestsException">If the DeepL servers are currently receiving too many requests.</exception>
     /// <exception cref="DeepLException">If some other error occurred.</exception>
     internal static async Task CheckStatusCodeAsync(
           HttpResponseMessage responseMessage,
@@ -178,20 +190,20 @@ namespace DeepL {
     /// <param name="queryParams">Parameters to embed in the HTTP request query string.</param>
     /// <param name="acceptHeader">String to use as Accept header.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
-    /// <exception cref="ConnectionException">If the request fails or a timeout occurs.</exception>
+    /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiGetAsync(
           string relativeUri,
           CancellationToken cancellationToken,
-          IEnumerable<(string key, string value)>? queryParams = null,
+          IEnumerable<(string Key, string Value)>? queryParams = null,
           string? acceptHeader = null) {
-      var uriBuilder = new UriBuilder(new Uri(_serverUrl, relativeUri));
-      if (queryParams != null) {
-        uriBuilder.Query =
-              string.Join("&", queryParams.Select(pair => $"{pair.key}={pair.value}"));
-      }
+      var queryString = queryParams == null
+            ? string.Empty
+            : "?" + string.Join(
+                  "&",
+                  queryParams.Select(pair => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(pair.Value)}"));
 
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = uriBuilder.Uri,
+            RequestUri = new Uri(_serverUrl, relativeUri + queryString),
             Method = HttpMethod.Get,
             Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
       };
@@ -202,6 +214,7 @@ namespace DeepL {
     /// <param name="relativeUri">Endpoint URL relative to server base URL.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
+    /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiDeleteAsync(string relativeUri, CancellationToken cancellationToken) {
       using var requestMessage = new HttpRequestMessage {
             RequestUri = new Uri(_serverUrl, relativeUri), Method = HttpMethod.Delete
@@ -214,16 +227,17 @@ namespace DeepL {
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <param name="bodyParams">Parameters to embed in the HTTP request body.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
+    /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiPostAsync(
           string relativeUri,
           CancellationToken cancellationToken,
-          IEnumerable<(string key, string value)>? bodyParams = null) {
+          IEnumerable<(string Key, string Value)>? bodyParams = null) {
       using var requestMessage = new HttpRequestMessage {
             RequestUri = new Uri(_serverUrl, relativeUri),
             Method = HttpMethod.Post,
             Content = bodyParams != null
                   ? new FormUrlEncodedContent(
-                        bodyParams.Select(pair => new KeyValuePair<string?, string?>(pair.key, pair.value)))
+                        bodyParams.Select(pair => new KeyValuePair<string?, string?>(pair.Key, pair.Value)))
                   : null
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
@@ -236,10 +250,11 @@ namespace DeepL {
     /// <param name="file">Optional file content to upload in request.</param>
     /// <param name="fileName">If <see cref="file" /> is used, the name of file.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
+    /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiUploadAsync(
           string relativeUri,
           CancellationToken cancellationToken,
-          IEnumerable<(string key, string value)> bodyParams,
+          IEnumerable<(string Key, string Value)> bodyParams,
           Stream file,
           string fileName) {
       var content = new MultipartFormDataContent();
@@ -273,12 +288,10 @@ namespace DeepL {
         }
 
         return await _httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
-      } catch (TaskCanceledException ex) {
         // Distinguish cancellation due to user-provided token or request time-out
-        if (cancellationToken.IsCancellationRequested) {
-          throw;
-        }
-
+      } catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested) {
+        throw;
+      } catch (TaskCanceledException ex) {
         throw new ConnectionException($"Request timed out: {ex.Message}", ex);
       } catch (HttpRequestException ex) {
         throw new ConnectionException($"Request failed: {ex.Message}", ex);

@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add missing properties in package, e.g. icon.
 - Introduce GlossaryEntries class to encapsulate glossary entries.
+- SplitSentences enum renamed to SentenceSplittingMode.
+- Exceptions thrown by some functions were changed to use standard exceptions.
+- Improvements to tests, README and documentation.
 ### Deprecated
 ### Removed
 ### Fixed

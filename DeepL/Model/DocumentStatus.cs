@@ -5,7 +5,7 @@
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace DeepL {
+namespace DeepL.Model {
   /// <summary>Status of an in-progress document translation.</summary>
   public sealed class DocumentStatus {
     /// <summary>Status code indicating status of the document translation.</summary>
@@ -35,6 +35,11 @@ namespace DeepL {
     ///   Number of characters billed for the translation of this document, only included
     ///   after document translation is finished and the state is done.
     /// </param>
+    /// <remarks>
+    ///   The constructor for this class (and all other Model classes) should not be used by library users. Ideally it
+    ///   would be marked <see langword="internal" />, but needs to be <see langword="public" /> for JSON deserialization.
+    ///   In future this function may have backwards-incompatible changes.
+    /// </remarks>
     [JsonConstructor]
     public DocumentStatus(string documentId, StatusCode status, int? secondsRemaining, int? billedCharacters) {
       (DocumentId, Status, SecondsRemaining, BilledCharacters) =

@@ -8,16 +8,12 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace DeepL {
+namespace DeepL.Internal {
   /// <summary>Internal class containing utility functions related to JSON-serialization.</summary>
   internal static class JsonUtils {
-    /// <summary>Static constructor, initializes options object.</summary>
-    static JsonUtils() {
-      JsonSerializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = LowerSnakeCaseNamingPolicy.Instance };
-    }
-
     /// <summary>Options used to deserialize JSON data.</summary>
-    private static JsonSerializerOptions JsonSerializerOptions { get; }
+    private static JsonSerializerOptions JsonSerializerOptions { get; } =
+      new JsonSerializerOptions { PropertyNamingPolicy = LowerSnakeCaseNamingPolicy.Instance };
 
     /// <summary>
     ///   Deserializes JSON data in given HTTP response into a new object of <see cref="TValue" /> type, with fields named in
@@ -44,7 +40,7 @@ namespace DeepL {
 
       return await JsonSerializer.DeserializeAsync<TValue>(contentStream, JsonSerializerOptions)
                    .ConfigureAwait(false) ??
-             throw new DeepLException("Invalid response");
+             throw new DeepLException("Failed to deserialize JSON in received response");
     }
 
     /// <summary>JSON-field naming policy for lower-snake-case for example: "lower_snake_case".</summary>

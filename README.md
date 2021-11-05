@@ -1,4 +1,5 @@
 # DeepL .NET Library
+
 [![NuGet](https://img.shields.io/nuget/v/deepl.net.svg)](https://www.nuget.org/packages/DeepL.net/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blueviolet.svg)](https://github.com/DeepLcom/deepl-dotnet/blob/main/LICENSE)
 
@@ -18,49 +19,49 @@ To use the DeepL .NET Library, you'll need an API authentication key. To get a k
 You can translate up to 500,000 characters/month for free.
 
 ## Installation
+
 Using the .NET Core command-line interface (CLI) tools:
+
 ```
 dotnet add package DeepL.net
 ```
 
 Using the NuGet Command Line Interface (CLI):
+
 ```
 nuget install DeepL.net
 ```
 
-### Requirements
-The library used for JSON deserialization is built-in as part of the shared framework for .NET Core 3.0 and later versions.
-Older versions may need to install the [System.Text.Json](https://www.nuget.org/packages/System.Text.Json) NuGet package.
-
-[Polly](https://github.com/App-vNext/Polly) v5.0.1 is used for retrying failed HTTP requests.
-
 ## Usage
+
 All entities in the DeepL .NET library are in the `DeepL` namespace:
+
 ```c#
 using DeepL;
 ```
 
 Create a `Translator` object providing your DeepL API authentication key.
 
-To avoid writing your key in source code, you can set it in an environment
-variable `DEEPL_AUTH_KEY`, then read the variable in your C# code:
+To avoid writing your key in source code, you can set it in an environment variable `DEEPL_AUTH_KEY`, then read the
+variable in your C# code:
+
 ```c#
 var authKey = Environment.GetEnvironmentVariable("DEEPL_AUTH_KEY");
 var translator = new Translator(authKey);
 ```
 
 ### Translating text
-To translate text, call `TranslateTextAsync()` with the text and the source and
-target language codes.
 
-The source and target language arguments accept strings containing the language
-codes, for example `"DE"`, `"FR"`. The `LanguageCode` static class defines
-constants for the currently supported languages, for example
-`LanguageCode.German`, `LanguageCode.French`.
-To auto-detect the input text language, specify `null` as the source language.
+To translate text, call `TranslateTextAsync()` with the text and the source and target language codes.
 
-The returned `TextResult` contains the translated text and detected source
-language code. Additional `TextTranslateOptions` can also be provided.
+The source and target language arguments accept strings containing the language codes, for example `"DE"`, `"FR"`.
+The `LanguageCode` static class defines constants for the currently supported languages, for example
+`LanguageCode.German`, `LanguageCode.French`. To auto-detect the input text language, specify `null` as the source
+language.
+
+The returned `TextResult` contains the translated text and detected source language code.
+Additional `TextTranslateOptions` can also be provided.
+
 ```c#
 // Translate text into a target language, in this case, French:
 var translatedText = await translator.TranslateTextAsync(
@@ -74,9 +75,9 @@ Console.WriteLine(translatedText); // "Bonjour, le monde !"
 var translations = await translator.TranslateTextAsync(
       new[] { "お元気ですか？", "¿Cómo estás?" }, null, "EN-GB");
 Console.WriteLine(translations[0].Text); // "How are you?"
-Console.WriteLine(translations[0].DetectedSourceLanguage); // "JA"
+Console.WriteLine(translations[0].DetectedSourceLanguageCode); // "JA"
 Console.WriteLine(translations[1].Text); // "How are you?"
-Console.WriteLine(translations[1].DetectedSourceLanguage); // "ES"
+Console.WriteLine(translations[1].DetectedSourceLanguageCode); // "ES"
 
 // Translate into German with less and more Formality:
 foreach (var formality in new[] { Formality.Less, Formality.More }) {
@@ -91,32 +92,53 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
 ```
 
 ### Translating documents
-To translate documents, specify the input and output files as `FileInfo`
-objects, or `Stream` objects, and provide the source and target language as
-above. Additional `DocumentTranslateOptions` are also available. Note that file
-paths are not accepted as strings, to avoid interchanging the file and language
-arguments.
+
+To translate documents, call `TranslateDocumentAsync()` with the input and output files as either `FileInfo` or `Stream`
+objects, and provide the source and target language as above. Additional `DocumentTranslateOptions` are also available.
+Note that file paths are not accepted as strings, to avoid mixing up the file and language arguments.
+
 ```c#
 // Translate a formal document from English to German
-await translator.TranslateDocumentAsync(
-      new FileInfo("Instruction Manual.docx"),
-      new FileInfo("Bedienungsanleitung.docx"),
-      "EN",
-      "DE",
-      new DocumentTranslateOptions { Formality = Formality.More });
+try {
+  await translator.TranslateDocumentAsync(
+        new FileInfo("Instruction Manual.docx"),
+        new FileInfo("Bedienungsanleitung.docx"),
+        "EN",
+        "DE",
+        new DocumentTranslateOptions { Formality = Formality.More });
+} catch (DocumentTranslationException exception) {
+  // If the error occurs *after* upload, the DocumentHandle will contain the document ID and key
+  if (exception.DocumentHandle != null) {
+    var handle = exception.DocumentHandle.Value;
+    Console.WriteLine($"Document ID: {handle.DocumentId}, Document key: {handle.DocumentKey}");
+  } else {
+    Console.WriteLine($"Error occurred during document upload: {exception.Message}");
+  }
+}
 ```
 
+`TranslateDocumentAsync()` manages the upload, wait until translation is complete, and download steps. If your
+application needs to execute these steps individually, you can instead use the following functions directly:
+
+- `TranslateDocumentUploadAsync()`,
+- `TranslateDocumentStatusAsync()` (or `TranslateDocumentWaitUntilDoneAsync()`), and
+- `TranslateDocumentDownloadAsync()`
+
 ### Glossaries
-Glossaries allow you to customize your translations using defined terms.
-Create a glossary containing the desired terms and then use it in translations.
-Multiple glossaries can be stored with your account.
+
+Glossaries allow you to customize your translations using defined terms. Create a glossary containing the desired terms
+and then use it in translations. Multiple glossaries can be stored with your account.
+
 ```c#
 // Create an English to German glossary with two terms:
+var entriesDictionary = new Dictionary<string, string>{{"artist", "Maler"}, {"prize", "Gewinn"}};
 var glossaryEnToDe = await translator.CreateGlossaryAsync(
     "My glossary", "EN", "DE",
-    new Dictionary<string, string>{{"artist", "Maler"}, {"prize", "Gewinn"}});
+    new GlossaryEntries(entriesDictionary));
 
+// Functions to get, list, and delete glossaries from DeepL servers are also provided
 var glossaries = await translator.ListGlossariesAsync();
+Console.WriteLine($"{glossaries.Length} glossaries found.");
 
 var resultWithGlossary = await translator.TranslateTextAsync(
     "The artist was awarded a prize.",
@@ -128,6 +150,7 @@ var resultWithGlossary = await translator.TranslateTextAsync(
 ```
 
 ### Check account usage
+
 ```c#
 var usage = await translator.GetUsageAsync();
 if (usage.AnyLimitExceeded) {
@@ -140,6 +163,7 @@ if (usage.AnyLimitExceeded) {
 ```
 
 ### Listing available languages
+
 ```c#
 // Source and target languages
 var sourceLanguages = await translator.GetSourceLanguagesAsync();
@@ -162,16 +186,15 @@ foreach (var languagePair in glossaryLanguages) {
 }
 ```
 
-### Exceptions
-All library exceptions are derived from `DeepL.DeepLException`.
-
 ## Development
-The test suite depends on [deepl-mock](https://www.github.com/DeepLcom/deepl-mock). Run it in another terminal
-while executing the tests, using port 3000. Set the mock-server listening port using the environment variable
+
+The test suite depends on [deepl-mock](https://www.github.com/DeepLcom/deepl-mock). Run it in another terminal while
+executing the tests, using port 3000. Set the mock-server listening port using the environment variable
 `DEEPL_MOCK_SERVER_PORT`.
 
 Execute the tests using `dotnet test`.
 
 ### Issues
+
 If you experience problems using the library, or would like to request a new feature, please create an
 [issue](https://www.github.com/DeepLcom/deepl-dotnet/issues).

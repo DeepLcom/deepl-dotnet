@@ -9,11 +9,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DeepL;
+using DeepL.Model;
 using Xunit;
 
 namespace DeepLTests {
   public sealed class TranslateDocumentTest : BaseDeepLTest {
-    private readonly string _tempDir = Path.GetTempPath();
+    private readonly string _tempDir = TempDir();
 
     private static string ExampleDocumentInput => ExampleText("en");
     private static string ExampleDocumentTranslation => ExampleText("de");
@@ -163,7 +164,8 @@ namespace DeepLTests {
             cancellationToken: cancellationTokenSource.Token);
 
       cancellationTokenSource.Cancel();
-      await Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
+      var exception = await Assert.ThrowsAsync<DocumentTranslationException>(async () => await task);
+      Assert.Equal(typeof(TaskCanceledException), exception.InnerException!.GetType());
     }
 
     [Fact]
@@ -174,12 +176,13 @@ namespace DeepLTests {
       var outputFilePath = Path.Combine(_tempDir, "output", "document.xyz");
       File.WriteAllText(inputFilePath, ExampleText("en"));
       File.Delete(outputFilePath);
-      await Assert.ThrowsAsync<DeepLException>(
+      var exception = await Assert.ThrowsAsync<DocumentTranslationException>(
             () => translator.TranslateDocumentAsync(
                   new FileInfo(inputFilePath),
                   new FileInfo(outputFilePath),
                   "EN",
                   "DE"));
+      Assert.Null(exception.DocumentHandle);
     }
 
     [Fact]

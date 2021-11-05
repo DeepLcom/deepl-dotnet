@@ -4,7 +4,7 @@
 
 namespace DeepL {
   /// <summary>Enum controlling how input translation text should be split into sentences.</summary>
-  public enum SplitSentences {
+  public enum SentenceSplittingMode {
     /// <summary>
     ///   Input translation text will be split into sentences using both newlines and punctuation, this is the default
     ///   behaviour.

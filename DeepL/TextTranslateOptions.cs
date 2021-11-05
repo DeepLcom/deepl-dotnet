@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 using System.Collections.Generic;
+using DeepL.Model;
 
 namespace DeepL {
   /// <summary>
@@ -43,8 +44,8 @@ namespace DeepL {
     public bool PreserveFormatting { get; set; }
 
     /// <summary>Specifies how input translation text should be split into sentences.</summary>
-    /// <seealso cref="SplitSentences" />
-    public SplitSentences SplitSentences { get; set; } = SplitSentences.All;
+    /// <seealso cref="SentenceSplittingMode" />
+    public SentenceSplittingMode SentenceSplittingMode { get; set; } = SentenceSplittingMode.All;
 
     /// <summary>Specifies a list of XML tags that should be used to split text into sentences.</summary>
     public List<string> SplittingTags { get; } = new List<string>();

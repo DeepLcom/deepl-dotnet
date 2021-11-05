@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using DeepL;
 using Xunit;
 
@@ -175,6 +176,12 @@ namespace DeepLTests {
       }
 
       return headers;
+    }
+
+    protected static string TempDir() {
+      var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+      Directory.CreateDirectory(path);
+      return path;
     }
 
     protected struct SessionOptions {

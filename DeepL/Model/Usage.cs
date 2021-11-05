@@ -4,7 +4,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace DeepL {
+namespace DeepL.Model {
   /// <summary>
   ///   Information about DeepL account usage for the current billing period, for example the number of characters
   ///   translated.
@@ -16,7 +16,7 @@ namespace DeepL {
   public sealed class Usage {
     /// <summary>Initializes a new <see cref="Usage" /> object from the given fields object.</summary>
     /// <param name="fieldsStruct"><see cref="JsonFieldsStruct" /> object containing fields read from JSON data.</param>
-    internal Usage(JsonFieldsStruct fieldsStruct) {
+    internal Usage(in JsonFieldsStruct fieldsStruct) {
       Detail? DetailOrNull(long? count, long? limit) {
         return count != null && limit != null ? new Detail((long)count, (long)limit) : null;
       }
