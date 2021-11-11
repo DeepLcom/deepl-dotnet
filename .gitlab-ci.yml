@@ -48,6 +48,8 @@ stages:
     DEEPL_SERVER_URL: http://localhost:3000
     DEEPL_MOCK_SERVER_PORT: 3000
 
+# stage: build ----------------------
+
 build:
   stage: build
   parallel:
@@ -73,6 +75,8 @@ package:
     paths:
       - package/
 
+# stage: test -------------------------
+
 test .NET Core 3.1 using test server:
   image: mcr.microsoft.com/dotnet/sdk:3.1
   variables:
@@ -87,21 +91,15 @@ test .NET 5.0 using test server:
   <<: *test_script
   <<: *test_using_test_server
 
-#test .NET Framework 4.6.1 using test server:
-#  image: mcr.microsoft.com/dotnet/sdk:5.0
-#  variables:
-#    FRAMEWORK: net461
-#  <<: *test_script
-#  <<: *test_using_test_server
+# stage: publish -------------------------
 
-publish:
+nuget upload:
   stage: publish
   dependencies:
-    - build
+    - package
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
   script:
-    - dotnet pack --no-restore --configuration Release -o package/Release
     - dotnet nuget push package/Release/DeepL.net.*.nupkg --api-key $NUGET_API_KEY
       --source https://api.nuget.org/v3/index.json --timeout 30
   secrets:
