@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Fixed
+- Use default HTTP version in requests rather than always using HTTP/2.
+
+
 ## [1.0.0] - 2021-11-18
 ### Changed
 - Add missing properties in package, e.g. icon.
@@ -18,5 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
+[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.0..HEAD
 [1.0.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/DeepLcom/deepl-dotnet/releases/tag/v0.1.0

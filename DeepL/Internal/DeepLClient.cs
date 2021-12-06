@@ -282,7 +282,6 @@ namespace DeepL.Internal {
           HttpRequestMessage requestMessage,
           CancellationToken cancellationToken) {
       try {
-        requestMessage.Version = new Version(2, 0);
         foreach (var header in _headers) {
           requestMessage.Headers.Add(header.Key, header.Value);
         }
