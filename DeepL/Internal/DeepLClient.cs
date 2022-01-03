@@ -160,9 +160,9 @@ namespace DeepL.Internal {
 
       switch (statusCode) {
         case HttpStatusCode.Forbidden:
-          throw new AuthorizationException("Authorization failure, check AuthKey");
+          throw new AuthorizationException("Authorization failure, check AuthKey" + message);
         case HttpStatusCodeQuotaExceeded:
-          throw new QuotaExceededException("Quota for this billing period has been exceeded");
+          throw new QuotaExceededException("Quota for this billing period has been exceeded" + message);
         case HttpStatusCode.NotFound:
           if (usingGlossary) {
             throw new GlossaryNotFoundException("Glossary not found" + message);
@@ -172,7 +172,7 @@ namespace DeepL.Internal {
         case HttpStatusCode.BadRequest:
           throw new DeepLException("Bad request" + message);
         case HttpStatusCodeTooManyRequests:
-          throw new TooManyRequestsException("Too many requests, DeepL servers are currently experiencing high load");
+          throw new TooManyRequestsException("Too many requests, DeepL servers are currently experiencing high load" + message);
         case HttpStatusCode.ServiceUnavailable:
           if (downloadingDocument) {
             throw new DocumentNotReadyException("Document not ready" + message);
