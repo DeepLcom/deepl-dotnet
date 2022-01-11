@@ -188,10 +188,12 @@ foreach (var languagePair in glossaryLanguages) {
 
 ## Issues
 
-If you experience problems using the library, or would like to request a new feature, please
-[open an issue](https://www.github.com/DeepLcom/deepl-dotnet/issues).
+If you experience problems using the library, or would like to request a new feature, please open an
+[issue](https://www.github.com/DeepLcom/deepl-dotnet/issues).
 
 ## Development
+
+We are currently unable to accept Pull Requests. If you would like to suggest changes, please open an issue instead.
 
 ### Tests
 
