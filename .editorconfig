@@ -9,7 +9,7 @@ indent_style = space
 indent_size = 2
 
 [*.cs]
-file_header_template = Copyright 2021 DeepL GmbH (https://www.deepl.com)\nUse of this source code is governed by an MIT\nlicense that can be found in the LICENSE file.
+file_header_template = Copyright 2022 DeepL SE (https://www.deepl.com)\nUse of this source code is governed by an MIT\nlicense that can be found in the LICENSE file.
 resharper_blank_lines_after_start_comment = 0
 max_line_length = 120
 

@@ -13,8 +13,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <RootNamespace>DeepL</RootNamespace>
-    <Authors>DeepL GmbH</Authors>
-    <Company>DeepL GmbH</Company>
+    <Authors>DeepL SE</Authors>
+    <Company>DeepL SE</Company>
     <AssemblyName>DeepL.net</AssemblyName>
     <PackageId>DeepL.net</PackageId>
     <PackageTags>deepl;translation;api</PackageTags>
