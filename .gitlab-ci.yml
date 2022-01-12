@@ -5,49 +5,6 @@ stages:
   - test
   - publish
 
-.test-script: &test_script
-  stage: test
-  dependencies:
-    - build
-  script:
-    - dotnet test
-      --configuration $CONFIGURATION
-      --framework $FRAMEWORK
-      --logger:"junit;LogFilePath=..\artifacts\$CONFIGURATION\$FRAMEWORK\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
-      --collect:"XPlat Code Coverage"
-#    - ~/.dotnet/tools/reportgenerator
-#      -reports:'**/coverage.cobertura.xml'
-#      -targetdir:coverage
-#      -reporttypes:'JsonSummary;Cobertura'
-#    - jq .summary coverage/Summary.json
-  parallel:
-    matrix:
-      - CONFIGURATION:
-        - Debug
-        - Release
-  artifacts:
-    when: always
-    reports:
-      junit:
-        - integration-tests/junit.xml
-      cobertura:
-        - coverage/Cobertuba.xml
-
-.test-using-test-server: &test_using_test_server
-  secrets:
-    DEEPL_AUTH_KEY:
-      vault: jenkins/client_libraries/test_auth_key@backend
-      file: false
-    DEEPL_SERVER_URL:
-      vault: jenkins/client_libraries/test_server_url@backend
-      file: false
-
-.test-using-mock-server: &test_using_mock_server
-  variables:
-    DEEPL_AUTH_KEY: mock_server
-    DEEPL_SERVER_URL: http://localhost:3000
-    DEEPL_MOCK_SERVER_PORT: 3000
-
 # stage: build ----------------------
 
 build:
@@ -77,19 +34,58 @@ package:
 
 # stage: test -------------------------
 
-test .NET Core 3.1 using test server:
-  image: mcr.microsoft.com/dotnet/sdk:3.1
-  variables:
-    FRAMEWORK: netcoreapp3.1
-  <<: *test_script
-  <<: *test_using_test_server
+.test-server-secrets-template: &test_server_secrets_template
+  secrets:
+    DEEPL_AUTH_KEY:
+      vault: jenkins/client_libraries/test_auth_key@backend
+      file: false
+    DEEPL_SERVER_URL:
+      vault: jenkins/client_libraries/test_server_url@backend
+      file: false
 
-test .NET 5.0 using test server:
-  image: mcr.microsoft.com/dotnet/sdk:5.0
-  variables:
-    FRAMEWORK: net5.0
-  <<: *test_script
-  <<: *test_using_test_server
+test:
+  <<: *test_server_secrets_template
+  stage: test
+  dependencies:
+    - build
+  services:
+    - name: $DOCKER_REGISTRY/deepl/deepl-mock
+      alias: deepl-mock
+  parallel:
+    matrix:
+      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:5.0"
+        FRAMEWORK: "net5.0"
+        CONFIGURATION: "Release"
+      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:3.1"
+        FRAMEWORK: "netcoreapp3.1"
+        CONFIGURATION:
+          - Debug
+          - Release
+        USE_MOCK_SERVER: "use mock server"
+      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:5.0"
+        FRAMEWORK: "net5.0"
+        CONFIGURATION:
+          - Debug
+          - Release
+        USE_MOCK_SERVER: "use mock server"
+  image: ${DOCKER_IMAGE}
+  script:
+    - >
+      if [[ ! -z "${USE_MOCK_SERVER}" ]]; then
+        echo "Using mock server"
+        export DEEPL_SERVER_URL=http://deepl-mock:3000
+        export DEEPL_MOCK_SERVER_PORT=3000
+        export DEEPL_PROXY_URL=http://deepl-mock:3001
+        export DEEPL_MOCK_PROXY_SERVER_PORT=3001
+      fi
+    - dotnet test
+      --configuration $CONFIGURATION
+      --framework $FRAMEWORK
+      --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+  artifacts:
+    reports:
+      junit:
+        - artifacts/*test-result.xml
 
 # stage: publish -------------------------
 
