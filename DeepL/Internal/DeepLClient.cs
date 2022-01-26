@@ -236,8 +236,8 @@ namespace DeepL.Internal {
             RequestUri = new Uri(_serverUrl, relativeUri),
             Method = HttpMethod.Post,
             Content = bodyParams != null
-                  ? new FormUrlEncodedContent(
-                        bodyParams.Select(pair => new KeyValuePair<string?, string?>(pair.Key, pair.Value)))
+                  ? new LargeFormUrlEncodedContent(
+                        bodyParams.Select(pair => new KeyValuePair<string, string>(pair.Key, pair.Value)))
                   : null
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
