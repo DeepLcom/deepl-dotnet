@@ -27,8 +27,7 @@ namespace DeepLTests {
       Assert.Throws<ArgumentException>(() => GlossaryEntries.FromTsv("A\tB\tC"));
 
       Assert.Throws<ArgumentException>(() => new GlossaryEntries(new Dictionary<string, string>()));
-      Assert.Throws<ArgumentException>(
-            () => new GlossaryEntries(new[] { ("Küche", "Kitchen"), ("Küche", "Cuisine") }));
+      Assert.Throws<ArgumentException>(() => new GlossaryEntries(new[] { ("Küche", "Kitchen"), ("Küche", "Cuisine") }));
       Assert.Throws<ArgumentException>(() => new GlossaryEntries(new Dictionary<string, string> { { "A", "B\tC" } }));
     }
 
@@ -57,6 +56,35 @@ namespace DeepLTests {
         Assert.Equal(getResult.TargetLanguageCode, glossary.TargetLanguageCode);
         Assert.Equal(getResult.CreationTime, glossary.CreationTime);
         Assert.Equal(getResult.EntryCount, glossary.EntryCount);
+      } finally {
+        await glossaryCleanup.Cleanup();
+      }
+    }
+
+    [Fact]
+    public async Task TestGlossaryCreateLarge() {
+      var translator = CreateTestTranslator();
+      var glossaryCleanup = new GlossaryCleanupUtility(translator, nameof(TestGlossaryCreate));
+      var glossaryName = glossaryCleanup.GlossaryName;
+      try {
+        var entryPairs = new Dictionary<string, string>();
+        for (var i = 0; i < 10000; i++) {
+          entryPairs.Add($"Source-{i}", $"Target-{i}");
+        }
+
+        var entries = new GlossaryEntries(entryPairs);
+        Assert.True(entries.ToTsv().Length > 100000);
+        var glossary = glossaryCleanup.Capture(
+              await translator.CreateGlossaryAsync(
+                    glossaryName,
+                    SourceLang,
+                    TargetLang,
+                    entries));
+
+        Assert.Equal(glossaryName, glossary.Name);
+        Assert.Equal(SourceLang, glossary.SourceLanguageCode);
+        Assert.Equal(TargetLang, glossary.TargetLanguageCode);
+        Assert.Equal(entryPairs.Count, glossary.EntryCount);
       } finally {
         await glossaryCleanup.Cleanup();
       }
