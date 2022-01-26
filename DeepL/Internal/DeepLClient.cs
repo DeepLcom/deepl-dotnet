@@ -172,7 +172,8 @@ namespace DeepL.Internal {
         case HttpStatusCode.BadRequest:
           throw new DeepLException("Bad request" + message);
         case HttpStatusCodeTooManyRequests:
-          throw new TooManyRequestsException("Too many requests, DeepL servers are currently experiencing high load" + message);
+          throw new TooManyRequestsException(
+                "Too many requests, DeepL servers are currently experiencing high load" + message);
         case HttpStatusCode.ServiceUnavailable:
           if (downloadingDocument) {
             throw new DocumentNotReadyException("Document not ready" + message);
