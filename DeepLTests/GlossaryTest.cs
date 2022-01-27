@@ -138,7 +138,11 @@ namespace DeepLTests {
       var glossaryCleanup = new GlossaryCleanupUtility(translator, nameof(TestGlossaryGetEntries));
       var glossaryName = glossaryCleanup.GlossaryName;
       try {
-        var entries = new GlossaryEntries(new[] { ("Apple", "Apfel"), ("Banana", "Banane") });
+        var entries = new GlossaryEntries(
+              new[] {
+                    ("Apple", "Apfel"), ("Banana", "Banane"), ("A%=&", "B&=%"), ("\u0394\u3041", "\u6DF1"),
+                    ("\uD83E\uDEA8", "\uD83E\uDEB5")
+              });
         var createdGlossary = glossaryCleanup.Capture(
               await translator.CreateGlossaryAsync(
                     glossaryName,
