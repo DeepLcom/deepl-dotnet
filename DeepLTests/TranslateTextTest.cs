@@ -166,18 +166,41 @@ namespace DeepLTests {
     }
 
     [Fact]
-    public async Task TestTagHandlingSpecifyTags() {
+    public async Task TestTagHandlingBasic() {
+      const string text = "<!DOCTYPE html>" +
+                          "<html>" +
+                          "<body>" +
+                          "<p>This is an example sentence.</p>" +
+                          "</body>" +
+                          "</html>";
       var translator = CreateTestTranslator();
-      string text = "<document><meta><title>A document's title</title></meta>" +
-                    "<content><par>" +
-                    "<span>This is a sentence split</span>" +
-                    "<span>across two &lt;span&gt; tags that should be treated as one." +
-                    "</span>" +
-                    "</par>" +
-                    "<par>Here is a sentence. Followed by a second one.</par>" +
-                    "<raw>This sentence will not be translated.</raw>" +
-                    "</content>" +
-                    "</document>";
+      // Note: this test may use the mock server that will not translate the text, therefore we do not check the
+      // translated result.
+      await translator.TranslateTextAsync(
+            text,
+            null,
+            "DE",
+            new TextTranslateOptions { TagHandling = "xml" });
+      await translator.TranslateTextAsync(
+            text,
+            null,
+            "DE",
+            new TextTranslateOptions { TagHandling = "html" });
+    }
+
+    [RealServerOnlyFact]
+    public async Task TestTagHandlingXml() {
+      var translator = CreateTestTranslator();
+      const string text = "<document><meta><title>A document's title</title></meta>" +
+                          "<content><par>" +
+                          "<span>This is a sentence split</span>" +
+                          "<span>across two &lt;span&gt; tags that should be treated as one." +
+                          "</span>" +
+                          "</par>" +
+                          "<par>Here is a sentence. Followed by a second one.</par>" +
+                          "<raw>This sentence will not be translated.</raw>" +
+                          "</content>" +
+                          "</document>";
 
       var result = await translator.TranslateTextAsync(
             text,
@@ -190,10 +213,28 @@ namespace DeepLTests {
                   SplittingTags = { "title", "par" },
                   IgnoreTags = { "raw" }
             });
-      if (!IsMockServer) {
-        Assert.Contains("<raw>This sentence will not be translated.</raw>", result.Text);
-        Assert.Matches("<title>.*Der Titel.*</title>", result.Text);
-      }
+      Assert.Contains("<raw>This sentence will not be translated.</raw>", result.Text);
+      Assert.Matches("<title>.*Der Titel.*</title>", result.Text);
+    }
+
+    [RealServerOnlyFact]
+    public async Task TestTagHandlingHtml() {
+      var translator = CreateTestTranslator();
+      const string text = "<!DOCTYPE html>" +
+                          "<html>" +
+                          "<body>" +
+                          "<h1>My First Heading</h1>" +
+                          "<p translate=\"no\">My first paragraph.</p>" +
+                          "</body>" +
+                          "</html>";
+
+      var result = await translator.TranslateTextAsync(
+            text,
+            null,
+            "DE",
+            new TextTranslateOptions { TagHandling = "html" });
+      Assert.Contains("<h1>Meine erste Überschrift</h1>", result.Text);
+      Assert.Contains("<p translate=\"no\">My first paragraph.</p>", result.Text);
     }
 
     [Fact]

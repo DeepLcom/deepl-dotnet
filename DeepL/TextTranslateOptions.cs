@@ -50,7 +50,7 @@ namespace DeepL {
     /// <summary>Specifies a list of XML tags that should be used to split text into sentences.</summary>
     public List<string> SplittingTags { get; } = new List<string>();
 
-    /// <summary>Type of tags to parse before translation, only "xml" is currently available.</summary>
+    /// <summary>Type of tags to parse before translation, only "xml" and "html" are currently available.</summary>
     public string? TagHandling { get; set; }
   }
 }

@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Added
+* Add support for `TextTranslateOptions.TagHandling = "html"`. No code changes
+  were needed, only comments and tests were changed.
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+
 ## [1.0.4] - 2022-01-27
 ### Fixed
 * Fix issue in .NET versions earlier than 5.0, when creating large glossaries or
@@ -41,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
+[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.4..HEAD
 [1.0.4]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.3..v1.0.4
 [1.0.3]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.2..v1.0.3
 [1.0.2]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.1..v1.0.2
