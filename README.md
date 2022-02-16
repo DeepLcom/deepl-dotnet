@@ -153,7 +153,7 @@ var resultWithGlossary = await translator.TranslateTextAsync(
 
 ```c#
 var usage = await translator.GetUsageAsync();
-if (usage.AnyLimitExceeded) {
+if (usage.AnyLimitReached) {
   Console.WriteLine("Translation limit exceeded.");
 } else if (usage.Character != null) {
   Console.WriteLine($"Character usage: {usage.Character}");
