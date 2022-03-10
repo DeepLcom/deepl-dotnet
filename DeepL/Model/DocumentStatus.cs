@@ -35,15 +35,16 @@ namespace DeepL.Model {
     ///   Number of characters billed for the translation of this document, only included
     ///   after document translation is finished and the state is done.
     /// </param>
+    /// <param name="errorMessage">Short description of the error, if available.</param>
     /// <remarks>
     ///   The constructor for this class (and all other Model classes) should not be used by library users. Ideally it
     ///   would be marked <see langword="internal" />, but needs to be <see langword="public" /> for JSON deserialization.
     ///   In future this function may have backwards-incompatible changes.
     /// </remarks>
     [JsonConstructor]
-    public DocumentStatus(string documentId, StatusCode status, int? secondsRemaining, int? billedCharacters) {
-      (DocumentId, Status, SecondsRemaining, BilledCharacters) =
-            (documentId, status, secondsRemaining, billedCharacters);
+    public DocumentStatus(string documentId, StatusCode status, int? secondsRemaining, int? billedCharacters, string? errorMessage) {
+      (DocumentId, Status, SecondsRemaining, BilledCharacters, ErrorMessage) =
+            (documentId, status, secondsRemaining, billedCharacters, errorMessage);
     }
 
     /// <summary>Document ID of the associated document.</summary>
@@ -63,6 +64,9 @@ namespace DeepL.Model {
     ///   after document translation is finished and the state is done.
     /// </summary>
     public int? BilledCharacters { get; }
+
+    /// <summary>Short description of the error, if available.</summary>
+    public string? ErrorMessage { get; }
 
     /// <summary><c>true</c> if no error has occurred during document translation, otherwise <c>false</c>.</summary>
     public bool Ok => Status != StatusCode.Error;

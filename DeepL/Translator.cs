@@ -380,7 +380,7 @@ namespace DeepL {
       }
 
       if (!status.Ok) {
-        throw new DeepLException("Document translation resulted in an error");
+        throw new DeepLException(status.ErrorMessage ?? "Unknown error");
       }
     }
 

@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Added
+* Add `ErrorMessage` property to `DocumentStatus` that contains a short
+  description of document translation error, if available.
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+
 ## [1.0.5] - 2022-04-12
 ### Added
 * Add support for `TextTranslateOptions.TagHandling = "html"`. No code changes
@@ -50,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
+[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.5..HEAD
 [1.0.5]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.4..v1.0.5
 [1.0.4]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.3..v1.0.4
 [1.0.3]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.0.2..v1.0.3

@@ -93,7 +93,7 @@ namespace DeepLTests {
     }
 
     [MockServerOnlyFact]
-    public async Task TestTranslateDocument() {
+    public async Task TestTranslateLargeDocument() {
       var translator = CreateTestTranslator();
       using var outputStream = new MemoryStream();
       var inputFile = new FileInfo(ExampleLargeDocumentPath());
@@ -136,19 +136,22 @@ namespace DeepLTests {
       }
     }
 
-    [MockServerOnlyFact]
-    public async Task TestDocumentFailure() {
-      var translator = CreateTestTranslatorWithMockSession(
-            nameof(TestDocumentFailure),
-            new SessionOptions { DocumentFailure = 1 });
+    [Fact]
+    public async Task TestDocumentFailureDuringTranslation() {
+      var translator = CreateTestTranslator();
       var outputDocumentPath = OutputDocumentPath();
 
-      await Assert.ThrowsAsync<DocumentTranslationException>(
+      // Translating text from DE to DE will trigger error
+      var inputDocumentPath = ExampleDocumentPath(ExampleText(LanguageCode.German));
+
+      var exception = await Assert.ThrowsAsync<DocumentTranslationException>(
             async () => await translator.TranslateDocumentAsync(
-                  new FileInfo(ExampleDocumentPath()),
+                  new FileInfo(inputDocumentPath),
                   new FileInfo(outputDocumentPath),
-                  "EN",
+                  null,
                   "DE"));
+
+      Assert.Contains("Source and target language", exception.Message);
     }
 
     [Fact]
