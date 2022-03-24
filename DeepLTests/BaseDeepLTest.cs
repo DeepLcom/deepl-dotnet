@@ -13,6 +13,7 @@ namespace DeepLTests {
     protected static readonly bool IsMockServer = Environment.GetEnvironmentVariable("DEEPL_MOCK_SERVER_PORT") != null;
     protected static readonly string AuthKey;
     protected static readonly string? ServerUrl;
+    protected static readonly string? ProxyUrl;
 
     static BaseDeepLTest() {
       if (IsMockServer) {
@@ -24,6 +25,7 @@ namespace DeepLTests {
               "DEEPL_AUTH_KEY environment variable must be set unless using mock server.");
         ServerUrl = Environment.GetEnvironmentVariable("DEEPL_SERVER_URL");
       }
+      ProxyUrl = Environment.GetEnvironmentVariable("DEEPL_PROXY_URL");
     }
 
     protected static Translator CreateTestTranslator(bool randomAuthKey = false) {
@@ -175,6 +177,10 @@ namespace DeepLTests {
               ((int)options.DocumentTranslateTime.Value.TotalMilliseconds).ToString();
       }
 
+      if (options.ExpectProxy != null) {
+        headers["mock-server-session-expect-proxy"] = options.ExpectProxy.Value ? "1" : "0";
+      }
+
       return headers;
     }
 
@@ -193,12 +199,21 @@ namespace DeepLTests {
       public int? DocumentFailure;
       public TimeSpan? DocumentQueueTime;
       public TimeSpan? DocumentTranslateTime;
+      public bool? ExpectProxy;
     }
 
     protected sealed class MockServerOnlyFact : FactAttribute {
       public MockServerOnlyFact() {
         if (!IsMockServer) {
           Skip = "Only run if using mock server";
+        }
+      }
+    }
+
+    protected sealed class MockProxyServerOnlyFact : FactAttribute {
+      public MockProxyServerOnlyFact() {
+        if (!IsMockServer || ProxyUrl == null) {
+          Skip = "Only run if using mock server with proxy";
         }
       }
     }

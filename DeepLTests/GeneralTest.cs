@@ -97,6 +97,28 @@ namespace DeepLTests {
       Assert.False(Translator.AuthKeyIsFreeAccount("ABCD "));
     }
 
+    [MockProxyServerOnlyFact]
+    public async Task TestProxyUsage() {
+      var translator = CreateTestTranslatorWithMockSession(
+            nameof(TestUsageNoResponse),
+            new SessionOptions { ExpectProxy = true },
+            new TranslatorOptions {
+                  ServerUrl = ServerUrl,
+                  ClientFactory =
+                        () => {
+                          var handler = new System.Net.Http.HttpClientHandler() {
+                                Proxy = new System.Net.WebProxy(ProxyUrl), UseProxy = true,
+                          };
+
+                          return new HttpClientAndDisposeFlag {
+                                HttpClient = new HttpClient(handler), DisposeClient = true,
+                          };
+                        }
+            });
+
+      await translator.GetUsageAsync();
+    }
+
     [MockServerOnlyFact]
     public async Task TestUsageNoResponse() {
       // Lower the retry count and timeout for this test

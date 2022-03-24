@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Add support for `TextTranslateOptions.TagHandling = "html"`. No code changes
   were needed, only comments and tests were changed.
+* Add test for proxy support.
 ### Changed
 ### Deprecated
 ### Removed
