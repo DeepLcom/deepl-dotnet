@@ -42,13 +42,15 @@ using DeepL;
 
 Create a `Translator` object providing your DeepL API authentication key.
 
-To avoid writing your key in source code, you can set it in an environment variable `DEEPL_AUTH_KEY`, then read the
-variable in your C# code:
+Be careful not to expose your key, for example when sharing source code.
 
 ```c#
-var authKey = Environment.GetEnvironmentVariable("DEEPL_AUTH_KEY");
+var authKey = "f63c02c5-f056-..."; // Replace with your key
 var translator = new Translator(authKey);
 ```
+
+This example is for demonstration purposes only. In production code, the authentication key should not be hard-coded,
+but instead fetched from a configuration file or environment variable.
 
 ### Translating text
 
