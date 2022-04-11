@@ -99,10 +99,6 @@ namespace DeepLTests {
         await Assert.ThrowsAsync<ArgumentException>(
               () => translator.CreateGlossaryAsync("", SourceLang, TargetLang, _testEntries));
         await Assert.ThrowsAsync<DeepLException>(
-              () => translator.CreateGlossaryAsync(glossaryName, "EN", "JA", _testEntries));
-        await Assert.ThrowsAsync<DeepLException>(
-              () => translator.CreateGlossaryAsync(glossaryName, "JA", "EN", _testEntries));
-        await Assert.ThrowsAsync<DeepLException>(
               () => translator.CreateGlossaryAsync(glossaryName, "EN", "XX", _testEntries));
       } finally {
         await glossaryCleanup.Cleanup();

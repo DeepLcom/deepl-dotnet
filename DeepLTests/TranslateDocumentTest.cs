@@ -185,10 +185,9 @@ namespace DeepLTests {
       Assert.Null(exception.DocumentHandle);
     }
 
-    [Fact]
+    [MockServerOnlyFact]
     public async Task TestTranslateDocumentLowLevel() {
       // Set a small document queue time to attempt downloading a queued document
-      // Note: this is a noop unless using a mock server
       var translator = CreateTestTranslatorWithMockSession(
             nameof(TestTranslateDocumentLowLevel),
             new SessionOptions { DocumentQueueTime = TimeSpan.FromMilliseconds(100) });

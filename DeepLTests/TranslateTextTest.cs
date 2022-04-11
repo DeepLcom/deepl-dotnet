@@ -271,21 +271,21 @@ namespace DeepLTests {
     public async Task TestMixedCaseLanguages() {
       var translator = CreateTestTranslator();
       TextResult result;
-      result = await translator.TranslateTextAsync(ExampleText("en"), null, "pt-pt");
-      Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguageCode);
+      result = await translator.TranslateTextAsync(ExampleText("de"), null, "en-us");
+      Assert.Equal(ExampleText("en-US"), result.Text.ToLower());
+      Assert.Equal("de", result.DetectedSourceLanguageCode);
 
-      result = await translator.TranslateTextAsync(ExampleText("en"), null, "PT-pt");
-      Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguageCode);
+      result = await translator.TranslateTextAsync(ExampleText("de"), null, "EN-us");
+      Assert.Equal(ExampleText("en-US"), result.Text.ToLower());
+      Assert.Equal("de", result.DetectedSourceLanguageCode);
 
-      result = await translator.TranslateTextAsync(ExampleText("en"), "en", "PT-PT");
-      Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguageCode);
+      result = await translator.TranslateTextAsync(ExampleText("de"), "de", "EN-US");
+      Assert.Equal(ExampleText("en-US"), result.Text.ToLower());
+      Assert.Equal("de", result.DetectedSourceLanguageCode);
 
-      result = await translator.TranslateTextAsync(ExampleText("en"), "eN", "PT-PT");
-      Assert.Equal(ExampleText("pt-PT"), result.Text);
-      Assert.Equal("en", result.DetectedSourceLanguageCode);
+      result = await translator.TranslateTextAsync(ExampleText("de"), "dE", "EN-US");
+      Assert.Equal(ExampleText("en-US"), result.Text.ToLower());
+      Assert.Equal("de", result.DetectedSourceLanguageCode);
     }
   }
 }
