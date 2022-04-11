@@ -52,6 +52,8 @@ var translator = new Translator(authKey);
 This example is for demonstration purposes only. In production code, the authentication key should not be hard-coded,
 but instead fetched from a configuration file or environment variable.
 
+`Translator` accepts options as the second argument, see [Configuration](#configuration) for more information.
+
 ### Translating text
 
 To translate text, call `TranslateTextAsync()` with the text and the source and target language codes.
@@ -186,6 +188,38 @@ foreach (var languagePair in glossaryLanguages) {
   Console.WriteLine($"{languagePair.SourceLanguage} to {languagePair.TargetLanguage}");
   // Example: "EN to DE", "DE to EN"
 }
+```
+
+### Configuration
+
+The `Translator` constructor accepts `TranslatorOptions` as a second argument,
+for example:
+
+```c#
+var options = new TranslatorOptions {
+      MaximumNetworkRetries = 5,
+      PerRetryConnectionTimeout = TimeSpan.FromSeconds(10),
+};
+var translator = new Translator(authKey, options);
+```
+
+See the `TranslatorOptions` class for details about the available options.
+
+#### Proxy configuration
+
+To use the library with a proxy, override the `ClientFactory` with a function returning a custom `HttpClient`:
+
+```c#
+var proxyUrl = "http://localhost:3001";
+var handler = new System.Net.Http.HttpClientHandler {
+      Proxy = new System.Net.WebProxy(proxyUrl), UseProxy = true,
+};
+var options = new TranslatorOptions {
+      ClientFactory = () => new HttpClientAndDisposeFlag {
+            HttpClient = new HttpClient(handler), DisposeClient = true,
+      }
+};
+var translator = new Translator(authKey, options);
 ```
 
 ## Issues
