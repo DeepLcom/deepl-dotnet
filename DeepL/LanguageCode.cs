@@ -48,6 +48,9 @@ namespace DeepL {
     /// <summary>Hungarian language code, may be used as source or target language.</summary>
     public const string Hungarian = "hu";
 
+    /// <summary>Indonesian language code, may be used as source or target language.</summary>
+    public const string Indonesian = "id";
+
     /// <summary>Italian language code, may be used as source or target language.</summary>
     public const string Italian = "it";
 
@@ -89,6 +92,9 @@ namespace DeepL {
 
     /// <summary>Swedish language code, may be used as source or target language.</summary>
     public const string Swedish = "sv";
+
+    /// <summary>Turkish language code, may be used as source or target language.</summary>
+    public const string Turkish = "tr";
 
     /// <summary>Chinese language code, may be used as source or target language.</summary>
     public const string Chinese = "zh";
