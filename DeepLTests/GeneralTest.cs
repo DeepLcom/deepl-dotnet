@@ -31,7 +31,8 @@ namespace DeepLTests {
       var translator = CreateTestTranslator();
       foreach (var sourceLanguage in ExpectedSourceLanguages()) {
         var inputText = ExampleText(sourceLanguage);
-        var resultText = (await translator.TranslateTextAsync(inputText, null, "en-US")).Text.ToLowerInvariant();
+        var sourceLang = LanguageCode.RemoveRegionalVariant(sourceLanguage);
+        var resultText = (await translator.TranslateTextAsync(inputText, sourceLang, "en-US")).Text.ToLowerInvariant();
         Assert.Contains("proton", resultText);
       }
     }
