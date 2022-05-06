@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Note: older library versions also support the new languages, this update only
   adds new code constants.
 ### Changed
+* Improve package icon, tags and project URLs.
 ### Deprecated
 ### Removed
 ### Fixed

@@ -17,9 +17,10 @@
     <Company>DeepL SE</Company>
     <AssemblyName>DeepL.net</AssemblyName>
     <PackageId>DeepL.net</PackageId>
-    <PackageTags>deepl;translation;api</PackageTags>
+    <PackageTags>deepl;translation;api;i18n;language;translator</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/DeepLcom/deepl-dotnet</PackageProjectUrl>
+    <PackageProjectUrl>https://www.deepl.com/pro-api</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DeepLcom/deepl-dotnet</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>Release notes can be found at https://github.com/DeepLcom/deepl-dotnet/blob/main/CHANGELOG.md</PackageReleaseNotes>
