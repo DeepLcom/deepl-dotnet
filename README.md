@@ -16,7 +16,7 @@ they’re added to the API.
 
 To use the DeepL .NET Library, you'll need an API authentication key. To get a key,
 [please create an account here](https://www.deepl.com/pro?utm_source=github&utm_medium=github-dotnet-readme#developer).
-You can translate up to 500,000 characters/month for free.
+With a DeepL API Free account you can translate up to 500,000 characters/month for free.
 
 ## Installation
 
