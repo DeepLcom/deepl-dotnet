@@ -287,6 +287,30 @@ namespace DeepL {
           CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///   Creates a glossary in your DeepL account with the specified details and returns a <see cref="GlossaryInfo" />
+    ///   object with details about the newly created glossary. The glossary can be used in translations to override
+    ///   translations for specific terms (words). The glossary source and target languages must match the languages of
+    ///   translations for which it will be used.
+    /// </summary>
+    /// <param name="name">User-defined name to assign to the glossary; must not be empty.</param>
+    /// <param name="sourceLanguageCode">Language code of the source terms language.</param>
+    /// <param name="targetLanguageCode">Language code of the target terms language.</param>
+    /// <param name="csvFile"><see cref="Stream" /> containing CSV content.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns><see cref="GlossaryInfo" /> object with details about the newly created glossary.</returns>
+    /// <exception cref="ArgumentException">If any argument is invalid.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<GlossaryInfo> CreateGlossaryFromCsvAsync(
+          string name,
+          string sourceLanguageCode,
+          string targetLanguageCode,
+          Stream csvFile,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///   Retrieves information about the glossary with the specified ID and returns a <see cref="GlossaryInfo" />
     ///   object containing details. This does not retrieve the glossary entries; to retrieve entries use
     ///   <see cref="ITranslator.GetGlossaryEntriesAsync(string,System.Threading.CancellationToken)" />
@@ -712,6 +736,21 @@ namespace DeepL {
                 targetLanguageCode,
                 "tsv",
                 entries.ToTsv(),
+                cancellationToken).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<GlossaryInfo> CreateGlossaryFromCsvAsync(
+          string name,
+          string sourceLanguageCode,
+          string targetLanguageCode,
+          Stream csvFile,
+          CancellationToken cancellationToken = default) =>
+          await CreateGlossaryInternalAsync(
+                name,
+                sourceLanguageCode,
+                targetLanguageCode,
+                "csv",
+                await new StreamReader(csvFile).ReadToEndAsync().ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
 
     /// <inheritdoc />

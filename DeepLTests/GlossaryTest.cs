@@ -91,6 +91,33 @@ namespace DeepLTests {
     }
 
     [Fact]
+    public async Task TestGlossaryCreateCsv() {
+      var translator = CreateTestTranslator();
+      var glossaryCleanup = new GlossaryCleanupUtility(translator, nameof(TestGlossaryCreateCsv));
+      var glossaryName = glossaryCleanup.GlossaryName;
+      try {
+        var expectedEntries =
+              new GlossaryEntries(new[] { ("sourceEntry1", "targetEntry1"), ("source\"Entry", "target,Entry") });
+
+        const string csvContent = "sourceEntry1,targetEntry1,en,de\n\"source\"\"Entry\",\"target,Entry\",en,de";
+        var csvStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(csvContent));
+
+        var glossary = glossaryCleanup.Capture(
+              await translator.CreateGlossaryFromCsvAsync(
+                    glossaryName,
+                    "en",
+                    "de",
+                    csvStream));
+
+        Assert.Equal(
+              expectedEntries.ToDictionary(),
+              (await translator.GetGlossaryEntriesAsync(glossary.GlossaryId)).ToDictionary());
+      } finally {
+        await glossaryCleanup.Cleanup();
+      }
+    }
+
+    [Fact]
     public async Task TestGlossaryCreateInvalid() {
       var translator = CreateTestTranslator();
       var glossaryCleanup = new GlossaryCleanupUtility(translator, nameof(TestGlossaryCreateInvalid));
