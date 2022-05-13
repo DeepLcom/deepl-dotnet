@@ -59,9 +59,9 @@ namespace DeepLTests {
     public async Task TestGetSourceLanguages() {
       var translator = CreateTestTranslator();
       var sourceLanguages = await translator.GetSourceLanguagesAsync();
-      Assert.Equal(sourceLanguages.Length, ExpectedSourceLanguages().Length);
-      foreach (var sourceLanguage in ExpectedSourceLanguages()) {
-        Assert.Contains(sourceLanguages, language => language.Code == sourceLanguage);
+
+      foreach (var expectedSourceLanguage in ExpectedSourceLanguages()) {
+        Assert.Contains(sourceLanguages, language => language.Code == expectedSourceLanguage);
       }
 
       Assert.Equal(sourceLanguages[0], sourceLanguages[0]);
@@ -72,9 +72,9 @@ namespace DeepLTests {
     public async Task TestGetTargetLanguages() {
       var translator = CreateTestTranslator();
       var targetLanguages = await translator.GetTargetLanguagesAsync();
-      Assert.Equal(targetLanguages.Length, ExpectedTargetLanguages().Length);
-      foreach (var targetLanguage in ExpectedTargetLanguages()) {
-        Assert.Contains(targetLanguages, language => language.Code == targetLanguage);
+
+      foreach (var expectedTargetLanguage in ExpectedTargetLanguages()) {
+        Assert.Contains(targetLanguages, language => language.Code == expectedTargetLanguage);
       }
 
       Assert.Equal(targetLanguages[0], targetLanguages[0]);
