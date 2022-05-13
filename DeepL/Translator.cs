@@ -566,10 +566,10 @@ namespace DeepL {
     public async Task<GlossaryInfo> WaitUntilGlossaryReadyAsync(
           string glossaryId,
           CancellationToken cancellationToken = default) {
-      var info = await GetGlossaryAsync(glossaryId, cancellationToken);
+      var info = await GetGlossaryAsync(glossaryId, cancellationToken).ConfigureAwait(false);
       while (!info.Ready) {
         await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken).ConfigureAwait(false);
-        info = await GetGlossaryAsync(glossaryId, cancellationToken);
+        info = await GetGlossaryAsync(glossaryId, cancellationToken).ConfigureAwait(false);
       }
 
       return info;
