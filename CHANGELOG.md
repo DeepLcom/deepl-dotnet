@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Note: older library versions also support the new languages, this update only
   adds new code constants.
+* Added `ITranslator` interface implemented by `Translator` class, to achieve a
+  better mock-ability in conjunction with common mocking frameworks.
 ### Changed
 * Improve package icon, tags and project URLs.
 ### Deprecated

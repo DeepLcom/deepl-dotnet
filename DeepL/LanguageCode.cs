@@ -5,8 +5,8 @@
 namespace DeepL {
   /// <summary>
   ///   Language codes for the languages currently supported by DeepL translation. New languages may be added in
-  ///   future; to retrieve the currently supported languages use <see cref="Translator.GetSourceLanguagesAsync" /> and
-  ///   <see cref="Translator.GetTargetLanguagesAsync" />.
+  ///   future; to retrieve the currently supported languages use <see cref="ITranslator.GetSourceLanguagesAsync" /> and
+  ///   <see cref="ITranslator.GetTargetLanguagesAsync" />.
   /// </summary>
   public static class LanguageCode {
     /// <summary>Bulgarian language code, may be used as source or target language.</summary>
