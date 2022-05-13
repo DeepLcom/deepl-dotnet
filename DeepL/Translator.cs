@@ -705,26 +705,14 @@ namespace DeepL {
           string sourceLanguageCode,
           string targetLanguageCode,
           GlossaryEntries entries,
-          CancellationToken cancellationToken = default) {
-      if (name.Length == 0) {
-        throw new ArgumentException($"Parameter {nameof(name)} must not be empty");
-      }
-
-      sourceLanguageCode = LanguageCode.RemoveRegionalVariant(sourceLanguageCode);
-      targetLanguageCode = LanguageCode.RemoveRegionalVariant(targetLanguageCode);
-
-      var entriesTsv = entries.ToTsv();
-
-      var bodyParams = new (string Key, string Value)[] {
-            ("name", name), ("source_lang", sourceLanguageCode), ("target_lang", targetLanguageCode),
-            ("entries_format", "tsv"), ("entries", entriesTsv)
-      };
-      using var responseMessage =
-            await _client.ApiPostAsync("/v2/glossaries", cancellationToken, bodyParams).ConfigureAwait(false);
-
-      await DeepLClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
-      return await JsonUtils.DeserializeAsync<GlossaryInfo>(responseMessage).ConfigureAwait(false);
-    }
+          CancellationToken cancellationToken = default) =>
+          await CreateGlossaryInternalAsync(
+                name,
+                sourceLanguageCode,
+                targetLanguageCode,
+                "tsv",
+                entries.ToTsv(),
+                cancellationToken).ConfigureAwait(false);
 
     /// <inheritdoc />
     public async Task<GlossaryInfo> GetGlossaryAsync(
@@ -969,6 +957,32 @@ namespace DeepL {
       var secs = ((hintSecondsRemaining ?? 0) / 2.0) + 1.0;
       secs = Math.Max(1.0, Math.Min(secs, 60.0));
       return TimeSpan.FromSeconds(secs);
+    }
+
+    /// <summary>Creates a glossary with given details.</summary>
+    private async Task<GlossaryInfo> CreateGlossaryInternalAsync(
+          string name,
+          string sourceLanguageCode,
+          string targetLanguageCode,
+          string entriesFormat,
+          string entries,
+          CancellationToken cancellationToken) {
+      if (name.Length == 0) {
+        throw new ArgumentException($"Parameter {nameof(name)} must not be empty");
+      }
+
+      sourceLanguageCode = LanguageCode.RemoveRegionalVariant(sourceLanguageCode);
+      targetLanguageCode = LanguageCode.RemoveRegionalVariant(targetLanguageCode);
+
+      var bodyParams = new (string Key, string Value)[] {
+            ("name", name), ("source_lang", sourceLanguageCode), ("target_lang", targetLanguageCode),
+            ("entries_format", entriesFormat), ("entries", entries)
+      };
+      using var responseMessage =
+            await _client.ApiPostAsync("/v2/glossaries", cancellationToken, bodyParams).ConfigureAwait(false);
+
+      await DeepLClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<GlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 
     /// <summary>Class used for JSON-deserialization of text translate results.</summary>
