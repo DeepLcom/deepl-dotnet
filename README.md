@@ -225,11 +225,11 @@ var translator = new Translator(authKey, options);
 ## Issues
 
 If you experience problems using the library, or would like to request a new feature, please open an
-[issue](https://www.github.com/DeepLcom/deepl-dotnet/issues).
+[issue][issues].
 
 ## Development
 
-We are currently unable to accept Pull Requests. If you would like to suggest changes, please open an issue instead.
+We welcome Pull Requests, please read the [contributing guidelines](CONTRIBUTING.md).
 
 ### Tests
 
@@ -244,3 +244,5 @@ only with the DeepL API or the mock-server and will be otherwise skipped. The te
 trigger server errors and test the client error-handling. To execute the tests using deepl-mock, run it in another
 terminal while executing the tests. Execute the tests using `dotnet test` with the `DEEPL_MOCK_SERVER_PORT` and
 `DEEPL_SERVER_URL` environment variables defined referring to the mock-server.
+
+[issues]: https://www.github.com/DeepLcom/deepl-dotnet/issues
