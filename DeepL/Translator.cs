@@ -14,7 +14,7 @@ using DeepL.Internal;
 using DeepL.Model;
 
 namespace DeepL {
-  
+
   public interface ITranslator : IDisposable {
 
     /// <summary>Retrieves the usage in the current billing period for this DeepL account.</summary>
@@ -872,7 +872,7 @@ namespace DeepL {
         bodyParams.Add(("tag_handling", options.TagHandling));
       }
 
-      if (options.OutlineDetection) {
+      if (!options.OutlineDetection) {
         bodyParams.Add(("outline_detection", "0"));
       }
 
