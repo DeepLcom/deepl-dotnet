@@ -1,9 +1,20 @@
+# Note: This GitLab CI configuration is used for internal testing, users can ignore it.
+include:
+  - project: '${CI_PROJECT_NAMESPACE}/ci-libs-for-client-libraries'
+    file:
+      - '/${CI_PROJECT_NAME}/.gitlab-ci.yml'
+
+# Global --------------------------
+
 image: mcr.microsoft.com/dotnet/sdk:5.0
 
 stages:
   - build
   - test
   - publish
+
+variables:
+  DOTNET_CLI_HOME: ${CI_PROJECT_DIR}
 
 # stage: build ----------------------
 
@@ -34,23 +45,11 @@ package:
 
 # stage: test -------------------------
 
-.test-server-secrets-template: &test_server_secrets_template
-  secrets:
-    DEEPL_AUTH_KEY:
-      vault: jenkins/client_libraries/test_auth_key@backend
-      file: false
-    DEEPL_SERVER_URL:
-      vault: jenkins/client_libraries/test_server_url@backend
-      file: false
-
 test:
-  <<: *test_server_secrets_template
   stage: test
+  extends: .test
   dependencies:
     - build
-  services:
-    - name: $DOCKER_REGISTRY/deepl/deepl-mock
-      alias: deepl-mock
   parallel:
     matrix:
       - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:5.0"
@@ -91,6 +90,7 @@ test:
 
 nuget upload:
   stage: publish
+  extends: .publish
   dependencies:
     - package
   rules:
@@ -98,7 +98,3 @@ nuget upload:
   script:
     - dotnet nuget push package/Release/DeepL.net.*.nupkg --api-key $NUGET_API_KEY
       --source https://api.nuget.org/v3/index.json --timeout 30
-  secrets:
-    NUGET_API_KEY:
-      vault: jenkins/client_libraries/nuget_api_key@backend
-      file: false
