@@ -26,8 +26,8 @@ namespace DeepLTests {
       var translator = CreateTestTranslator();
       var texts = new[] { ExampleText("fr"), ExampleText("en") };
       var result = await translator.TranslateTextAsync(texts, null, "DE");
-      Assert.Equal(result[0].Text, ExampleText("de"));
-      Assert.Equal(result[1].Text, ExampleText("de"));
+      Assert.Equal(ExampleText("de"), result[0].Text);
+      Assert.Equal(ExampleText("de"), result[1].Text);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ namespace DeepLTests {
 
     [Fact]
     public async Task TestInvalidLanguage() {
-      var translator = new Translator(AuthKey, new TranslatorOptions { ServerUrl = ServerUrl });
+      var translator = CreateTestTranslator();
       var exception = await Assert.ThrowsAsync<DeepLException>(
             () =>
                   translator.TranslateTextAsync(ExampleText("en"), null, "XX"));
