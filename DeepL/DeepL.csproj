@@ -27,6 +27,8 @@
     <IsPackable>true</IsPackable>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

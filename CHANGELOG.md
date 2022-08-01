@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add `Translator.createGlossaryFromCsvAsync()` allowing glossaries downloaded
   from website to be easily uploaded to API.
 ### Changed
+* Strong-named DeepL.net assembly.
 ### Deprecated
 ### Removed
 ### Fixed
