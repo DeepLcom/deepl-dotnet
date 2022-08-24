@@ -108,6 +108,8 @@ namespace DeepLTests {
           return "protonstråle";
         case "tr":
           return "proton ışını";
+        case "uk":
+          return "протонний пучок";
         case "zh":
           return "质子束";
         default:
@@ -123,7 +125,7 @@ namespace DeepLTests {
                 LanguageCode.Italian, LanguageCode.Japanese, LanguageCode.Lithuanian, LanguageCode.Latvian,
                 LanguageCode.Dutch, LanguageCode.Polish, LanguageCode.Portuguese, LanguageCode.Romanian,
                 LanguageCode.Russian, LanguageCode.Slovak, LanguageCode.Slovenian, LanguageCode.Swedish,
-                LanguageCode.Turkish, LanguageCode.Chinese
+                LanguageCode.Turkish, LanguageCode.Ukrainian, LanguageCode.Chinese
           };
 
     protected static string[] ExpectedTargetLanguages() =>
@@ -134,7 +136,8 @@ namespace DeepLTests {
                 LanguageCode.Indonesian, LanguageCode.Italian, LanguageCode.Japanese, LanguageCode.Lithuanian,
                 LanguageCode.Latvian, LanguageCode.Dutch, LanguageCode.Polish, LanguageCode.PortugueseBrazilian,
                 LanguageCode.PortugueseEuropean, LanguageCode.Romanian, LanguageCode.Russian, LanguageCode.Slovak,
-                LanguageCode.Slovenian, LanguageCode.Swedish, LanguageCode.Turkish, LanguageCode.Chinese
+                LanguageCode.Slovenian, LanguageCode.Swedish, LanguageCode.Turkish, LanguageCode.Ukrainian,
+                LanguageCode.Chinese
           };
 
     private static Dictionary<string, string?> CreateSessionHeaders(string testName, SessionOptions options) {

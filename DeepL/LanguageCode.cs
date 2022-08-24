@@ -96,6 +96,9 @@ namespace DeepL {
     /// <summary>Turkish language code, may be used as source or target language.</summary>
     public const string Turkish = "tr";
 
+    /// <summary>Ukrainian language code, may be used as source or target language.</summary>
+    public const string Ukrainian = "uk";
+
     /// <summary>Chinese language code, may be used as source or target language.</summary>
     public const string Chinese = "zh";
 
