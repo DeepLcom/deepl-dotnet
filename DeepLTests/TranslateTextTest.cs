@@ -132,6 +132,24 @@ namespace DeepLTests {
       if (!IsMockServer) {
         Assert.Equal("Wie geht es Ihnen?", result.Text);
       }
+
+      result = await translator.TranslateTextAsync(
+            "How are you?",
+            null,
+            "DE",
+            new TextTranslateOptions { Formality = Formality.PreferMore });
+      if (!IsMockServer) {
+        Assert.Equal("Wie geht es Ihnen?", result.Text);
+      }
+
+      result = await translator.TranslateTextAsync(
+            "How are you?",
+            null,
+            "DE",
+            new TextTranslateOptions { Formality = Formality.PreferLess });
+      if (!IsMockServer) {
+        Assert.Equal("Wie geht es dir?", result.Text);
+      }
     }
 
     [Fact]

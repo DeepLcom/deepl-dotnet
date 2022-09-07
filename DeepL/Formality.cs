@@ -12,6 +12,12 @@ namespace DeepL {
     Less,
 
     /// <summary>Increased formality.</summary>
-    More
+    More,
+
+    /// <summary>Less formality, i.e. more informal, if available for the specified target language, otherwise default.</summary>
+    PreferLess,
+
+    /// <summary>Increased formality, if available for the specified target language, otherwise default.</summary>
+    PreferMore
   }
 }

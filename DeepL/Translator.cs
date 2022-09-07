@@ -882,8 +882,23 @@ namespace DeepL {
         bodyParams.Add(("glossary_id", options.GlossaryId));
       }
 
-      if (options.Formality != Formality.Default) {
-        bodyParams.Add(("formality", options.Formality.ToString().ToLowerInvariant()));
+      switch (options.Formality) {
+        case Formality.Default:
+          break;
+        case Formality.Less:
+          bodyParams.Add(("formality", "less"));
+          break;
+        case Formality.More:
+          bodyParams.Add(("formality", "more"));
+          break;
+        case Formality.PreferLess:
+          bodyParams.Add(("formality", "prefer_less"));
+          break;
+        case Formality.PreferMore:
+          bodyParams.Add(("formality", "prefer_more"));
+          break;
+        default:
+          throw new ArgumentException($"{nameof(options.Formality)} value is out of range");
       }
 
       if (options.SentenceSplittingMode != SentenceSplittingMode.All) {
