@@ -106,8 +106,7 @@ namespace DeepL.Internal {
             .Or<Exception>()
             .OrResult<HttpResponseMessage>(
                   responseMessage => responseMessage.StatusCode == HttpStatusCodeTooManyRequests ||
-                                     (responseMessage.StatusCode >= HttpStatusCode.InternalServerError &&
-                                      responseMessage.StatusCode != HttpStatusCode.ServiceUnavailable))
+                                     responseMessage.StatusCode >= HttpStatusCode.InternalServerError)
             .WaitAndRetryAsync(maximumNetworkRetries, getSleepDuration);
       var policy = Policy.WrapAsync(waitAndRetry, timeout);
       return new PolicyHttpMessageHandler(policy) { InnerHandler = innerHandler };

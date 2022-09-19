@@ -202,10 +202,6 @@ namespace DeepLTests {
       Assert.True(status.Ok);
       Assert.False(status.Done);
 
-      // Downloading before document is ready will fail
-      await Assert.ThrowsAsync<DocumentNotReadyException>(
-            () => translator.TranslateDocumentDownloadAsync(handle, new MemoryStream()));
-
       // Test recreating a document handle from id & key
       var (documentId, documentKey) = (handle.DocumentId, handle.DocumentKey);
       handle = new DocumentHandle(documentId, documentKey);
