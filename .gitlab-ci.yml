@@ -15,6 +15,7 @@ stages:
 
 variables:
   DOTNET_CLI_HOME: ${CI_PROJECT_DIR}
+  XDG_DATA_HOME: ${CI_PROJECT_DIR}
 
 # stage: build ----------------------
 
