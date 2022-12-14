@@ -179,7 +179,7 @@ namespace DeepL {
 
         var termSeparatorPos = lineTrimmed.IndexOf(TermSeparator);
         if (termSeparatorPos == -1) {
-          throw new ArgumentException($"Entry on line {lineNumber} does not contain separator: {line}");
+          throw new ArgumentException($"Entry on line {lineNumber} does not contain term separator: {line}");
         }
 
         var source = lineTrimmed.Substring(0, termSeparatorPos).Trim();
