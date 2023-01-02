@@ -57,11 +57,17 @@ namespace DeepL {
     /// <summary>Japanese language code, may be used as source or target language.</summary>
     public const string Japanese = "ja";
 
+    /// <summary>Korean language code, may be used as source or target language.</summary>
+    public const string Korean = "ko";
+
     /// <summary>Lithuanian language code, may be used as source or target language.</summary>
     public const string Lithuanian = "lt";
 
     /// <summary>Latvian language code, may be used as source or target language.</summary>
     public const string Latvian = "lv";
+
+    /// <summary>Norwegian (bokmål) language code, may be used as source or target language.</summary>
+    public const string Norwegian = "nb";
 
     /// <summary>Dutch language code, may be used as source or target language.</summary>
     public const string Dutch = "nl";

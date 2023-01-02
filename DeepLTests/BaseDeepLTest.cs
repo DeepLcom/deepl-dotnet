@@ -84,10 +84,14 @@ namespace DeepLTests {
           return "fascio di protoni";
         case "ja":
           return "陽子ビーム";
+        case "ko":
+          return "양성자 빔";
         case "lt":
           return "protonų spindulys";
         case "lv":
           return "protonu staru kūlis";
+        case "nb":
+          return "protonstråle";
         case "nl":
           return "protonenbundel";
         case "pl":
@@ -122,10 +126,11 @@ namespace DeepLTests {
                 LanguageCode.Bulgarian, LanguageCode.Czech, LanguageCode.Danish, LanguageCode.German,
                 LanguageCode.Greek, LanguageCode.English, LanguageCode.Spanish, LanguageCode.Estonian,
                 LanguageCode.Finnish, LanguageCode.French, LanguageCode.Hungarian, LanguageCode.Indonesian,
-                LanguageCode.Italian, LanguageCode.Japanese, LanguageCode.Lithuanian, LanguageCode.Latvian,
-                LanguageCode.Dutch, LanguageCode.Polish, LanguageCode.Portuguese, LanguageCode.Romanian,
-                LanguageCode.Russian, LanguageCode.Slovak, LanguageCode.Slovenian, LanguageCode.Swedish,
-                LanguageCode.Turkish, LanguageCode.Ukrainian, LanguageCode.Chinese
+                LanguageCode.Italian, LanguageCode.Japanese, LanguageCode.Korean, LanguageCode.Lithuanian,
+                LanguageCode.Latvian, LanguageCode.Norwegian, LanguageCode.Dutch, LanguageCode.Polish,
+                LanguageCode.Portuguese, LanguageCode.Romanian, LanguageCode.Russian, LanguageCode.Slovak,
+                LanguageCode.Slovenian, LanguageCode.Swedish, LanguageCode.Turkish, LanguageCode.Ukrainian,
+                LanguageCode.Chinese
           };
 
     protected static string[] ExpectedTargetLanguages() =>
@@ -133,11 +138,11 @@ namespace DeepLTests {
                 LanguageCode.Bulgarian, LanguageCode.Czech, LanguageCode.Danish, LanguageCode.German,
                 LanguageCode.Greek, LanguageCode.EnglishBritish, LanguageCode.EnglishAmerican, LanguageCode.Spanish,
                 LanguageCode.Estonian, LanguageCode.Finnish, LanguageCode.French, LanguageCode.Hungarian,
-                LanguageCode.Indonesian, LanguageCode.Italian, LanguageCode.Japanese, LanguageCode.Lithuanian,
-                LanguageCode.Latvian, LanguageCode.Dutch, LanguageCode.Polish, LanguageCode.PortugueseBrazilian,
-                LanguageCode.PortugueseEuropean, LanguageCode.Romanian, LanguageCode.Russian, LanguageCode.Slovak,
-                LanguageCode.Slovenian, LanguageCode.Swedish, LanguageCode.Turkish, LanguageCode.Ukrainian,
-                LanguageCode.Chinese
+                LanguageCode.Indonesian, LanguageCode.Italian, LanguageCode.Japanese, LanguageCode.Korean,
+                LanguageCode.Lithuanian, LanguageCode.Latvian, LanguageCode.Norwegian, LanguageCode.Dutch,
+                LanguageCode.Polish, LanguageCode.PortugueseBrazilian, LanguageCode.PortugueseEuropean,
+                LanguageCode.Romanian, LanguageCode.Russian, LanguageCode.Slovak, LanguageCode.Slovenian,
+                LanguageCode.Swedish, LanguageCode.Turkish, LanguageCode.Ukrainian, LanguageCode.Chinese
           };
 
     private static Dictionary<string, string?> CreateSessionHeaders(string testName, SessionOptions options) {
