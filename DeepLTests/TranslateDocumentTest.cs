@@ -134,6 +134,28 @@ namespace DeepLTests {
       if (!IsMockServer) {
         Assert.Equal("Wie geht es dir?", File.ReadAllText(outputDocumentPath));
       }
+
+      File.Delete(outputDocumentPath);
+      await translator.TranslateDocumentAsync(
+            new FileInfo(exampleDocumentPath),
+            new FileInfo(outputDocumentPath),
+            "EN",
+            "DE",
+            new DocumentTranslateOptions { Formality = Formality.PreferMore });
+      if (!IsMockServer) {
+        Assert.Equal("Wie geht es Ihnen?", File.ReadAllText(outputDocumentPath));
+      }
+
+      File.Delete(outputDocumentPath);
+      await translator.TranslateDocumentAsync(
+            new FileInfo(exampleDocumentPath),
+            new FileInfo(outputDocumentPath),
+            "EN",
+            "DE",
+            new DocumentTranslateOptions { Formality = Formality.PreferLess });
+      if (!IsMockServer) {
+        Assert.Equal("Wie geht es dir?", File.ReadAllText(outputDocumentPath));
+      }
     }
 
     [Fact]

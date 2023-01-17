@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 * Fix CI build for netcoreapp3.1.
+* Fix `Formality` options `PreferLess` and `PreferMore` for document
+  translation.
 
 
 ## [1.5.0] - 2022-09-30
