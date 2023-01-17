@@ -623,10 +623,11 @@ namespace DeepL {
           string targetLanguageCode,
           DocumentTranslateOptions? options = null,
           CancellationToken cancellationToken = default) {
-      var bodyParams = CreateHttpParams(
+      var bodyParams = CreateCommonHttpParams(
             sourceLanguageCode,
             targetLanguageCode,
-            options);
+            options?.Formality,
+            options?.GlossaryId);
 
       using var responseMessage = await _client.ApiUploadAsync(
                   "/v2/document/",
@@ -856,49 +857,19 @@ namespace DeepL {
     /// <param name="options">Extra <see cref="TextTranslateOptions" /> influencing translation.</param>
     /// <returns>Enumerable of tuples containing the parameters to include in HTTP request.</returns>
     /// <exception cref="ArgumentException">If the specified languages or options are invalid.</exception>
-    private IEnumerable<(string Key, string Value)> CreateHttpParams(
+    private static IEnumerable<(string Key, string Value)> CreateHttpParams(
           string? sourceLanguageCode,
           string targetLanguageCode,
           TextTranslateOptions? options) {
-      targetLanguageCode = LanguageCode.Standardize(targetLanguageCode);
-      sourceLanguageCode = sourceLanguageCode == null ? null : LanguageCode.Standardize(sourceLanguageCode);
 
-      CheckValidLanguages(sourceLanguageCode, targetLanguageCode);
-
-      var bodyParams = new List<(string Key, string Value)> { ("target_lang", targetLanguageCode) };
-      if (sourceLanguageCode != null) {
-        bodyParams.Add(("source_lang", sourceLanguageCode));
-      }
+      var bodyParams = CreateCommonHttpParams(
+            sourceLanguageCode,
+            targetLanguageCode,
+            options?.Formality,
+            options?.GlossaryId);
 
       if (options == null) {
         return bodyParams;
-      }
-
-      if (options.GlossaryId != null) {
-        if (sourceLanguageCode == null) {
-          throw new ArgumentException($"{nameof(sourceLanguageCode)} is required if using a glossary");
-        }
-
-        bodyParams.Add(("glossary_id", options.GlossaryId));
-      }
-
-      switch (options.Formality) {
-        case Formality.Default:
-          break;
-        case Formality.Less:
-          bodyParams.Add(("formality", "less"));
-          break;
-        case Formality.More:
-          bodyParams.Add(("formality", "more"));
-          break;
-        case Formality.PreferLess:
-          bodyParams.Add(("formality", "prefer_less"));
-          break;
-        case Formality.PreferMore:
-          bodyParams.Add(("formality", "prefer_more"));
-          break;
-        default:
-          throw new ArgumentException($"{nameof(options.Formality)} value is out of range");
       }
 
       if (options.SentenceSplittingMode != SentenceSplittingMode.All) {
@@ -934,7 +905,7 @@ namespace DeepL {
     }
 
     /// <summary>
-    ///   Checks the specified languages and options are valid, and returns an enumerable of tuples containing the parameters
+    ///   Checks the specified languages and options are valid, and returns a list of tuples containing the parameters
     ///   to include in HTTP request.
     /// </summary>
     /// <param name="sourceLanguageCode">
@@ -942,13 +913,15 @@ namespace DeepL {
     ///   used.
     /// </param>
     /// <param name="targetLanguageCode">Language code of translation target language.</param>
-    /// <param name="options">Extra <see cref="DocumentTranslateOptions" /> influencing translation.</param>
-    /// <returns>Enumerable of tuples containing the parameters to include in HTTP request.</returns>
+    /// <param name="formality">Formality option for translation.</param>
+    /// <param name="glossaryId">Optional ID of glossary to use for translation.</param>
+    /// <returns>List of tuples containing the parameters to include in HTTP request.</returns>
     /// <exception cref="ArgumentException">If the specified languages or options are invalid.</exception>
-    private IEnumerable<(string Key, string Value)> CreateHttpParams(
+    private static List<(string Key, string Value)> CreateCommonHttpParams(
           string? sourceLanguageCode,
           string targetLanguageCode,
-          DocumentTranslateOptions? options) {
+          Formality? formality,
+          string? glossaryId) {
       targetLanguageCode = LanguageCode.Standardize(targetLanguageCode);
       sourceLanguageCode = sourceLanguageCode == null ? null : LanguageCode.Standardize(sourceLanguageCode);
 
@@ -959,19 +932,16 @@ namespace DeepL {
         bodyParams.Add(("source_lang", sourceLanguageCode));
       }
 
-      if (options == null) {
-        return bodyParams;
-      }
-
-      if (options.GlossaryId != null) {
+      if (glossaryId != null) {
         if (sourceLanguageCode == null) {
           throw new ArgumentException($"{nameof(sourceLanguageCode)} is required if using a glossary");
         }
 
-        bodyParams.Add(("glossary_id", options.GlossaryId));
+        bodyParams.Add(("glossary_id", glossaryId));
       }
 
-      switch (options.Formality) {
+      switch (formality) {
+        case null:
         case Formality.Default:
           break;
         case Formality.Less:
@@ -987,7 +957,7 @@ namespace DeepL {
           bodyParams.Add(("formality", "prefer_more"));
           break;
         default:
-          throw new ArgumentException($"{nameof(options.Formality)} value is out of range");
+          throw new ArgumentException($"{nameof(formality)} value is out of range");
       }
 
       return bodyParams;
