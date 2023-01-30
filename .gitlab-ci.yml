@@ -9,6 +9,7 @@ include:
 image: mcr.microsoft.com/dotnet/sdk:5.0
 
 stages:
+  - check
   - build
   - test
   - publish
@@ -16,6 +17,14 @@ stages:
 variables:
   DOTNET_CLI_HOME: ${CI_PROJECT_DIR}
   XDG_DATA_HOME: ${CI_PROJECT_DIR}
+
+# stage: check ----------------------
+
+licenseCheck:
+  stage: check
+  script:
+    - ./license_checker.sh '*.cs' | tee license_check_output.txt
+    - '[ ! -s license_check_output.txt ]'
 
 # stage: build ----------------------
 
