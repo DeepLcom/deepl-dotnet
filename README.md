@@ -191,6 +191,23 @@ foreach (var languagePair in glossaryLanguages) {
 }
 ```
 
+### Writing a Plugin
+
+If you use this library in an application, please identify the application with
+`TranslatorOptions.appInfo`, which needs the name and version of the app:
+
+```c#
+var options = new TranslatorOptions {
+  appInfo =  new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3"}
+};
+var translator = new Translator(AuthKey, options);
+```
+
+This information is passed along when the library makes calls to the DeepL API.
+Both name and version are required. Please note that setting the `User-Agent` header
+via `TranslatorOptions.Headers` will override this setting, if you need to use this,
+please manually identify your Application in the `User-Agent` header.
+
 ### Configuration
 
 The `Translator` constructor accepts `TranslatorOptions` as a second argument,
@@ -220,6 +237,20 @@ var options = new TranslatorOptions {
             HttpClient = new HttpClient(handler), DisposeClient = true,
       }
 };
+var translator = new Translator(authKey, options);
+```
+
+#### Anonymous platform information
+
+By default, we send some basic information about the platform the client library is running
+on with each request, see [here for an explanation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent).
+This data is completely anonymous and only used to improve our product, not track any
+individual users. If you do not wish to send this data, you can opt-out when creating
+your `Translator` object by setting the `sendPlatformInfo` flag in the
+`TranslatorOptions` to `false` like so:
+
+```c#
+var options = new TranslatorOptions { sendPlatformInfo = false };
 var translator = new Translator(authKey, options);
 ```
 

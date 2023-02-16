@@ -447,7 +447,7 @@ namespace DeepL {
       var headers = new Dictionary<string, string?>(options.Headers, StringComparer.OrdinalIgnoreCase);
 
       if (!headers.ContainsKey("User-Agent")) {
-        headers.Add("User-Agent", $"deepl-dotnet/{Version()}");
+        headers.Add("User-Agent", ConstructUserAgentString(options.sendPlatformInfo, options.appInfo));
       }
 
       if (!headers.ContainsKey("Authorization")) {
@@ -843,6 +843,32 @@ namespace DeepL {
 
       await DeepLClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<TValue[]>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///   Builds the user-agent string we want to send to the API with every request. This string contains
+    ///   basic information about the client environment, such as the deepl client library version, operating
+    ///   system and language runtime version.
+    /// </summary>
+    /// <param name="sendPlatformInfo">
+    ///   <c>true</c> to send platform information with every API request (default), 
+    ///   <c>false</c> to only send the library version.
+    /// </param>
+    /// <param name="AppInfo">
+    ///   Name and version of the application using this library. Ignored if null.
+    /// </param>
+    /// <returns>Enumerable of tuples containing the parameters to include in HTTP request.</returns>
+    private String ConstructUserAgentString(bool sendPlatformInfo = true, AppInfo? appInfo = null) {
+      var platformInfoString = $"deepl-dotnet/{Version()}";
+      if (sendPlatformInfo) {
+      var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+      var clrVersion = Environment.Version.ToString();
+        platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
+      }
+      if (appInfo != null) {
+        platformInfoString += $" {appInfo?.AppName}/{appInfo?.AppVersion}";
+      }
+      return platformInfoString;
     }
 
     /// <summary>

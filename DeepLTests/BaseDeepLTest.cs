@@ -5,6 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using DeepL;
 using Xunit;
 
@@ -50,6 +53,12 @@ namespace DeepLTests {
       translatorOptions.ServerUrl = ServerUrl;
       translatorOptions.Headers = sessionHeaders;
       return new Translator(authKey, translatorOptions);
+    }
+
+    protected static MockHttpMessageHandler getMockHandler(String responseMessage) {
+      var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+      response.Content = new StringContent(responseMessage);
+      return new MockHttpMessageHandler(response);
     }
 
     protected static string ExampleText(string language) {
@@ -236,6 +245,34 @@ namespace DeepLTests {
         if (IsMockServer) {
           Skip = "Only run if using real server";
         }
+      }
+    }
+
+
+    /// <summary>
+    ///   Class to mock HTTP requests the library makes. Supports returning a constant response to every request
+    ///   through <see cref="MockHttpMessageHandler.defaultResponse" />.
+    ///   If we ever need more complex mocking functionality, we should drop this and use a mocking library.
+    /// </summary>
+    protected class MockHttpMessageHandler : System.Net.Http.HttpMessageHandler {
+      /// <summary>
+      ///   List of requests made through this mock. Use to make assertions in your tests after the code has run.
+      /// </summary>
+      public List<HttpRequestMessage> requests;
+      /// <summary>
+      ///   Default response returned on every HTTP request. If we need more complex functionality,
+      ///   we should use a proper mocking library, for example Moq
+      /// </summary>
+      public HttpResponseMessage defaultResponse;
+
+      public MockHttpMessageHandler(HttpResponseMessage response) : base() {
+        defaultResponse = response;
+        requests = new List<HttpRequestMessage>();
+      }
+      protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
+        this.requests.Add(request);
+        await Task.Delay(0);
+        return defaultResponse;
       }
     }
   }

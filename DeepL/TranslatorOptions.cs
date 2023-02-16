@@ -48,6 +48,10 @@ namespace DeepL {
     ///   the built-in retrying of failed-requests, so you must provide your own retry policy.
     /// </summary>
     public Func<HttpClientAndDisposeFlag>? ClientFactory { get; set; }
+
+    public bool sendPlatformInfo { get; set; } = true;
+
+    public AppInfo? appInfo { get; set; }
   }
 
   /// <summary>
@@ -66,5 +70,20 @@ namespace DeepL {
     ///   intend to reuse it.
     /// </summary>
     public bool DisposeClient { get; set; }
+  }
+
+  /// <summary>
+  ///   Represents the identifying information of an application that uses this library, its name and version.
+  ///   Example: AppName = "myDotNetCustomerChatApp", AppVersion = "1.2.3"
+  /// </summary>
+  public struct AppInfo {
+    /// <summary>
+    ///   Name of the application using this client library
+    /// </summary>
+    public string AppName { get; set; }
+    /// <summary>
+    ///   Version of the application using this client library
+    /// </summary>
+    public string AppVersion { get; set; }
   }
 }
