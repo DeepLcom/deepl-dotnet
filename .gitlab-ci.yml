@@ -6,7 +6,13 @@ include:
 
 # Global --------------------------
 
-image: mcr.microsoft.com/dotnet/sdk:5.0
+image: ${CI_REGISTRY_IMAGE}/sdk:5.0-alpine
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 stages:
   - check
@@ -20,11 +26,22 @@ variables:
 
 # stage: check ----------------------
 
-licenseCheck:
+.license_check_base:
   stage: check
   script:
     - ./license_checker.sh '*.cs' | tee license_check_output.txt
     - '[ ! -s license_check_output.txt ]'
+
+license_check_scheduled:
+  extends: .license_check_base
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  retry: 2
+
+license_check_manual:
+  extends: .license_check_base
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
 
 # stage: build ----------------------
 
@@ -55,30 +72,29 @@ package:
 
 # stage: test -------------------------
 
-test:
+.test_base:
   stage: test
   extends: .test
-  retry: 1
   dependencies:
     - build
   parallel:
     matrix:
-      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:5.0"
+      - DOCKER_IMAGE: "sdk:5.0-alpine"
         FRAMEWORK: "net5.0"
         CONFIGURATION: "Release"
-      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:3.1"
+      - DOCKER_IMAGE: "sdk:3.1-alpine"
         FRAMEWORK: "netcoreapp3.1"
         CONFIGURATION:
           - Debug
           - Release
         USE_MOCK_SERVER: "use mock server"
-      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:5.0"
+      - DOCKER_IMAGE: "sdk:5.0-alpine"
         FRAMEWORK: "net5.0"
         CONFIGURATION:
           - Debug
           - Release
         USE_MOCK_SERVER: "use mock server"
-  image: ${DOCKER_IMAGE}
+  image: ${CI_REGISTRY_IMAGE}/${DOCKER_IMAGE}
   script:
     - >
       if [[ ! -z "${USE_MOCK_SERVER}" ]]; then
@@ -96,6 +112,18 @@ test:
     reports:
       junit:
         - artifacts/*test-result.xml
+
+test_scheduled:
+  extends: .test_base
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  retry: 2
+
+test_manual:
+  extends: .test_base
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
 
 # stage: publish -------------------------
 
