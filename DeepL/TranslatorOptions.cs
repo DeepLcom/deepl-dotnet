@@ -10,6 +10,10 @@ namespace DeepL {
   /// <summary>Class containing containing options controlling <see cref="Translator" /> behaviour.</summary>
   public sealed class TranslatorOptions {
     /// <summary>
+    ///   Authentication key to access the API.
+    /// </summary>
+    public string? AuthKey { get; set; }
+    /// <summary>
     ///   HTTP headers attached to every HTTP request. By default no extra headers are used. Note that during
     ///   <see cref="Translator" /> initialization headers for Authorization and User-Agent are added, unless they are
     ///   overridden in this option.

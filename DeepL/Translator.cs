@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DeepL.Internal;
 using DeepL.Model;
+using Microsoft.Extensions.Options;
 
 namespace DeepL {
 
@@ -415,6 +416,10 @@ namespace DeepL {
 
     /// <summary>Internal class implementing HTTP requests.</summary>
     private readonly DeepLClient _client;
+
+    /// <summary>Initializes a new <see cref="Translator" /> object using your <see cref="TranslatorOptions" />.</summary>
+    /// <param name="options">Options to setup and control Translator behaviour.</param>
+    public Translator(IOptions<TranslatorOptions> options) : this(options.Value.AuthKey ?? "", options.Value) { }
 
     /// <summary>Initializes a new <see cref="Translator" /> object using your authentication key.</summary>
     /// <param name="authKey">
@@ -851,7 +856,7 @@ namespace DeepL {
     ///   system and language runtime version.
     /// </summary>
     /// <param name="sendPlatformInfo">
-    ///   <c>true</c> to send platform information with every API request (default), 
+    ///   <c>true</c> to send platform information with every API request (default),
     ///   <c>false</c> to only send the library version.
     /// </param>
     /// <param name="AppInfo">
