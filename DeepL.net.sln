@@ -1,8 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepL", "DeepL\DeepL.csproj", "{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeepL", "DeepL\DeepL.csproj", "{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepLTests", "DeepLTests\DeepLTests.csproj", "{3582DAA3-A216-4D58-83C8-BA91B4EE2260}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeepLTests", "DeepLTests\DeepLTests.csproj", "{3582DAA3-A216-4D58-83C8-BA91B4EE2260}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTest", "ApiTest\ApiTest.csproj", "{C2B007AD-46BB-4140-82E0-0454783893BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepL.Extensions.DependencyInjection", "DeepL.Extensions.Microsoft.DependencyInjection\DeepL.Extensions.DependencyInjection.csproj", "{0E43D591-BB48-481F-AC9C-BD5554894EB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +25,19 @@ Global
 		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2B007AD-46BB-4140-82E0-0454783893BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2B007AD-46BB-4140-82E0-0454783893BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2B007AD-46BB-4140-82E0-0454783893BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2B007AD-46BB-4140-82E0-0454783893BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E43D591-BB48-481F-AC9C-BD5554894EB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E43D591-BB48-481F-AC9C-BD5554894EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E43D591-BB48-481F-AC9C-BD5554894EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E43D591-BB48-481F-AC9C-BD5554894EB1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {738E9B2C-7F3D-45CC-86FF-63B1881D80B5}
 	EndGlobalSection
 EndGlobal

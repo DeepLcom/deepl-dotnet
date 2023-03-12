@@ -9,11 +9,14 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using DeepL.Model;
 using Microsoft.Extensions.Http;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Timeout;
 
@@ -38,6 +41,109 @@ namespace DeepL.Internal {
     /// <summary>The base URL for DeepL's API.</summary>
     private readonly Uri _serverUrl;
 
+    /// <summary>Base URL for DeepL API Pro accounts.</summary>
+    private const string DeepLServerUrl = "https://api.deepl.com";
+
+    /// <summary>Base URL for DeepL API Free accounts.</summary>
+    private const string DeepLServerUrlFree = "https://api-free.deepl.com";
+
+
+
+    /// <inheritdoc />
+    public async Task<Usage> GetUsageAsync(CancellationToken cancellationToken = default) {
+      using var responseMessage = await ApiGetAsync("/v2/usage", cancellationToken).ConfigureAwait(false);
+      await CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      var usageFields = await JsonUtils.DeserializeAsync<Usage.JsonFieldsStruct>(responseMessage)
+            .ConfigureAwait(false);
+      return new Usage(usageFields);
+    }
+
+    /// <summary>An internal constructor used for DI.</summary>
+    internal DeepLClient(HttpClient client, IOptions<TranslatorOptions> optionsFactory) {
+      var options = optionsFactory.Value;
+
+      if (options.AuthKey == null) {
+        throw new ArgumentNullException(nameof(options.AuthKey));
+      }
+
+      var authKey = options.AuthKey.Trim();
+
+      if (authKey.Length == 0) {
+        throw new ArgumentException($"{nameof(authKey)} is empty");
+      }
+
+      var serverUrl = new Uri(
+            options.ServerUrl ?? (AuthKeyIsFreeAccount(authKey) ? DeepLServerUrlFree : DeepLServerUrl));
+
+      var headers = new Dictionary<string, string?>(options.Headers, StringComparer.OrdinalIgnoreCase);
+
+      if (!headers.ContainsKey("User-Agent")) {
+        headers.Add("User-Agent", ConstructUserAgentString(options.sendPlatformInfo, options.appInfo));
+      }
+
+      if (!headers.ContainsKey("Authorization")) {
+        headers.Add("Authorization", $"DeepL-Auth-Key {authKey}");
+      }
+
+      if (serverUrl == null) {
+        throw new ArgumentNullException($"{nameof(serverUrl)}");
+      }
+
+      _serverUrl = serverUrl;
+      _httpClient = client;
+      _disposeClient = true;
+
+      _headers = headers.ToArray();
+    }
+
+    /// <summary>
+    ///   Builds the user-agent string we want to send to the API with every request. This string contains
+    ///   basic information about the client environment, such as the deepl client library version, operating
+    ///   system and language runtime version.
+    /// </summary>
+    /// <param name="sendPlatformInfo">
+    ///   <c>true</c> to send platform information with every API request (default), 
+    ///   <c>false</c> to only send the library version.
+    /// </param>
+    /// <param name="AppInfo">
+    ///   Name and version of the application using this library. Ignored if null.
+    /// </param>
+    /// <returns>Enumerable of tuples containing the parameters to include in HTTP request.</returns>
+    private string ConstructUserAgentString(bool sendPlatformInfo = true, AppInfo? appInfo = null) {
+      var platformInfoString = $"deepl-dotnet/{Version()}";
+      if (sendPlatformInfo) {
+        var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        var clrVersion = Environment.Version.ToString();
+        platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
+      }
+      if (appInfo != null) {
+        platformInfoString += $" {appInfo?.AppName}/{appInfo?.AppVersion}";
+      }
+      return platformInfoString;
+    }
+
+    /// <summary>
+    ///   Determines if the given DeepL Authentication Key belongs to an API Free account or an API Pro account.
+    /// </summary>
+    /// <param name="authKey">
+    ///   DeepL Authentication Key as found in your
+    ///   <a href="https://www.deepl.com/pro-account/">DeepL API account</a>.
+    /// </param>
+    /// <returns>
+    ///   <c>true</c> if the Authentication Key belongs to an API Free account, <c>false</c> if it belongs to an API Pro
+    ///   account.
+    /// </returns>
+    public static bool AuthKeyIsFreeAccount(string authKey) => authKey.TrimEnd().EndsWith(":fx");
+
+    /// <summary>Retrieves the version string, with format MAJOR.MINOR.BUGFIX.</summary>
+    /// <returns>String containing the library version.</returns>
+    public static string Version() {
+      var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion ?? "";
+      return version;
+    }
+
+
     /// <summary>Initializes a new <see cref="DeepLClient" />.</summary>
     /// <param name="serverUrl">Base server URL to apply to all relative URLs in requests.</param>
     /// <param name="clientFactory">Factory function to obtain <see cref="HttpClient" /> used for requests.</param>
@@ -47,11 +153,7 @@ namespace DeepL.Internal {
           Uri serverUrl,
           Func<HttpClientAndDisposeFlag> clientFactory,
           IEnumerable<KeyValuePair<string, string?>> headers) {
-      if (serverUrl == null) {
-        throw new ArgumentNullException($"{nameof(serverUrl)}");
-      }
-
-      _serverUrl = serverUrl;
+      _serverUrl = serverUrl ?? throw new ArgumentNullException($"{nameof(serverUrl)}");
       var clientAndDisposeFlag = clientFactory();
       _httpClient = clientAndDisposeFlag.HttpClient;
       _disposeClient = clientAndDisposeFlag.DisposeClient;
@@ -79,8 +181,7 @@ namespace DeepL.Internal {
     /// <param name="perRetryConnectionTimeout">Maximum time for each attempted request.</param>
     /// <param name="maximumNetworkRetries">Maximum number of retried requests.</param>
     /// <returns>An <see cref="HttpMessageHandler" /> comprising the inner handler wrapped with the retry policy.</returns>
-    private static HttpMessageHandler CreateHttpMessageHandlerWithRetryPolicy(
-          HttpMessageHandler innerHandler,
+    internal static IAsyncPolicy<HttpResponseMessage> CreateDefaultPolicy(
           TimeSpan perRetryConnectionTimeout,
           int maximumNetworkRetries) {
       var rnd = new Random();
@@ -108,8 +209,7 @@ namespace DeepL.Internal {
                   responseMessage => responseMessage.StatusCode == HttpStatusCodeTooManyRequests ||
                                      responseMessage.StatusCode >= HttpStatusCode.InternalServerError)
             .WaitAndRetryAsync(maximumNetworkRetries, getSleepDuration);
-      var policy = Policy.WrapAsync(waitAndRetry, timeout);
-      return new PolicyHttpMessageHandler(policy) { InnerHandler = innerHandler };
+      return Policy.WrapAsync(waitAndRetry, timeout);
     }
 
     /// <summary>Creates a default HttpClient with exponential-backoff policy for retrying failed requests.</summary>
@@ -121,12 +221,20 @@ namespace DeepL.Internal {
           TimeSpan perRetryConnectionTimeout,
           TimeSpan overallConnectionTimeout,
           int maximumNetworkRetries) {
-      var handler = CreateHttpMessageHandlerWithRetryPolicy(
-            new HttpClientHandler(),
+      var policy = CreateDefaultPolicy(
             perRetryConnectionTimeout,
             maximumNetworkRetries);
+
+#if NET5_0_OR_GREATER
+      var handler = new SocketsHttpHandler() { PooledConnectionLifetime = TimeSpan.FromMinutes(2) };
+#else
+      var handler = new HttpClientHandler() { };
+#endif
+
+      var policyHandler = new PolicyHttpMessageHandler(policy) { InnerHandler = handler };
       return new HttpClientAndDisposeFlag {
-            DisposeClient = true, HttpClient = new HttpClient(handler) { Timeout = overallConnectionTimeout }
+        DisposeClient = true,
+        HttpClient = new HttpClient(policyHandler) { Timeout = overallConnectionTimeout }
       };
     }
 
@@ -203,9 +311,9 @@ namespace DeepL.Internal {
                   queryParams.Select(pair => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(pair.Value)}"));
 
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri + queryString),
-            Method = HttpMethod.Get,
-            Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
+        RequestUri = new Uri(_serverUrl, relativeUri + queryString),
+        Method = HttpMethod.Get,
+        Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
@@ -217,7 +325,8 @@ namespace DeepL.Internal {
     /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiDeleteAsync(string relativeUri, CancellationToken cancellationToken) {
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri), Method = HttpMethod.Delete
+        RequestUri = new Uri(_serverUrl, relativeUri),
+        Method = HttpMethod.Delete
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
@@ -233,9 +342,9 @@ namespace DeepL.Internal {
           CancellationToken cancellationToken,
           IEnumerable<(string Key, string Value)>? bodyParams = null) {
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri),
-            Method = HttpMethod.Post,
-            Content = bodyParams != null
+        RequestUri = new Uri(_serverUrl, relativeUri),
+        Method = HttpMethod.Post,
+        Content = bodyParams != null
                   ? new LargeFormUrlEncodedContent(
                         bodyParams.Select(pair => new KeyValuePair<string, string>(pair.Key, pair.Value)))
                   : null
@@ -265,10 +374,10 @@ namespace DeepL.Internal {
       content.Add(new StreamContent(file), "file", fileName);
 
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri),
-            Method = HttpMethod.Post,
-            Content = content,
-            Headers = { Accept = { new MediaTypeWithQualityHeaderValue("application/json") } }
+        RequestUri = new Uri(_serverUrl, relativeUri),
+        Method = HttpMethod.Post,
+        Content = content,
+        Headers = { Accept = { new MediaTypeWithQualityHeaderValue("application/json") } }
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }

@@ -1,4 +1,4 @@
-﻿// Copyright 2022 DeepL SE (https://www.deepl.com)
+// Copyright 2022 DeepL SE (https://www.deepl.com)
 // Use of this source code is governed by an MIT
 // license that can be found in the LICENSE file.
 
@@ -466,6 +466,15 @@ namespace DeepL {
             headers);
     }
 
+    /// <summary>An internal constructor to use with DI.</summary>
+    /// <remarks>
+    ///   This function does not establish a connection to the DeepL API. To check connectivity, use
+    ///   <see cref="GetUsageAsync" />.
+    /// </remarks>
+    internal Translator(DeepLClient deepLClient) {
+      _client = deepLClient;
+    }
+
     /// <summary>Releases the unmanaged resources and disposes of the managed resources used by the <see cref="Translator" />.</summary>
     public void Dispose() => _client.Dispose();
 
@@ -858,11 +867,11 @@ namespace DeepL {
     ///   Name and version of the application using this library. Ignored if null.
     /// </param>
     /// <returns>Enumerable of tuples containing the parameters to include in HTTP request.</returns>
-    private String ConstructUserAgentString(bool sendPlatformInfo = true, AppInfo? appInfo = null) {
+    private string ConstructUserAgentString(bool sendPlatformInfo = true, AppInfo? appInfo = null) {
       var platformInfoString = $"deepl-dotnet/{Version()}";
       if (sendPlatformInfo) {
-      var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-      var clrVersion = Environment.Version.ToString();
+        var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        var clrVersion = Environment.Version.ToString();
         platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
       }
       if (appInfo != null) {

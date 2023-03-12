@@ -9,6 +9,13 @@ using System.Net.Http;
 namespace DeepL {
   /// <summary>Class containing containing options controlling <see cref="Translator" /> behaviour.</summary>
   public sealed class TranslatorOptions {
+
+    /// <summary>
+    ///   DeepL Authentication Key as found in your
+    ///   <a href="https://www.deepl.com/pro-account/">DeepL API account</a>.
+    /// </summary>
+    public string? AuthKey { get; set; }
+
     /// <summary>
     ///   HTTP headers attached to every HTTP request. By default no extra headers are used. Note that during
     ///   <see cref="Translator" /> initialization headers for Authorization and User-Agent are added, unless they are
