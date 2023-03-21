@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## Unreleased
+## [1.7.0] - 2023-03-22
 ### Added
 * Script to check our source code for license headers and a step for them in the CI.
 * Added platform and node version information to the user-agent string that is sent with API calls, along with an opt-out.
@@ -126,7 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
-[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.6.0...HEAD
+[1.7.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.4.0...v1.5.0
