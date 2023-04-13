@@ -1019,9 +1019,9 @@ namespace DeepL {
     /// <param name="hintSecondsRemaining">Optional hint of the number of seconds remaining.</param>
     /// <returns><see cref="TimeSpan" /> to wait.</returns>
     private static TimeSpan CalculateDocumentWaitTime(int? hintSecondsRemaining) {
-      var secs = ((hintSecondsRemaining ?? 0) / 2.0) + 1.0;
-      secs = Math.Max(1.0, Math.Min(secs, 60.0));
-      return TimeSpan.FromSeconds(secs);
+      // hintSecondsRemaining is currently unreliable, so just poll equidistantly
+      const int POLLING_TIME_SECS = 5;
+      return TimeSpan.FromSeconds(POLLING_TIME_SECS);
     }
 
     /// <summary>Creates a glossary with given details.</summary>
