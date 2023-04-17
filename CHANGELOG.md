@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## Unreleased
+## [1.7.1] - 2023-04-17
 ### Fixed
 * Changed document translation to poll the server every 5 seconds. This should greatly reduce observed document translation processing time.
 
@@ -130,6 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
+[1.7.1]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.5.0...v1.5.1
