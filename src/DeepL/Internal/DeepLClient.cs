@@ -13,6 +13,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using DeepL.Model.Exceptions;
+using DeepL.Model.Options;
 using Microsoft.Extensions.Http;
 using Polly;
 using Polly.Timeout;

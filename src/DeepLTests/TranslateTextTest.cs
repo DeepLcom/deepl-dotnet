@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using DeepL;
 using DeepL.Model;
 using DeepL.Model.Exceptions;
+using DeepL.Model.Options;
 using Xunit;
 
 namespace DeepLTests {

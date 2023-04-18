@@ -9,6 +9,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using DeepL;
+using DeepL.Model;
+using DeepL.Model.Options;
 using Xunit;
 
 namespace DeepLTests {

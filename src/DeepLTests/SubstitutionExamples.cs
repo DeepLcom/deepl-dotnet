@@ -3,7 +3,8 @@
 // license that can be found in the LICENSE file.
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DeepL;
+using DeepL.Model;
+using DeepL.Model.Interfaces;
 using NSubstitute;
 using Xunit;
 
