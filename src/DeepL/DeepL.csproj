@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>DeepL.net is the official DeepL .NET client library.</Description>
+    <Description>DeepL.NET is the official DeepL .NET client library.</Description>
     <AssemblyTitle>DeepL.net</AssemblyTitle>
-    <Version>1.7.1</Version>
-    <PackageVersion>1.7.1</PackageVersion>
-    <FileVersion>1.7.1.0</FileVersion>
+    <Version>1.8.0</Version>
+    <PackageVersion>1.8.0</PackageVersion>
+    <FileVersion>1.8.0.0</FileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;netstandard2.1</TargetFrameworks>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
