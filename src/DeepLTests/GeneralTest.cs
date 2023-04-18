@@ -7,6 +7,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DeepL;
+using DeepL.Model.Exceptions;
 using Xunit;
 using Xunit.Abstractions;
 

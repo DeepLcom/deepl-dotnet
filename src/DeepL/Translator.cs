@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DeepL.Internal;
 using DeepL.Model;
+using DeepL.Model.Exceptions;
 
 namespace DeepL {
 
