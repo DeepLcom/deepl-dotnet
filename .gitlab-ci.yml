@@ -9,7 +9,7 @@ include:
 
 # Global --------------------------
 
-image: ${CI_REGISTRY_IMAGE}/sdk:5.0-alpine
+image: mcr.microsoft.com/dotnet/sdk:5.0-alpine
 
 workflow:
   rules:
@@ -91,22 +91,22 @@ package:
     - build
   parallel:
     matrix:
-      - DOCKER_IMAGE: "sdk:5.0-alpine"
+      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:5.0-alpine"
         FRAMEWORK: "net5.0"
         CONFIGURATION: "Release"
-      - DOCKER_IMAGE: "sdk:3.1-alpine"
+      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:3.1-alpine"
         FRAMEWORK: "netcoreapp3.1"
         CONFIGURATION:
           - Debug
           - Release
         USE_MOCK_SERVER: "use mock server"
-      - DOCKER_IMAGE: "sdk:5.0-alpine"
+      - DOCKER_IMAGE: "mcr.microsoft.com/dotnet/sdk:5.0-alpine"
         FRAMEWORK: "net5.0"
         CONFIGURATION:
           - Debug
           - Release
         USE_MOCK_SERVER: "use mock server"
-  image: ${CI_REGISTRY_IMAGE}/${DOCKER_IMAGE}
+  image: ${DOCKER_IMAGE}
   script:
     - >
       if [[ ! -z "${USE_MOCK_SERVER}" ]]; then
