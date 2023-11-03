@@ -57,15 +57,19 @@ but instead fetched from a configuration file or environment variable.
 
 ### Translating text
 
-To translate text, call `TranslateTextAsync()` with the text and the source and target language codes.
+To translate text, call `TranslateTextAsync()`. The first argument is a string containing the text to translate, or
+`IEnumerable` of strings to translate multiple texts.
 
-The source and target language arguments accept strings containing the language codes, for example `"DE"`, `"FR"`.
+The second and third arguments are case-insensitive language codes for the source and target language respectively,
+for example `"DE"`, `"FR"`.
 The `LanguageCode` static class defines constants for the currently supported languages, for example
-`LanguageCode.German`, `LanguageCode.French`. To auto-detect the input text language, specify `null` as the source
-language.
+`LanguageCode.German`, `LanguageCode.French`.
+To auto-detect the input text language, specify `null` as the source language.
 
-The returned `TextResult` contains the translated text and detected source language code.
-Additional `TextTranslateOptions` can also be provided.
+Additional `TextTranslateOptions` can also be provided, see [Text translation options](#text-translation-options) below.
+
+`TranslateTextAsync()` returns a `TextResult` or `TextResult` array corresponding to the input text(s).
+The `TextResult` contains the translated text and detected source language code.
 
 ```c#
 // Translate text into a target language, in this case, French:
@@ -96,10 +100,54 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
 // Will print: "Wie geht es dir?" "Wie geht es Ihnen?"
 ```
 
+#### Text translation options
+
+`TextTranslateOptions` has the following properties that impact text translation:
+
+- `SentenceSplittingMode`: specifies how input text should be split into
+  sentences, default: `'SentenceSplittingMode.All'`.
+  - `SentenceSplittingMode.All`: input text will be split into sentences using
+    both newlines and punctuation.
+  - `SentenceSplittingMode.Off`: input text will not be split into sentences.
+    Use this for applications where each input text contains only one
+    sentence.
+  - `SentenceSplittingMode.NoNewlines`: input text will be split into
+    sentences using punctuation but not newlines.
+- `PreserveFormatting`: controls automatic-formatting-correction. Set to
+  `true` to prevent automatic-correction of formatting, default: `false`.
+- `Formality`: controls whether translations should lean toward informal or
+  formal language. This option is only available for some target languages, see
+  [Listing available languages](#listing-available-languages).
+  - `Formality.Less`: use informal language.
+  - `Formality.More`: use formal, more polite language.
+  - `Formality.Default`: standard level of formality.
+  - `Formality.PreferLess`: less formality, if available for the specified target language, otherwise default.
+  - `Formality.PreferMore`: more formality, if available for the specified target language, otherwise default.
+- `GlossaryId`: specifies a glossary to use with translation, as a string
+  containing the glossary ID.
+- `TagHandling`: type of tags to parse before translation, options are
+  `"html"` and `"xml"`.
+
+The following options are only used if `TagHandling` is set to `'xml'`:
+
+- `OutlineDetection`: set to `false` to disable automatic tag detection,
+  default is `true`.
+- `SplittingTags`: `List` of XML tags that should be used to split text into
+  sentences. Tags may be specified individually (`['tag1', 'tag2']`),
+  or a comma-separated list of strings (`'tag1,tag2'`). The default is an empty
+  list.
+- `NonSplittingTags`: `List` of XML tags that should not be used to split
+  text into sentences. Format and default are the same as for splitting tags.
+- `IgnoreTags`: `List` of XML tags that containing content that should not be
+  translated. Format and default are the same as for splitting tags.
+
+For a detailed explanation of the XML handling options, see the [API documentation][api-docs-xml-handling].
+
 ### Translating documents
 
 To translate documents, call `TranslateDocumentAsync()` with the input and output files as either `FileInfo` or `Stream`
-objects, and provide the source and target language as above. Additional `DocumentTranslateOptions` are also available.
+objects, and provide the source and target language as above.
+Additional `DocumentTranslateOptions` are also available, see [Document translation options](#document-translation-options) below.
 Note that file paths are not accepted as strings, to avoid mixing up the file and language arguments.
 
 ```c#
@@ -129,10 +177,29 @@ application needs to execute these steps individually, you can instead use the f
 - `TranslateDocumentStatusAsync()` (or `TranslateDocumentWaitUntilDoneAsync()`), and
 - `TranslateDocumentDownloadAsync()`
 
+#### Document translation options
+
+`DocumentTranslateOptions` has the following properties that impact text translation:
+
+- `Formality`:  same as in [Text translation options](#text-translation-options).
+- `GlossaryId`:  same as in [Text translation options](#text-translation-options).
+
 ### Glossaries
 
-Glossaries allow you to customize your translations using defined terms. Create a glossary containing the desired terms
-and then use it in translations. Multiple glossaries can be stored with your account.
+Glossaries allow you to customize your translations using defined terms.
+Multiple glossaries can be stored with your account, each with a user-specified name and a uniquely-assigned ID.
+
+#### Creating a glossary
+
+You can create a glossary with your desired terms and name using
+`CreateGlossaryAsync()`. Each glossary applies to a single source-target language
+pair. Note: Glossaries are only supported for some language pairs, see
+[Listing available glossary languages](#listing-available-glossary-languages)
+for more information. The entries should be specified as a `Dictionary`.
+
+If successful, the glossary is created and stored with your DeepL account, and
+a `GlossaryInfo` object is returned including the ID, name, languages and entry
+count.
 
 ```c#
 // Create an English to German glossary with two terms:
@@ -141,10 +208,74 @@ var glossaryEnToDe = await translator.CreateGlossaryAsync(
     "My glossary", "EN", "DE",
     new GlossaryEntries(entriesDictionary));
 
-// Functions to get, list, and delete glossaries from DeepL servers are also provided
-var glossaries = await translator.ListGlossariesAsync();
-Console.WriteLine($"{glossaries.Length} glossaries found.");
+Console.WriteLine($"Created {glossaryEnToDe.name}' ({glossaryEnToDe.GlossaryId}) " +
+    $"{glossaryEnToDe.SourceLanguageCode}->{glossaryEnToDe.TargetLanguageCode} " +
+    $"containing {glossaryEnToDe.EntryCount} entries"
+)
+// Example: Created 'My glossary' (559192ed-8e23-...) en->de containing 2 entries
+ ```
 
+You can also upload a glossary downloaded from the DeepL website using
+`CreateGlossaryFromCsvAsync()`. Instead of supplying the entries as a dictionary,
+specify the CSV data as a `Stream` containing file content:
+
+```c#
+var csvStream =  File.OpenRead("myGlossary.csv");
+var csvGlossary = await translator.CreateGlossaryFromCsvAsync("My CSV glossary", "EN", "DE", csvStream);
+```
+
+The [API documentation][api-docs-csv-format] explains the expected CSV format in detail.
+
+#### Getting, listing and deleting stored glossaries
+
+Functions to get, list, and delete stored glossaries are also provided:
+
+- `GetGlossaryAsync()` takes a glossary ID and returns a `GlossaryInfo` object for a
+  stored glossary, or raises an exception if no such glossary is found.
+- `ListGlossariesAsync()` returns a `List` of `GlossaryInfo` objects corresponding to
+  all of your stored glossaries.
+- `DeleteGlossaryAsync()` takes a glossary ID or `GlossaryInfo` object and deletes
+  the stored glossary from the server, or raises an exception if no such glossary is found.
+
+```c#
+// Retrieve a stored glossary using the ID
+var myGlossary = await translator.GetGlossaryAsync("559192ed-8e23-...");
+
+// Find and delete glossaries named 'Old glossary'
+var glossaries = await translator.ListGlossariesAsync();
+foreach (var glossaryInfo in glossaries) {
+  if (glossaryInfo.Name == "Old glossary")
+    await translator.DeleteGlossaryAsync(glossaryInfo);
+}
+```
+
+#### Listing entries in a stored glossary
+
+The `GlossaryInfo` object does not contain the glossary entries, but instead
+only the number of entries in the `EntryCount` property.
+
+To list the entries contained within a stored glossary, use
+`GetGlossaryEntriesAsync()` providing either the `GlossaryInfo` object or glossary ID:
+
+```c#
+var entries = translator.GetGlossaryEntriesAsync(myGlossary);
+
+foreach (KeyValuePair<string, string> entry in entries.ToDictionary()) {
+  Console.WriteLine($"{entry.Key}: {entry.Value}");
+}
+// prints:
+//   artist: Maler
+//   prize: Gewinn
+```
+
+#### Using a stored glossary
+
+You can use a stored glossary for text (or document) translation by setting the
+`TextTranslationOptions` (or `DocumentTranslationOptions`) `GlossaryId` property
+to the glossary ID. You must also specify the `source_lang` argument (it is
+required when using a glossary):
+
+```c#
 var resultWithGlossary = await translator.TranslateTextAsync(
     "The artist was awarded a prize.",
     "EN",
@@ -169,6 +300,15 @@ if (usage.AnyLimitReached) {
 
 ### Listing available languages
 
+You can request the list of languages supported by DeepL for text and documents
+using the `GetSourceLanguagesAsync()` and `GetTargetLanguagesAsync()` functions.
+They both return a list of `Language` objects.
+
+The `Name` property gives the name of the language in English, and the `Code`
+property gives the language code. The `SupportsFormality` property only appears
+for target languages, and indicates whether the target language supports the
+optional `Formality` parameter.
+
 ```c#
 // Source and target languages
 var sourceLanguages = await translator.GetSourceLanguagesAsync();
@@ -182,14 +322,37 @@ foreach (var lang in targetLanguages) {
      // Example: "German (DE) supports formality"
   }
 }
+```
+
+#### Listing available glossary languages
+
+Glossaries are supported for a subset of language pairs. To retrieve those
+languages use the `GetGlossaryLanguagesAsync()` function, which returns an array
+of `GlossaryLanguagePair` objects. Use the `SourceLanguage` and
+`TargetLanguage` properties to check the pair of language codes supported.
+
+```c#
 
 // Glossary languages
 var glossaryLanguages = await translator.GetGlossaryLanguagesAsync();
 foreach (var languagePair in glossaryLanguages) {
   Console.WriteLine($"{languagePair.SourceLanguage} to {languagePair.TargetLanguage}");
-  // Example: "EN to DE", "DE to EN"
+  // Example: "EN to DE", "DE to EN", etc.
 }
 ```
+
+You can also find the list of supported glossary language pairs in the
+[API documentation][api-docs-glossary-lang-list].
+
+Note that glossaries work for all target regional-variants: a glossary for the
+target language English (`"EN"`) supports translations to both American English
+(`"EN-US"`) and British English (`"EN-GB"`).
+
+### Exceptions
+
+All library functions may raise `DeepLException` or one of its subclasses. If
+invalid arguments are provided, they may raise the standard exceptions
+`ArgumentException`.
 
 ### Writing a Plugin
 
@@ -276,5 +439,12 @@ only with the DeepL API or the mock-server and will be otherwise skipped. The te
 trigger server errors and test the client error-handling. To execute the tests using deepl-mock, run it in another
 terminal while executing the tests. Execute the tests using `dotnet test` with the `DEEPL_MOCK_SERVER_PORT` and
 `DEEPL_SERVER_URL` environment variables defined referring to the mock-server.
+
+
+[api-docs-csv-format]: https://www.deepl.com/docs-api/managing-glossaries/supported-glossary-formats/?utm_source=github&utm_medium=github-dotnet-readme
+
+[api-docs-glossary-lang-list]: https://www.deepl.com/docs-api/managing-glossaries/?utm_source=github&utm_medium=github-dotnet-readme
+
+[api-docs-xml-handling]: https://www.deepl.com/docs-api/handling-xml/?utm_source=github&utm_medium=github-dotnet-readme
 
 [issues]: https://www.github.com/DeepLcom/deepl-dotnet/issues
