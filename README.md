@@ -125,6 +125,11 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
   - `Formality.PreferMore`: more formality, if available for the specified target language, otherwise default.
 - `GlossaryId`: specifies a glossary to use with translation, as a string
   containing the glossary ID.
+- `Context`: specifies additional context to influence translations, that is not
+  translated itself. Note this is an **alpha feature**: it may be deprecated at
+  any time, or incur charges if it becomes generally available.
+  See the [API documentation][api-docs-context-param] for more information and
+  example usage.
 - `TagHandling`: type of tags to parse before translation, options are
   `"html"` and `"xml"`.
 
@@ -440,6 +445,8 @@ trigger server errors and test the client error-handling. To execute the tests u
 terminal while executing the tests. Execute the tests using `dotnet test` with the `DEEPL_MOCK_SERVER_PORT` and
 `DEEPL_SERVER_URL` environment variables defined referring to the mock-server.
 
+
+[api-docs-context-param]: https://www.deepl.com/docs-api/translating-text/?utm_source=github&utm_medium=github-dotnet-readme
 
 [api-docs-csv-format]: https://www.deepl.com/docs-api/managing-glossaries/supported-glossary-formats/?utm_source=github&utm_medium=github-dotnet-readme
 

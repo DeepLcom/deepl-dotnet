@@ -851,7 +851,7 @@ namespace DeepL {
     ///   system and language runtime version.
     /// </summary>
     /// <param name="sendPlatformInfo">
-    ///   <c>true</c> to send platform information with every API request (default), 
+    ///   <c>true</c> to send platform information with every API request (default),
     ///   <c>false</c> to only send the library version.
     /// </param>
     /// <param name="AppInfo">
@@ -896,6 +896,10 @@ namespace DeepL {
 
       if (options == null) {
         return bodyParams;
+      }
+
+      if (options.Context != null) {
+        bodyParams.Add(("context", options.Context));
       }
 
       if (options.SentenceSplittingMode != SentenceSplittingMode.All) {

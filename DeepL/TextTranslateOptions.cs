@@ -20,6 +20,13 @@ namespace DeepL {
       GlossaryId = glossary.GlossaryId;
     }
 
+    /// <summary>
+    /// Specifies additional context to influence translations, that is not translated itself. Note this is an **alpha
+    /// feature**: it may be deprecated at any time, or incur charges if it becomes generally available.
+    /// See the API documentation for more information and example usage.
+    /// </summary>
+    public string? Context { get; set; }
+
     /// <summary>Controls whether translations should lean toward formal or informal language.</summary>
     /// This option is only applicable for target languages that support the formality option.
     /// <seealso cref="TargetLanguage.SupportsFormality" />

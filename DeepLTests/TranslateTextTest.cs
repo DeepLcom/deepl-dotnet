@@ -153,6 +153,25 @@ namespace DeepLTests {
     }
 
     [Fact]
+    public async Task TestContext() {
+      // In German, "scharf" can mean:
+      //  - spicy/hot when referring to food, or
+      //  - sharp when referring to other objects such as a knife (Messer).
+      var translator = CreateTestTranslator();
+      const string text = "Das ist scharf!";
+
+      await translator.TranslateTextAsync(text, null, "de");
+      // Result: "That is hot!"
+
+      await translator.TranslateTextAsync(
+            text,
+            null,
+            "de",
+            new TextTranslateOptions { Context = "Das ist ein Messer." });
+      // Result: "That is sharp!"
+    }
+
+    [Fact]
     public async Task TestSplitSentences() {
       var translator = CreateTestTranslator();
       const string text = "If the implementation is hard to explain, it's a bad idea.\n" +

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+### Added
+* Add optional `Context` parameter for text translation, that specifies
+  additional context to influence translations, that is not translated itself.
 ### Changed
 * Improvements to readme examples.
 
