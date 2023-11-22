@@ -630,7 +630,7 @@ namespace DeepL {
             options?.GlossaryId);
 
       using var responseMessage = await _client.ApiUploadAsync(
-                  "/v2/document/",
+                  "/v2/document",
                   cancellationToken,
                   bodyParams,
                   inputFile,

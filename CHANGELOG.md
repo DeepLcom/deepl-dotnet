@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## Unreleased
+### Fixed
+* Change document upload to use the path `/v2/document` instead of `/v2/document/` (no trailing `/`).
+  Both paths will continue to work in the v2 version of the API, but `/v2/document` is the intended one.
+
+
 ## [1.8.0] - 2023-11-03
 ### Added
 * Add optional `Context` parameter for text translation, that specifies
@@ -138,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
+[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.8.0...HEAD
 [1.8.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.6.0...v1.7.0
