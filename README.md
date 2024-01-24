@@ -150,8 +150,9 @@ For a detailed explanation of the XML handling options, see the [API documentati
 
 ### Translating documents
 
-To translate documents, call `TranslateDocumentAsync()` with the input and output files as either `FileInfo` or `Stream`
+To translate documents, call `TranslateDocumentAsync()` with the input and output files as `FileInfo`
 objects, and provide the source and target language as above.
+
 Additional `DocumentTranslateOptions` are also available, see [Document translation options](#document-translation-options) below.
 Note that file paths are not accepted as strings, to avoid mixing up the file and language arguments.
 
@@ -173,6 +174,20 @@ try {
     Console.WriteLine($"Error occurred during document upload: {exception.Message}");
   }
 }
+```
+
+Alternatively the input and output files may be provided as `Stream` objects; in
+that case the input file name (or extension) is required, so the DeepL API can
+determine the file type:
+```c#
+...
+  await translator.TranslateDocumentAsync(
+        new MemoryStream(buffer),
+        "Input file.docx", // An extension like ".docx" is also sufficient
+        File.OpenWrite(outputDocumentPath),
+        "EN",
+        "DE",
+        new DocumentTranslateOptions { Formality = Formality.More });
 ```
 
 `TranslateDocumentAsync()` manages the upload, wait until translation is complete, and download steps. If your
