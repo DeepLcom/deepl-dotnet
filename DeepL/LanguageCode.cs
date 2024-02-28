@@ -9,6 +9,9 @@ namespace DeepL {
   ///   <see cref="ITranslator.GetTargetLanguagesAsync" />.
   /// </summary>
   public static class LanguageCode {
+    /// <summary>Arabic (MSA) language code, may be used as source or target language.</summary>
+    public const string Arabic = "ar";
+
     /// <summary>Bulgarian language code, may be used as source or target language.</summary>
     public const string Bulgarian = "bg";
 
