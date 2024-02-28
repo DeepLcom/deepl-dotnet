@@ -10,7 +10,7 @@ namespace DeepL {
   public class DeepLException : Exception {
     /// <summary>Initializes a new instance of the <see cref="AuthorizationException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
-    internal DeepLException(string message) : base(message) {
+    public DeepLException(string message) : base(message) {
     }
 
     /// <summary>
@@ -19,7 +19,7 @@ namespace DeepL {
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     /// <param name="innerException">Exception that is the cause of this exception.</param>
-    internal DeepLException(string message, Exception innerException) : base(message, innerException) {
+    public DeepLException(string message, Exception innerException) : base(message, innerException) {
     }
   }
 
@@ -27,7 +27,7 @@ namespace DeepL {
   public sealed class AuthorizationException : DeepLException {
     /// <summary>Initializes a new instance of the <see cref="AuthorizationException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
-    internal AuthorizationException(string message) : base(message) {
+    public AuthorizationException(string message) : base(message) {
     }
   }
 
@@ -35,7 +35,7 @@ namespace DeepL {
   public class NotFoundException : DeepLException {
     /// <summary>Initializes a new instance of the <see cref="NotFoundException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
-    internal NotFoundException(string message) : base(message) {
+    public NotFoundException(string message) : base(message) {
     }
   }
 
@@ -43,7 +43,7 @@ namespace DeepL {
   public sealed class GlossaryNotFoundException : NotFoundException {
     /// <summary>Initializes a new instance of the <see cref="GlossaryNotFoundException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
-    internal GlossaryNotFoundException(string message) : base(message) {
+    public GlossaryNotFoundException(string message) : base(message) {
     }
   }
 
@@ -51,7 +51,7 @@ namespace DeepL {
   public sealed class QuotaExceededException : DeepLException {
     /// <summary>Initializes a new instance of the <see cref="QuotaExceededException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
-    internal QuotaExceededException(string message) : base(message) {
+    public QuotaExceededException(string message) : base(message) {
     }
   }
 
@@ -59,7 +59,7 @@ namespace DeepL {
   public sealed class TooManyRequestsException : DeepLException {
     /// <summary>Initializes a new instance of the <see cref="TooManyRequestsException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
-    internal TooManyRequestsException(string message) : base(message) {
+    public TooManyRequestsException(string message) : base(message) {
     }
   }
 
@@ -68,7 +68,7 @@ namespace DeepL {
     /// <summary>Initializes a new instance of the <see cref="ConnectionException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
     /// <param name="innerException">The exception representing the connection error.</param>
-    internal ConnectionException(string message, Exception innerException) : base(
+    public ConnectionException(string message, Exception innerException) : base(
           message,
           innerException) {
     }
@@ -78,7 +78,7 @@ namespace DeepL {
   public sealed class DocumentNotReadyException : DeepLException {
     /// <summary>Initializes a new instance of the <see cref="DocumentNotReadyException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
-    internal DocumentNotReadyException(string message) : base(message) { }
+    public DocumentNotReadyException(string message) : base(message) { }
   }
 
   /// <summary>
@@ -94,7 +94,7 @@ namespace DeepL {
     ///   Handle to the in-progress document translation, or null if an error occurred before
     ///   uploading the document.
     /// </param>
-    internal DocumentTranslationException(string message, Exception innerException, DocumentHandle? documentHandle) :
+    public DocumentTranslationException(string message, Exception innerException, DocumentHandle? documentHandle) :
           base(message, innerException) {
       DocumentHandle = documentHandle;
     }

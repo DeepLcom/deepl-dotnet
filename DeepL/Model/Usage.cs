@@ -14,9 +14,12 @@ namespace DeepL.Model {
   ///   <a href="https://www.deepl.com/docs-api/">API documentation</a> for more information.
   /// </remarks>
   public sealed class Usage {
-    /// <summary>Initializes a new <see cref="Usage" /> object from the given fields object.</summary>
+    /// <summary>
+    ///   Initializes a new <see cref="Usage" /> object from the given fields object. Note that this constructor
+    ///   should ONLY be used externally in testing code, never in production code.
+    /// </summary>
     /// <param name="fieldsStruct"><see cref="JsonFieldsStruct" /> object containing fields read from JSON data.</param>
-    internal Usage(in JsonFieldsStruct fieldsStruct) {
+    public Usage(in JsonFieldsStruct fieldsStruct) {
       Detail? DetailOrNull(long? count, long? limit) {
         return count != null && limit != null ? new Detail((long)count, (long)limit) : null;
       }
@@ -85,8 +88,11 @@ namespace DeepL.Model {
       public override string ToString() => $"{Count} of {Limit}";
     }
 
-    /// <summary>Internal struct used for JSON deserialization of <see cref="Usage" />.</summary>
-    internal readonly struct JsonFieldsStruct {
+    /// <summary>
+    ///   Internal struct used for JSON deserialization of <see cref="Usage" />. You should only need to
+    ///   instantiate this object in testing code.
+    /// </summary>
+    public readonly struct JsonFieldsStruct {
       [JsonConstructor]
       public JsonFieldsStruct(
             long? characterCount,
