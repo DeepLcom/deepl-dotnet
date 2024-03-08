@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Both paths will continue to work in the v2 version of the API, but `/v2/document` is the intended one.
 * Made `DeepLException` and subclasses, `Usage` and `JsonFieldsStruct` constructors public, to allow for easier mocking of the `ITranslator` interface.
   * [#40](https://github.com/DeepLcom/deepl-dotnet/issues/40) thanks to [PascalVorwerkSaixon](https://github.com/PascalVorwerkSaxion)
+* New language available: Arabic (`'ar'`). Add
+  language code constants and tests.
+  Note: older library versions also support the new languages, this update only
+  adds new code constants.
 
 
 ## [1.8.0] - 2023-11-03

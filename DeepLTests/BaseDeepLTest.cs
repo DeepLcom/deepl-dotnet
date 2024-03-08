@@ -63,6 +63,8 @@ namespace DeepLTests {
 
     protected static string ExampleText(string language) {
       switch (language) {
+        case "ar":
+          return "شعاع البروتون";
         case "bg":
           return "протонен лъч";
         case "cs":
