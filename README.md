@@ -203,6 +203,7 @@ application needs to execute these steps individually, you can instead use the f
 
 - `Formality`:  same as in [Text translation options](#text-translation-options).
 - `GlossaryId`:  same as in [Text translation options](#text-translation-options).
+- `OutputFormat`: using the parameter during document upload, you can select alternative output formats. See the [API documentation][api-docs-outputformat-param] for more information and example usage.
 
 ### Glossaries
 
@@ -466,6 +467,8 @@ terminal while executing the tests. Execute the tests using `dotnet test` with t
 [api-docs-csv-format]: https://www.deepl.com/docs-api/managing-glossaries/supported-glossary-formats/?utm_source=github&utm_medium=github-dotnet-readme
 
 [api-docs-glossary-lang-list]: https://www.deepl.com/docs-api/managing-glossaries/?utm_source=github&utm_medium=github-dotnet-readme
+
+[api-docs-outputformat-param]: https://www.deepl.com/docs-api/documents/format-conversions/?utm_source=github&utm_medium=github-dotnet-readme
 
 [api-docs-xml-handling]: https://www.deepl.com/docs-api/handling-xml/?utm_source=github&utm_medium=github-dotnet-readme
 
