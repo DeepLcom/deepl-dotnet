@@ -133,6 +133,23 @@ namespace DeepLTests {
       await Assert.ThrowsAsync<AuthorizationException>(() => translator.GetUsageAsync());
     }
 
+    [RealServerOnlyFact]
+    public async Task TestMixedDirectionText() {
+      var translator = CreateTestTranslator();
+      var options = new TextTranslateOptions { TagHandling = "xml", IgnoreTags = { "ignore" } };
+      const string arIgnorePart = "<ignore>يجب تجاهل هذا الجزء.</ignore>";
+      const string enSentenceWithArIgnorePart =
+            "<p>This is a <b>short</b> <i>sentence</i>. " + arIgnorePart + " This is another sentence.";
+      const string enIgnorePart = "<ignore>This part should be ignored.</ignore>";
+      const string arSentenceWithEnIgnorePart =
+            "<p>هذه <i>جملة</i> <b>قصيرة</b>. " + enIgnorePart + " هذه جملة أخرى.</p>";
+
+      var enResult = await translator.TranslateTextAsync(enSentenceWithArIgnorePart, null, "en-US", options);
+      Assert.Contains(arIgnorePart, enResult.Text);
+      var arResult = await translator.TranslateTextAsync(arSentenceWithEnIgnorePart, null, "ar", options);
+      Assert.Contains(enIgnorePart, arResult.Text);
+    }
+
     [Fact]
     public void TestInvalidServerUrl() =>
           Assert.ThrowsAny<Exception>(
