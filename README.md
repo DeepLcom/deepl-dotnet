@@ -227,7 +227,7 @@ var glossaryEnToDe = await translator.CreateGlossaryAsync(
     "My glossary", "EN", "DE",
     new GlossaryEntries(entriesDictionary));
 
-Console.WriteLine($"Created {glossaryEnToDe.name}' ({glossaryEnToDe.GlossaryId}) " +
+Console.WriteLine($"Created {glossaryEnToDe.Name}' ({glossaryEnToDe.GlossaryId}) " +
     $"{glossaryEnToDe.SourceLanguageCode}->{glossaryEnToDe.TargetLanguageCode} " +
     $"containing {glossaryEnToDe.EntryCount} entries"
 )
