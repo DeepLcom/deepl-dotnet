@@ -180,10 +180,11 @@ that case the input file name (or extension) is required, so the DeepL API can
 determine the file type:
 ```c#
 ...
+  using outputFile = File.OpenWrite(outputDocumentPath);
   await translator.TranslateDocumentAsync(
         new MemoryStream(buffer),
         "Input file.docx", // An extension like ".docx" is also sufficient
-        File.OpenWrite(outputDocumentPath),
+        outputFile,
         "EN",
         "DE",
         new DocumentTranslateOptions { Formality = Formality.More });
