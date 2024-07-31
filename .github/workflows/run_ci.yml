@@ -1,0 +1,153 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '50 0 * * *'
+
+env:
+  SECRET_DETECTION_JSON_REPORT_FILE: "gitleaks.json"
+
+jobs:
+  license_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: License check
+        run: |
+          ./license_checker.sh '*.cs' | tee license_check_output.txt
+          [ ! -s license_check_output.txt ]
+
+  secret_detection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install and run secret detection
+        run: |
+          wget https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz
+          tar -xzf gitleaks_8.18.4_linux_x64.tar.gz
+          EXITCODE=0
+          ./gitleaks detect -r ${SECRET_DETECTION_JSON_REPORT_FILE} --source . --log-opts="--all --full-history" || EXITCODE=$?
+          if [[ $EXITCODE -ne 0 ]]; then
+            exit $EXITCODE
+          fi
+      - name: Upload secret detection artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-detection-results
+          path: gitleaks.json
+
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: [ '3.1.x', '5.0.x' ]
+        configuration: [ Debug, Release ]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup .NET ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build ${{ matrix.configuration }}
+      run: dotnet build --no-restore --configuration ${{ matrix.configuration }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts ${{ matrix.dotnet-version }}-${{ matrix.configuration }}
+        path: |
+          DeepL/bin/
+          DeepL/obj/
+          DeepLTests/bin/
+          DeepLTests/obj/
+
+# Test and `nuget publish` stage are disabled for now. Code needs to be tested
+
+#######################################################
+# test:
+#   runs-on: ${{ matrix.docker-image }}
+#   strategy:
+#     matrix:
+#       docker-image:
+#         - 'mcr.microsoft.com/dotnet/sdk:5.0-alpine'
+#         - 'mcr.microsoft.com/dotnet/sdk:3.1-alpine'
+#       framework:
+#         - 'net5.0'
+#         - 'netcoreapp3.1'
+#         - 'net5.0'
+#       configuration:
+#         - 'Release'
+#         - 'Debug'
+#       use-mock-server:
+#         - ''
+#         - 'use mock server'
+#   env:
+#     DEEPL_SERVER_URL: http://deepl-mock:3000
+#     DEEPL_MOCK_SERVER_PORT: 3000
+#     DEEPL_PROXY_URL: http://deepl-mock:3001
+#     DEEPL_MOCK_PROXY_SERVER_PORT: 3001
+#   steps:
+#     - name: Checkout
+#       uses: actions/checkout@v4
+#     - name: Setup Docker
+#       uses: docker/setup-docker@v2
+#     - name: Start mock server
+#       if: ${{ matrix.use-mock-server == 'use mock server' }}
+#       run: docker run --name deepl-mock -d -p 3000:3000 deepl-mock
+#     - name: Start mock proxy server
+#       if: ${{ matrix.use-mock-server == 'use mock server' }}
+#       run: docker run --name deepl-mock-proxy -d -p 3001:3001 deepl-mock-proxy
+#     - name: Test
+#       run: |
+#         if [[ ! -z "${{ matrix.use-mock-server }}" ]]; then
+#           echo "Using mock server"
+#           export DEEPL_SERVER_URL=http://deepl-mock:3000
+#           export DEEPL_MOCK_SERVER_PORT=3000
+#           export DEEPL_PROXY_URL=http://deepl-mock:3001
+#           export DEEPL_MOCK_PROXY_SERVER_PORT=3001
+#         fi
+#         dotnet test --configuration ${{ matrix.configuration }} --framework ${{ matrix.framework }} --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+#     - name: Stop mock proxy server
+#       if: ${{ matrix.use-mock-server == 'use mock server' }}
+#       run: docker stop deepl-mock-proxy
+#     - name: Stop mock server
+#       if: ${{ matrix.use-mock-server == 'use mock server' }}
+#       run: docker stop deepl-mock
+#     - name: Upload test results
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: test-results
+#         path: artifacts/*test-result.xml
+
+# nuget_upload:
+#   runs-on: ubuntu-latest
+#   needs: build
+#   if: startsWith(github.ref, 'refs/tags/v')
+#   steps:
+#     - name: Checkout
+#       uses: actions/checkout@v4
+#     - name: Setup .NET Core
+#       uses: actions/setup-dotnet@v1
+#       with:
+#         dotnet-version: 5.0.x
+#     - name: Restore dependencies
+#       run: dotnet restore
+#     - name: Pack
+#       run: dotnet pack --no-restore --configuration Release -o package/Release
+#     - name: NuGet push
+#       uses: nuget/setup-nuget@v1
+#       with:
+#         nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+#         nuget-version: '5.x'
+#       run: dotnet nuget push package/Release/DeepL.net.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --timeout 30
