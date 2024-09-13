@@ -33,8 +33,9 @@ namespace DeepLTests {
       foreach (var sourceLanguage in ExpectedSourceLanguages()) {
         var inputText = ExampleText(sourceLanguage);
         var sourceLang = LanguageCode.RemoveRegionalVariant(sourceLanguage);
-        var resultText = (await translator.TranslateTextAsync(inputText, sourceLang, "en-US")).Text.ToLowerInvariant();
-        Assert.Contains("proton", resultText);
+        var result = await translator.TranslateTextAsync(inputText, sourceLang, "en-US");
+        Assert.Contains("proton", result.Text.ToLowerInvariant());
+        Assert.Equal(inputText.Length, result.BilledCharacters);
       }
     }
 
@@ -51,7 +52,7 @@ namespace DeepLTests {
       Assert.Contains("(", userAgentHeader.ToString());
       Assert.Contains("dotnet-clr/", userAgentHeader.ToString());
     }
-    
+
     [Fact]
     public async Task TestOptInUserAgentHeader() {
       var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
@@ -95,7 +96,7 @@ namespace DeepLTests {
       Assert.Contains("dotnet-clr/", userAgentHeader.ToString());
       Assert.Contains("my-dotnet-test-app/1.2.3", userAgentHeader.ToString());
     }
-    
+
     [Fact]
     public async Task TestOptInUserAgentHeaderWithAppInfo() {
       var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");

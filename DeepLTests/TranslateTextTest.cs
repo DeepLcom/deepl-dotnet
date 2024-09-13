@@ -19,6 +19,7 @@ namespace DeepLTests {
       Assert.Equal(ExampleText("de"), result.Text);
       Assert.Equal("en", result.DetectedSourceLanguageCode);
       Assert.Equal(ExampleText("de"), $"{result}");
+      Assert.Equal(ExampleText("en").Length, result.BilledCharacters);
     }
 
     [Fact]

@@ -894,6 +894,9 @@ namespace DeepL {
             options?.Formality,
             options?.GlossaryId);
 
+      // Always send show_billed_characters=1, remove when the API default is changed to true
+      bodyParams.Add(("show_billed_characters", "1"));
+
       if (options == null) {
         return bodyParams;
       }

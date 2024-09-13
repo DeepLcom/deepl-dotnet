@@ -69,7 +69,8 @@ To auto-detect the input text language, specify `null` as the source language.
 Additional `TextTranslateOptions` can also be provided, see [Text translation options](#text-translation-options) below.
 
 `TranslateTextAsync()` returns a `TextResult` or `TextResult` array corresponding to the input text(s).
-The `TextResult` contains the translated text and detected source language code.
+The `TextResult` contains the translated text, the detected source language code, and the number of
+characters billed for the text.
 
 ```c#
 // Translate text into a target language, in this case, French:
@@ -85,8 +86,10 @@ var translations = await translator.TranslateTextAsync(
       new[] { "お元気ですか？", "¿Cómo estás?" }, null, "EN-GB");
 Console.WriteLine(translations[0].Text); // "How are you?"
 Console.WriteLine(translations[0].DetectedSourceLanguageCode); // "JA"
+Console.WriteLine(translations[0].BilledCharacters); // 7 - the number of characters in the source text "お元気ですか？"
 Console.WriteLine(translations[1].Text); // "How are you?"
 Console.WriteLine(translations[1].DetectedSourceLanguageCode); // "ES"
+Console.WriteLine(translations[1].BilledCharacters); // 12 - the number of characters in the source text "¿Cómo estás?"
 
 // Translate into German with less and more Formality:
 foreach (var formality in new[] { Formality.Less, Formality.More }) {
