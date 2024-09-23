@@ -629,6 +629,10 @@ namespace DeepL {
             options?.Formality,
             options?.GlossaryId);
 
+      if (options?.OutputFormat != null) {
+        bodyParams.Add(("output_format", options?.OutputFormat!));
+      }
+
       using var responseMessage = await _client.ApiUploadAsync(
                   "/v2/document",
                   cancellationToken,

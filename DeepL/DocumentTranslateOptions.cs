@@ -26,5 +26,8 @@ namespace DeepL {
 
     /// <summary>Specifies the ID of a glossary to use with the translation.</summary>
     public string? GlossaryId { get; set; }
+
+    /// <summary>File extension of desired format of translated file, for example: docx. If unspecified, by default the translated file will be in the same format as the input file.</summary>
+    public string? OutputFormat { get; set; }
   }
 }
