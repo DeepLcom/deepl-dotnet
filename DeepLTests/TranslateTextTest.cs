@@ -22,6 +22,20 @@ namespace DeepLTests {
       Assert.Equal(ExampleText("en").Length, result.BilledCharacters);
     }
 
+    [Theory]
+    [InlineData(ModelType.LatencyOptimized, "latency_optimized")]
+    [InlineData(ModelType.QualityOptimized, "quality_optimized")]
+    [InlineData(ModelType.PreferQualityOptimized, "quality_optimized")]
+    public async Task TestTranslateWithModelType(ModelType modelType, string expectedModelTypeUsed) {
+      var translator = CreateTestTranslator();
+      var result = await translator.TranslateTextAsync(
+            ExampleText("en"),
+            null,
+            LanguageCode.German,
+            new TextTranslateOptions{ModelType = modelType});
+      Assert.Equal(expectedModelTypeUsed, result.ModelTypeUsed);
+    }
+
     [Fact]
     public async Task TestTextArray() {
       var translator = CreateTestTranslator();

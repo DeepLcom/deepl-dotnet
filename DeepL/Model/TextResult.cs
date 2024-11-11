@@ -11,16 +11,18 @@ namespace DeepL.Model {
     /// <param name="text">Translated text.</param>
     /// <param name="detectedSourceLanguageCode">The detected language code of the input text.</param>
     /// <param name="billedCharacters">The number of characters billed for the text.</param>
+    /// <param name="modelTypeUsed">Indicates the translation model used, but is null unless the modelType option is specified.</param>
     /// <remarks>
     ///   The constructor for this class (and all other Model classes) should not be used by library users. Ideally it
     ///   would be marked <see langword="internal" />, but needs to be <see langword="public" /> for JSON deserialization.
     ///   In future this function may have backwards-incompatible changes.
     /// </remarks>
     [JsonConstructor]
-    public TextResult(string text, string detectedSourceLanguageCode, int billedCharacters) {
+    public TextResult(string text, string detectedSourceLanguageCode, int billedCharacters, string? modelTypeUsed) {
       Text = text;
       DetectedSourceLanguageCode = LanguageCode.Standardize(detectedSourceLanguageCode);
       BilledCharacters = billedCharacters;
+      ModelTypeUsed = modelTypeUsed;
     }
 
     /// <summary>The translated text.</summary>
@@ -33,6 +35,10 @@ namespace DeepL.Model {
     /// <summary>The number of characters billed for the text.</summary>
     [JsonPropertyName("billed_characters")]
     public int BilledCharacters { get; }
+
+    /// <summary>Indicated translation model used, if available.</summary>
+    [JsonPropertyName("model_type_used")]
+    public string? ModelTypeUsed { get; }
 
     /// <summary>Returns the translated text.</summary>
     /// <returns>The translated text.</returns>

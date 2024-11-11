@@ -59,5 +59,12 @@ namespace DeepL {
 
     /// <summary>Type of tags to parse before translation, only "xml" and "html" are currently available.</summary>
     public string? TagHandling { get; set; }
+
+    /// <summary>
+    /// Sets whether the translation engine should use a newer model type that
+    /// offers higher quality translations at the cost of translation time.
+    /// </summary>
+    /// <seealso cref="ModelType" />
+    public ModelType? ModelType { get; set; }
   }
 }

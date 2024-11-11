@@ -934,6 +934,10 @@ namespace DeepL {
         bodyParams.Add(("ignore_tags", string.Join(",", options.IgnoreTags)));
       }
 
+      if (options.ModelType != null) {
+        bodyParams.Add(("model_type", options.ModelType.Value.ToApiValue()));
+      }
+
       return bodyParams;
     }
 
