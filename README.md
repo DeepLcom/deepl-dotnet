@@ -69,8 +69,11 @@ To auto-detect the input text language, specify `null` as the source language.
 Additional `TextTranslateOptions` can also be provided, see [Text translation options](#text-translation-options) below.
 
 `TranslateTextAsync()` returns a `TextResult` or `TextResult` array corresponding to the input text(s).
-The `TextResult` contains the translated text, the detected source language code, and the number of
-characters billed for the text.
+The `TextResult` contains:
+- the translated text,
+- the detected source language code,
+- the number of characters billed for the text, and
+- the translation model type used (only non-null if the ModelType option is specified.)
 
 ```c#
 // Translate text into a target language, in this case, French:
@@ -132,6 +135,14 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
   translated itself. Characters in the `context` parameter are not counted toward billing.
   See the [API documentation][api-docs-context-param] for more information and
   example usage.
+- `ModelType`: specifies the type of translation model to use, options are:
+  - `'quality_optimized'` (`ModelType.QualityOptimized`): use a translation
+    model that maximizes translation quality, at the cost of response time.
+    This option may be unavailable for some language pairs.
+  - `'prefer_quality_optimized'` (`ModelType.PreferQualityOptimized`): use
+    the highest-quality translation model for the given language pair.
+  - `'latency_optimized'` (`ModelType.LatencyOptimized`): use a translation
+    model that minimizes response time, at the cost of translation quality.
 - `TagHandling`: type of tags to parse before translation, options are
   `"html"` and `"xml"`.
 

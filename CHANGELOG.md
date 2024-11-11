@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Added
+* Added `ModelType` option for text translation to use models with higher
+  translation quality (available for some language pairs), or better latency.
+  Options are:
+  - `ModelType.QualityOptimized ('quality_optimized')`,
+  - `ModelType.QualityOptimized ('latency_optimized')`, and
+  - `ModelType.QualityOptimized ('prefer_quality_optimized')`
+* Added the `ModelTypeUsed` field to text translation response, that
+  indicates the translation model used when the `ModelType` option is
+  specified.
+
+
 ## [1.10.0] - 2024-09-17
 ### Added
 * Added `BilledCharacters` to the translate text response.
@@ -157,6 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release.
 
 
+[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.10.0...HEAD
 [1.10.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.7.1...v1.8.0
