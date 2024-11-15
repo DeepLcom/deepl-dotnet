@@ -46,7 +46,7 @@ namespace DeepL {
 
 
   [AttributeUsage(AttributeTargets.Field)]
-  sealed class ApiValueAttribute : Attribute
+  internal sealed class ApiValueAttribute : Attribute
   {
     public string Value { get; }
 
