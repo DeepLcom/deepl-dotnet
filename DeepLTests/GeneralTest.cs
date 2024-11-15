@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -149,6 +150,17 @@ namespace DeepLTests {
       Assert.Contains(arIgnorePart, enResult.Text);
       var arResult = await translator.TranslateTextAsync(arSentenceWithEnIgnorePart, null, "ar", options);
       Assert.Contains(enIgnorePart, arResult.Text);
+    }
+
+    [Fact]
+    public void TestModelTypeEnum() {
+      var apiValueSet = new HashSet<string>();
+      // Check each enum value gives a valid, distinct ApiValue
+      foreach (ModelType? i in Enum.GetValues(typeof(ModelType))) {
+        var apiValue = i!.Value.ToApiValue();
+        Assert.DoesNotContain(apiValue, apiValueSet);
+        apiValueSet.Add(apiValue);
+      }
     }
 
     [Fact]

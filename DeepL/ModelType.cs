@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 using System;
-using System.Reflection;
 
 namespace DeepL {
   /// <summary>
@@ -15,44 +14,32 @@ namespace DeepL {
     /// Use a translation model that maximizes translation quality, at the cost
     /// of response time. This option may be unavailable for some language pairs.
     /// </summary>
-    [ApiValue("quality_optimized")]
     QualityOptimized,
 
     /// <summary>
     /// Use a translation model that minimizes response time, at the cost of
     /// translation quality.
     /// </summary>
-    [ApiValue("latency_optimized")]
     LatencyOptimized,
 
     /// <summary>
     /// Use the highest-quality translation model for the given language pair.
     /// </summary>
-    [ApiValue("prefer_quality_optimized")]
     PreferQualityOptimized
   }
 
   public static class ModelTypeExtensions {
+    /// <summary>
+    /// Retrieves the string representation of the enum value used by the DeepL API.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">If an unknown enum value is passed.</exception>
     public static string ToApiValue(this ModelType modelType) {
-      var fieldInfo = modelType.GetType().GetField(modelType.ToString());
-      var attribute = fieldInfo?.GetCustomAttribute<ApiValueAttribute>();
-      if (attribute == null) {
-        throw new ArgumentOutOfRangeException(nameof(modelType), modelType, "Unrecognized model type value");
-      }
-
-      return attribute.Value;
-    }
-  }
-
-
-  [AttributeUsage(AttributeTargets.Field)]
-  internal sealed class ApiValueAttribute : Attribute
-  {
-    public string Value { get; }
-
-    public ApiValueAttribute(string value)
-    {
-      Value = value;
+      return modelType switch {
+            ModelType.PreferQualityOptimized => "prefer_quality_optimized",
+            ModelType.LatencyOptimized => "latency_optimized",
+            ModelType.QualityOptimized => "quality_optimized",
+            _ => throw new ArgumentOutOfRangeException(nameof(modelType), modelType, "Unrecognized model type value")
+      };
     }
   }
 }
