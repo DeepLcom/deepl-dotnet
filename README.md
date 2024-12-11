@@ -348,7 +348,7 @@ To list the entries contained within a stored glossary, use
 `GetGlossaryEntriesAsync()` providing either the `GlossaryInfo` object or glossary ID:
 
 ```c#
-var entries = translator.GetGlossaryEntriesAsync(myGlossary);
+var entries = await translator.GetGlossaryEntriesAsync(myGlossary);
 
 foreach (KeyValuePair<string, string> entry in entries.ToDictionary()) {
   Console.WriteLine($"{entry.Key}: {entry.Value}");
