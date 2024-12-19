@@ -5,11 +5,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using DeepL;
+using ImageMagick;
 using Xunit;
+using System.Security.Cryptography;
 
 namespace DeepLTests {
   public class BaseDeepLTest {
@@ -17,6 +21,9 @@ namespace DeepLTests {
     protected static readonly string AuthKey;
     protected static readonly string? ServerUrl;
     protected static readonly string? ProxyUrl;
+    protected static readonly Dictionary<string, string> DocMinificationTestFilesMapping;
+    private static readonly string DocMinificationTestZipFile = "example_zip_template.zip";
+    private static Random _random = new Random();
 
     static BaseDeepLTest() {
       if (IsMockServer) {
@@ -29,6 +36,10 @@ namespace DeepLTests {
         ServerUrl = Environment.GetEnvironmentVariable("DEEPL_SERVER_URL");
       }
       ProxyUrl = Environment.GetEnvironmentVariable("DEEPL_PROXY_URL");
+      DocMinificationTestFilesMapping = new Dictionary<string, string>() {
+            {".docx", "example_document_template.docx" },
+            {".pptx", "example_presentation_template.pptx" }
+      };
     }
 
     protected static Translator CreateTestTranslator(bool randomAuthKey = false) {
@@ -214,6 +225,58 @@ namespace DeepLTests {
       return path;
     }
 
+
+    protected static string GetFullPathForTestFile(string testFileName) {
+      return Path.Combine(Directory.GetCurrentDirectory(), "resources", testFileName);
+    }
+
+    protected static string CreateMinifiedTestDocument(string extension, string outputDirectory) {
+      var extractionDir = TempDir();
+      var testFilePath = GetFullPathForTestFile(DocMinificationTestFilesMapping[extension]);
+      var outputFilePath = Path.Combine(outputDirectory, "test_document" + extension);
+      ZipFile.ExtractToDirectory(testFilePath, extractionDir);
+      var characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+=-<,>.?:";
+      var length = 90000000;
+      var createText = new string(Enumerable.Repeat(characters, length)
+                                        .Select(s => s[_random.Next(s.Length)]).ToArray());
+      File.WriteAllText(Path.Combine(extractionDir, "placeholder_image.png"), createText);
+      ZipFile.CreateFromDirectory(extractionDir, outputFilePath);
+      Directory.Delete(extractionDir, true);
+      return outputFilePath;
+    }
+
+    protected static string CreateDeminifiedTestDocument(string outputDirectory) {
+      var extractionDir = TempDir();
+      var testFilePath = GetFullPathForTestFile(DocMinificationTestZipFile);
+      var outputFilePath = Path.Combine(outputDirectory, "example_zip.zip");
+      ZipFile.ExtractToDirectory(testFilePath, extractionDir);
+      using var image = new MagickImage(MagickColors.Gray, 20000, 20000);
+      image.Write(Path.Combine(extractionDir, "placeholder_image.png"));
+      ZipFile.CreateFromDirectory(extractionDir, outputFilePath);
+      Directory.Delete(extractionDir, true);
+      return outputFilePath;
+    }
+
+    public bool AssertDirectoriesAreEqual(string dir1, string dir2, string message = "")
+    {
+      var dir1Info = new DirectoryInfo(dir1);
+      var dir2Info = new DirectoryInfo(dir2);
+
+      var dir1Files = dir1Info.GetFiles("*.*", SearchOption.AllDirectories);
+      var dir2Files = dir2Info.GetFiles("*.*", SearchOption.AllDirectories);
+
+      var dir1Hashes = dir1Files.ToDictionary(k => k.Name, GetHashForFile);
+      var dir2Hashes = dir2Files.ToDictionary(k => k.Name, GetHashForFile);
+
+      return dir1Hashes.All(kvp => dir2Hashes.ContainsKey(kvp.Key) && dir2Hashes[kvp.Key].SequenceEqual(kvp.Value));
+    }
+
+    private byte[] GetHashForFile(FileInfo file) {
+      using var fileStream = file.OpenRead();
+      using var md5 = MD5.Create();
+      return md5.ComputeHash(fileStream);
+    }
+
     protected struct SessionOptions {
       public int? NoResponse;
       public int? RespondWith429;
@@ -249,7 +312,6 @@ namespace DeepLTests {
         }
       }
     }
-
 
     /// <summary>
     ///   Class to mock HTTP requests the library makes. Supports returning a constant response to every request
