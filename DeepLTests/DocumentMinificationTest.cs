@@ -2,15 +2,10 @@
 // Use of this source code is governed by an MIT
 // license that can be found in the LICENSE file.
 
-using System;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DeepL;
-using DeepL.Model;
 using Xunit;
 
 namespace DeepLTests {
