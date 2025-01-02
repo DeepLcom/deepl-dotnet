@@ -72,7 +72,7 @@ namespace DeepL {
   ///     <item>
   ///       <description>
   ///         Be very careful when providing a custom <c>tempDir</c> when instantiating the class. For example,
-  ///         <see cref="DocumentMinifier.DeminifyDocument(string)"/> will delete the entire <c>tempDir</c> with
+  ///         <see cref="DocumentMinifier.DeminifyDocument"/> will delete the entire <c>tempDir</c> with
   ///         <c>cleanup</c> set to <c>true</c> (disabled by default). In order not to lose any data, ideally always
   ///         call <c>new DocumentMinifier()</c> in order to get a fresh temporary directory.
   ///       </description>
