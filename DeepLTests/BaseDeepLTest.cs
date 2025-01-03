@@ -22,7 +22,6 @@ namespace DeepLTests {
     protected static readonly string? ServerUrl;
     protected static readonly string? ProxyUrl;
     protected static readonly Dictionary<string, string> DocMinificationTestFilesMapping;
-    private static readonly string DocMinificationTestZipFile = "example_zip_template.zip";
     private static Random _random = new Random();
 
     static BaseDeepLTest() {
@@ -38,7 +37,8 @@ namespace DeepLTests {
       ProxyUrl = Environment.GetEnvironmentVariable("DEEPL_PROXY_URL");
       DocMinificationTestFilesMapping = new Dictionary<string, string>() {
             {".docx", "example_document_template.docx" },
-            {".pptx", "example_presentation_template.pptx" }
+            {".pptx", "example_presentation_template.pptx" },
+            {".zip", "example_zip_template.zip" }
       };
     }
 
@@ -245,16 +245,8 @@ namespace DeepLTests {
       return outputFilePath;
     }
 
-    protected static string CreateDeminifiedTestDocument(string outputDirectory) {
-      var extractionDir = TempDir();
-      var testFilePath = GetFullPathForTestFile(DocMinificationTestZipFile);
-      var outputFilePath = Path.Combine(outputDirectory, "example_zip.zip");
-      ZipFile.ExtractToDirectory(testFilePath, extractionDir);
-      using var image = new MagickImage(MagickColors.Gray, 20000, 20000);
-      image.Write(Path.Combine(extractionDir, "placeholder_image.png"));
-      ZipFile.CreateFromDirectory(extractionDir, outputFilePath);
-      Directory.Delete(extractionDir, true);
-      return outputFilePath;
+    protected static void CreatePlaceholderImage() {
+
     }
 
     public bool AssertDirectoriesAreEqual(string dir1, string dir2, string message = "")

@@ -56,10 +56,9 @@ namespace DeepLTests {
       File.Delete(minifiedDocumentPath);
     }
 
-
     [Fact]
     public void TestDeminifyDocumentHappyPath() {
-      var inputFile = CreateDeminifiedTestDocument(_tempDir);
+      var inputFile = CreateMinifiedTestDocument(".zip", _tempDir);
       var outputFile = Path.Combine(_tempDir, "example_zip_transformed.zip");
       var minifier = new DocumentMinifier(_tempDir);
       var minifiedFile = minifier.MinifyDocument(inputFile, true);
@@ -74,6 +73,29 @@ namespace DeepLTests {
 
       // Cleanup
       Directory.Delete(_tempDir, true);
+    }
+
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void TestDocumentDeminificationCleansUpProperly(bool shouldCleanUp) {
+      var minifiedTestDocument = CreateMinifiedTestDocument(".zip", _tempDir);
+      var outputFile = Path.Combine(_tempDir, "example_zip_transformed.zip");
+      var minifier = new DocumentMinifier();
+      var minifiedFile = minifier.MinifyDocument(minifiedTestDocument, true);
+      minifier.DeminifyDocument(minifiedFile, outputFile, shouldCleanUp);
+
+      Assert.Equal(shouldCleanUp, !Directory.Exists(minifier.GetExtractedDocDirectory()));
+
+      // Cleanup
+      if (!shouldCleanUp) {
+        Directory.Delete(minifier.GetExtractedDocDirectory(), true);
+        Directory.Delete(minifier.GetOriginalMediaDirectory(), true);
+        File.Delete(minifiedFile);
+      }
+      File.Delete(minifiedTestDocument);
+      File.Delete(outputFile);
     }
 
     [RealServerOnlyFact]
