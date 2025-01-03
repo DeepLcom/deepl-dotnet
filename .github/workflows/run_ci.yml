@@ -10,6 +10,7 @@ on:
 
 env:
   SECRET_DETECTION_JSON_REPORT_FILE: "gitleaks.json"
+  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
 
 jobs:
   license_check:
