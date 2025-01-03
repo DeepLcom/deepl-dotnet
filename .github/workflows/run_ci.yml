@@ -43,11 +43,6 @@ jobs:
         with:
           name: secret-detection-results
           path: gitleaks.json
-      - name: Install OpenSSL 1.1
-        run: |
-          wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
-          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
-
 
   build:
     runs-on: ubuntu-latest
@@ -62,6 +57,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
+    - name: Install OpenSSL 1.1
+        run: |
+          wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
     - name: Restore dependencies
       run: dotnet restore
     - name: Build ${{ matrix.configuration }}
