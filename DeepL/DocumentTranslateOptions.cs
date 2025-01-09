@@ -26,5 +26,8 @@ namespace DeepL {
 
     /// <summary>Specifies the ID of a glossary to use with the translation.</summary>
     public string? GlossaryId { get; set; }
+
+    /// <summary> Controls whether to use Document Minification for translation, if available.</summary>
+    public bool EnableDocumentMinification { get; set; }
   }
 }

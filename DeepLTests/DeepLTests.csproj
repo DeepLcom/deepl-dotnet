@@ -24,4 +24,8 @@
     <ProjectReference Include="..\DeepL\DeepL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="resources/**"> <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> </Content>
+  </ItemGroup>
+
 </Project>

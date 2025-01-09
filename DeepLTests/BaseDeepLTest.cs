@@ -5,7 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using DeepL;
@@ -17,6 +21,8 @@ namespace DeepLTests {
     protected static readonly string AuthKey;
     protected static readonly string? ServerUrl;
     protected static readonly string? ProxyUrl;
+    protected static readonly Dictionary<string, string> DocMinificationTestFilesMapping;
+    private static Random _random = new Random();
 
     static BaseDeepLTest() {
       if (IsMockServer) {
@@ -28,7 +34,13 @@ namespace DeepLTests {
               "DEEPL_AUTH_KEY environment variable must be set unless using mock server.");
         ServerUrl = Environment.GetEnvironmentVariable("DEEPL_SERVER_URL");
       }
+
       ProxyUrl = Environment.GetEnvironmentVariable("DEEPL_PROXY_URL");
+      DocMinificationTestFilesMapping = new Dictionary<string, string>() {
+            { ".docx", "example_document_template.docx" },
+            { ".pptx", "example_presentation_template.pptx" },
+            { ".zip", "example_zip_template.zip" }
+      };
     }
 
     protected static Translator CreateTestTranslator(bool randomAuthKey = false) {
@@ -56,7 +68,7 @@ namespace DeepLTests {
     }
 
     protected static MockHttpMessageHandler getMockHandler(String responseMessage) {
-      var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+      var response = new HttpResponseMessage(HttpStatusCode.OK);
       response.Content = new StringContent(responseMessage);
       return new MockHttpMessageHandler(response);
     }
@@ -214,6 +226,47 @@ namespace DeepLTests {
       return path;
     }
 
+    protected static string GetFullPathForTestFile(string testFileName) {
+      return Path.Combine(Directory.GetCurrentDirectory(), "resources", testFileName);
+    }
+
+    protected static string CreateMinifiedTestDocument(string extension, string outputDirectory) {
+      var extractionDir = TempDir();
+      var testFilePath = GetFullPathForTestFile(DocMinificationTestFilesMapping[extension]);
+      var outputFilePath = Path.Combine(outputDirectory, "test_document" + extension);
+      ZipFile.ExtractToDirectory(testFilePath, extractionDir);
+      var characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+=-<,>.?:";
+      var length = 90000000;
+      var createText = new string(
+            Enumerable.Repeat(characters, length)
+                  .Select(s => s[_random.Next(s.Length)])
+                  .ToArray());
+      File.WriteAllText(Path.Combine(extractionDir, "placeholder_image.png"), createText);
+      ZipFile.CreateFromDirectory(extractionDir, outputFilePath);
+      Directory.Delete(extractionDir, true);
+      return outputFilePath;
+    }
+
+    protected bool AreDirectoriesEqual(string dir1, string dir2) {
+      var dir1Info = new DirectoryInfo(dir1);
+      var dir2Info = new DirectoryInfo(dir2);
+
+      var dir1Files = dir1Info.GetFiles("*.*", SearchOption.AllDirectories);
+      var dir2Files = dir2Info.GetFiles("*.*", SearchOption.AllDirectories);
+
+      var dir1Hashes = dir1Files.ToDictionary(k => k.Name, GetHashForFile);
+      var dir2Hashes = dir2Files.ToDictionary(k => k.Name, GetHashForFile);
+
+      return dir1Hashes.Keys.Count == dir2Hashes.Keys.Count &&
+             dir1Hashes.All(kvp => dir2Hashes.ContainsKey(kvp.Key) && dir2Hashes[kvp.Key].SequenceEqual(kvp.Value));
+    }
+
+    private byte[] GetHashForFile(FileInfo file) {
+      using var fileStream = file.OpenRead();
+      using var md5 = MD5.Create();
+      return md5.ComputeHash(fileStream);
+    }
+
     protected struct SessionOptions {
       public int? NoResponse;
       public int? RespondWith429;
@@ -250,17 +303,17 @@ namespace DeepLTests {
       }
     }
 
-
     /// <summary>
     ///   Class to mock HTTP requests the library makes. Supports returning a constant response to every request
     ///   through <see cref="MockHttpMessageHandler.defaultResponse" />.
     ///   If we ever need more complex mocking functionality, we should drop this and use a mocking library.
     /// </summary>
-    protected class MockHttpMessageHandler : System.Net.Http.HttpMessageHandler {
+    protected class MockHttpMessageHandler : HttpMessageHandler {
       /// <summary>
       ///   List of requests made through this mock. Use to make assertions in your tests after the code has run.
       /// </summary>
       public List<HttpRequestMessage> requests;
+
       /// <summary>
       ///   Default response returned on every HTTP request. If we need more complex functionality,
       ///   we should use a proper mocking library, for example Moq
@@ -271,7 +324,10 @@ namespace DeepLTests {
         defaultResponse = response;
         requests = new List<HttpRequestMessage>();
       }
-      protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
+
+      protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken) {
         this.requests.Add(request);
         await Task.Delay(0);
         return defaultResponse;

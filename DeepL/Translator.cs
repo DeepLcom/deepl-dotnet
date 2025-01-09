@@ -546,12 +546,19 @@ namespace DeepL {
           string targetLanguageCode,
           DocumentTranslateOptions? options = null,
           CancellationToken cancellationToken = default) {
-      using var inputFile = inputFileInfo.OpenRead();
+      var willMinify = (options?.EnableDocumentMinification ?? false) && DocumentMinifier.CanMinifyFile(inputFileInfo.Name);
+      var fileToUpload = inputFileInfo;
+      var minifier = new DocumentMinifier();
+      if (willMinify) {
+        minifier.MinifyDocument(inputFileInfo.FullName, true);
+        fileToUpload = new FileInfo(minifier.GetMinifiedDocFile(inputFileInfo.FullName));
+      }
+      using var inputFile = fileToUpload.OpenRead();
       using var outputFile = outputFileInfo.Open(FileMode.CreateNew, FileAccess.Write);
       try {
         await TranslateDocumentAsync(
               inputFile,
-              inputFileInfo.Name,
+              fileToUpload.Name,
               outputFile,
               sourceLanguageCode,
               targetLanguageCode,
@@ -565,6 +572,10 @@ namespace DeepL {
         }
 
         throw;
+      } if (willMinify) {
+        outputFile.Dispose();
+        // Translated minified file is at `outputFileName`. Reinsert media (deminify) before returning
+        minifier.DeminifyDocument(outputFileInfo.FullName, outputFileInfo.FullName, true);
       }
     }
 

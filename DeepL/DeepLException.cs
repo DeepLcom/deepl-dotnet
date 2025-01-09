@@ -103,4 +103,30 @@ namespace DeepL {
     /// The handle can be used to later retrieve the document or to contact DeepL support.
     public DocumentHandle? DocumentHandle { get; }
   }
+
+  /// <summary>
+  ///   Exception thrown if an error occurs during the minification phase of document minification.
+  ///   See <see cref="DocumentMinifier.MinifyDocument"/>
+  /// </summary>
+  public sealed class DocumentMinificationException : DeepLException {
+    /// <summary>Initializes a new instance of the <see cref="DocumentMinificationException" /> class.</summary>
+    /// <param name="message">The message that describes the error.</param>
+    /// <param name="innerException">The exception representing the connection error.</param>
+    public DocumentMinificationException(string message, Exception innerException) :
+          base(message, innerException) {
+    }
+  }
+
+  /// <summary>
+  ///   Exception thrown if an error occurs during the minification phase of document deminification.
+  ///   See <see cref="DocumentMinifier.DeminifyDocument"/>
+  /// </summary>
+  public sealed class DocumentDeminificationException : DeepLException {
+    /// <summary>Initializes a new instance of the <see cref="DocumentDeminificationException" /> class.</summary>
+    /// <param name="message">The message that describes the error.</param>
+    /// <param name="innerException">The exception representing the connection error.</param>
+    public DocumentDeminificationException(string message, Exception innerException) :
+          base(message, innerException) {
+    }
+  }
 }
