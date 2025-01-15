@@ -43,6 +43,13 @@ namespace DeepLTests {
       };
     }
 
+    protected static DeepLClient CreateTestClient(bool randomAuthKey = false) {
+      var authKey = randomAuthKey ? Guid.NewGuid().ToString() : AuthKey;
+      return ServerUrl == null
+            ? new DeepLClient(authKey)
+            : new DeepLClient(authKey, new DeepLClientOptions { ServerUrl = ServerUrl });
+    }
+
     protected static Translator CreateTestTranslator(bool randomAuthKey = false) {
       var authKey = randomAuthKey ? Guid.NewGuid().ToString() : AuthKey;
       return ServerUrl == null
