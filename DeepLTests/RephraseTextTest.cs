@@ -41,12 +41,12 @@ namespace DeepLTests {
     private void checkSanityOfImprovements(
         string inputText,
         WriteResult result,
-        string expectedSourceLangUppercase="EN",
-        string expectedTargetLangUppercase="EN-US",
-        float epsilon=0.2f) {
+        string expectedSourceLangUppercase = "EN",
+        string expectedTargetLangUppercase = "EN-US",
+        float epsilon = 0.2f) {
       Assert.Equal(expectedSourceLangUppercase, result.DetectedSourceLanguageCode.ToUpper());
       Assert.Equal(expectedTargetLangUppercase, result.TargetLanguageCode.ToUpper());
-      var ratio = ((float) result.Text.Length) / inputText.Length;
+      var ratio = ((float)result.Text.Length) / inputText.Length;
       Assert.True(1 / (1.0 + epsilon) <= ratio, $"Rephrased text is too short compared to input text.\n{inputText}\n{result.Text}");
       Assert.True(ratio <= (1.0 + epsilon), $"Rephrased text is too long compared to input text.\n{inputText}\n{result.Text}");
     }

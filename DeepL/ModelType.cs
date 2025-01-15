@@ -35,10 +35,10 @@ namespace DeepL {
     /// <exception cref="ArgumentOutOfRangeException">If an unknown enum value is passed.</exception>
     public static string ToApiValue(this ModelType modelType) {
       return modelType switch {
-            ModelType.PreferQualityOptimized => "prefer_quality_optimized",
-            ModelType.LatencyOptimized => "latency_optimized",
-            ModelType.QualityOptimized => "quality_optimized",
-            _ => throw new ArgumentOutOfRangeException(nameof(modelType), modelType, "Unrecognized model type value")
+        ModelType.PreferQualityOptimized => "prefer_quality_optimized",
+        ModelType.LatencyOptimized => "latency_optimized",
+        ModelType.QualityOptimized => "quality_optimized",
+        _ => throw new ArgumentOutOfRangeException(nameof(modelType), modelType, "Unrecognized model type value")
       };
     }
   }

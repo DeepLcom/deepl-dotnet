@@ -1,4 +1,4 @@
-﻿// Copyright 2022 DeepL SE (https://www.deepl.com)
+// Copyright 2022 DeepL SE (https://www.deepl.com)
 // Use of this source code is governed by an MIT
 // license that can be found in the LICENSE file.
 
@@ -572,7 +572,8 @@ namespace DeepL {
         }
 
         throw;
-      } if (willMinify) {
+      }
+      if (willMinify) {
         outputFile.Dispose();
         // Translated minified file is at `outputFileName`. Reinsert media (deminify) before returning
         minifier.DeminifyDocument(outputFileInfo.FullName, outputFileInfo.FullName, true);
@@ -872,8 +873,8 @@ namespace DeepL {
     private String ConstructUserAgentString(bool sendPlatformInfo = true, AppInfo? appInfo = null) {
       var platformInfoString = $"deepl-dotnet/{Version()}";
       if (sendPlatformInfo) {
-      var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-      var clrVersion = Environment.Version.ToString();
+        var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        var clrVersion = Environment.Version.ToString();
         platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
       }
       if (appInfo != null) {

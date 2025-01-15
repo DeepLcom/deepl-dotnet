@@ -32,7 +32,7 @@ namespace DeepLTests {
             ExampleText("en"),
             null,
             LanguageCode.German,
-            new TextTranslateOptions{ModelType = modelType});
+            new TextTranslateOptions { ModelType = modelType });
       Assert.Equal(expectedModelTypeUsed, result.ModelTypeUsed);
     }
 
@@ -259,11 +259,11 @@ namespace DeepLTests {
             null,
             "DE",
             new TextTranslateOptions {
-                  TagHandling = "xml",
-                  OutlineDetection = false,
-                  NonSplittingTags = { "span" },
-                  SplittingTags = { "title", "par" },
-                  IgnoreTags = { "raw" }
+              TagHandling = "xml",
+              OutlineDetection = false,
+              NonSplittingTags = { "span" },
+              SplittingTags = { "title", "par" },
+              IgnoreTags = { "raw" }
             });
       Assert.Contains("<raw>This sentence will not be translated.</raw>", result.Text);
       Assert.Matches("<title>.*Der Titel.*</title>", result.Text);

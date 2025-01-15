@@ -46,8 +46,8 @@ namespace DeepLTests {
       var translator = new Translator(
             AuthKey,
             new TranslatorOptions {
-                  ClientFactory = () =>
-                        new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
             });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
@@ -63,9 +63,9 @@ namespace DeepLTests {
       var translator = new Translator(
             AuthKey,
             new TranslatorOptions {
-                  sendPlatformInfo = true,
-                  ClientFactory = () =>
-                        new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+              sendPlatformInfo = true,
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
             });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
@@ -81,9 +81,9 @@ namespace DeepLTests {
       var translator = new Translator(
             AuthKey,
             new TranslatorOptions {
-                  sendPlatformInfo = false,
-                  ClientFactory = () =>
-                        new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+              sendPlatformInfo = false,
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
             });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
@@ -99,10 +99,10 @@ namespace DeepLTests {
       var translator = new Translator(
             AuthKey,
             new TranslatorOptions {
-                  sendPlatformInfo = true,
-                  appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
-                  ClientFactory = () =>
-                        new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+              sendPlatformInfo = true,
+              appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
             });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
@@ -119,10 +119,10 @@ namespace DeepLTests {
       var translator = new Translator(
             AuthKey,
             new TranslatorOptions {
-                  sendPlatformInfo = true,
-                  appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
-                  ClientFactory = () =>
-                        new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+              sendPlatformInfo = true,
+              appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
             });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
@@ -139,10 +139,10 @@ namespace DeepLTests {
       var translator = new Translator(
             AuthKey,
             new TranslatorOptions {
-                  sendPlatformInfo = false,
-                  appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
-                  ClientFactory = () =>
-                        new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+              sendPlatformInfo = false,
+              appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
             });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
@@ -248,13 +248,14 @@ namespace DeepLTests {
             nameof(TestUsageNoResponse),
             new SessionOptions { ExpectProxy = true },
             new TranslatorOptions {
-                  ServerUrl = ServerUrl,
-                  ClientFactory =
+              ServerUrl = ServerUrl,
+              ClientFactory =
                         () => {
                           var handler = new HttpClientHandler() { Proxy = new WebProxy(ProxyUrl), UseProxy = true, };
 
                           return new HttpClientAndDisposeFlag {
-                                HttpClient = new HttpClient(handler), DisposeClient = true,
+                            HttpClient = new HttpClient(handler),
+                            DisposeClient = true,
                           };
                         }
             });
@@ -269,7 +270,8 @@ namespace DeepLTests {
             nameof(TestUsageNoResponse),
             new SessionOptions { NoResponse = 2 },
             new TranslatorOptions {
-                  PerRetryConnectionTimeout = TimeSpan.FromMilliseconds(1), MaximumNetworkRetries = 0
+              PerRetryConnectionTimeout = TimeSpan.FromMilliseconds(1),
+              MaximumNetworkRetries = 0
             });
 
       await Assert.ThrowsAsync<ConnectionException>(() => translator.GetUsageAsync());
@@ -343,7 +345,9 @@ namespace DeepLTests {
       var translator = CreateTestTranslatorWithMockSession(
             nameof(TestUsageOverrun),
             new SessionOptions {
-                  InitCharacterLimit = 0, InitDocumentLimit = 0, InitTeamDocumentLimit = teamDocumentLimit
+              InitCharacterLimit = 0,
+              InitDocumentLimit = 0,
+              InitTeamDocumentLimit = teamDocumentLimit
             },
             randomAuthKey: true);
 
