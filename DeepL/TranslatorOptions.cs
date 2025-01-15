@@ -7,8 +7,11 @@ using System.Collections.Generic;
 using System.Net.Http;
 
 namespace DeepL {
-  /// <summary>Class containing containing options controlling <see cref="Translator" /> behaviour.</summary>
-  public sealed class TranslatorOptions {
+  /// <summary>
+  ///   Class containing containing options controlling <see cref="Translator" /> behaviour.
+  ///   Please use <see cref="DeepLClient" /> and <see cref="DeepLClientOptions" /> instead.
+  /// </summary>
+  public class TranslatorOptions {
     /// <summary>
     ///   HTTP headers attached to every HTTP request. By default no extra headers are used. Note that during
     ///   <see cref="Translator" /> initialization headers for Authorization and User-Agent are added, unless they are
