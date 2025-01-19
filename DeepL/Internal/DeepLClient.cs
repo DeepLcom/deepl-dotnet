@@ -248,7 +248,7 @@ namespace DeepL.Internal {
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <param name="bodyParams">Parameters to embed in the HTTP request body.</param>
     /// <param name="file">Optional file content to upload in request.</param>
-    /// <param name="fileName">If <see cref="file" /> is used, the name of file.</param>
+    /// <param name="fileName">If <paramref name="file"/> is used, the name of file.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
     /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiUploadAsync(

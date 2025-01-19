@@ -1,4 +1,4 @@
-﻿// Copyright 2022 DeepL SE (https://www.deepl.com)
+// Copyright 2022 DeepL SE (https://www.deepl.com)
 // Use of this source code is governed by an MIT
 // license that can be found in the LICENSE file.
 
@@ -79,7 +79,7 @@ namespace DeepL {
     ///   If cancellation was requested, or an error occurs while translating the document. If the document was uploaded
     ///   successfully, then the <see cref="DocumentTranslationException.DocumentHandle" /> contains the document ID and
     ///   key that may be used to retrieve the document.
-    ///   If cancellation was requested, the <see cref="DocumentTranslationException.InnerException" /> will be a
+    ///   If cancellation was requested, the <see cref="DocumentTranslationException.DocumentHandle" /> will be a
     ///   <see cref="TaskCanceledException" />.
     /// </exception>
     Task TranslateDocumentAsync(
@@ -105,7 +105,7 @@ namespace DeepL {
     ///   If cancellation was requested, or an error occurs while translating the document. If the document was uploaded
     ///   successfully, then the <see cref="DocumentTranslationException.DocumentHandle" /> contains the document ID and
     ///   key that may be used to retrieve the document.
-    ///   If cancellation was requested, the <see cref="DocumentTranslationException.InnerException" /> will be a
+    ///   If cancellation was requested, the <see cref="DocumentTranslationException.DocumentHandle" /> will be a
     ///   <see cref="TaskCanceledException" />.
     /// </exception>
     Task TranslateDocumentAsync(
@@ -865,7 +865,7 @@ namespace DeepL {
     ///   <c>true</c> to send platform information with every API request (default),
     ///   <c>false</c> to only send the library version.
     /// </param>
-    /// <param name="AppInfo">
+    /// <param name="appInfo">
     ///   Name and version of the application using this library. Ignored if null.
     /// </param>
     /// <returns>Enumerable of tuples containing the parameters to include in HTTP request.</returns>
