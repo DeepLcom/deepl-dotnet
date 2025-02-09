@@ -4,7 +4,7 @@
 
 using DeepL.Model;
 
-namespace DeepL.Extensions;
+namespace DeepL.Extensions.BatchTranslate;
 
 public class BatchResult {
 
@@ -13,4 +13,12 @@ public class BatchResult {
   public string Error { get; set; } = string.Empty;
   public TextResult[] Results { get; set; } = new TextResult[0];
   public int Cost { get; set; }
+}
+
+public class ErrorBatchResult : BatchResult {
+  public ErrorBatchResult(string targetLanguage, string error) {
+    TargetLanguage = targetLanguage;
+    Error = error;
+    Completed = false;
+  }
 }
