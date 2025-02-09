@@ -1,8 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepL", "DeepL\DeepL.csproj", "{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34511.98
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeepL", "DeepL\DeepL.csproj", "{87DDF1B7-2007-4E90-BDF3-6F6AE465A853}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepLTests", "DeepLTests\DeepLTests.csproj", "{3582DAA3-A216-4D58-83C8-BA91B4EE2260}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeepLTests", "DeepLTests\DeepLTests.csproj", "{3582DAA3-A216-4D58-83C8-BA91B4EE2260}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepL.Extensions", "DeepL.Extensions\DeepL.Extensions.csproj", "{930E7BE1-6244-46F8-BCF6-D667BACD04B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +23,15 @@ Global
 		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3582DAA3-A216-4D58-83C8-BA91B4EE2260}.Release|Any CPU.Build.0 = Release|Any CPU
+		{930E7BE1-6244-46F8-BCF6-D667BACD04B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{930E7BE1-6244-46F8-BCF6-D667BACD04B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{930E7BE1-6244-46F8-BCF6-D667BACD04B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{930E7BE1-6244-46F8-BCF6-D667BACD04B7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {28D9C399-D5A4-46A2-A71D-21FCD54E380F}
 	EndGlobalSection
 EndGlobal
