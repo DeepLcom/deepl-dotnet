@@ -281,5 +281,21 @@ namespace DeepLTests {
       var handle = new DocumentHandle(documentId, documentKey);
       await Assert.ThrowsAsync<NotFoundException>(() => translator.TranslateDocumentStatusAsync(handle));
     }
+
+    [RealServerOnlyFact]
+    public async Task TestOutputFormatFailsOnInvalidFormat() {
+      var deeplClient = CreateTestClient();
+      var exception = await Assert.ThrowsAsync<DocumentTranslationException>(
+        async () => await deeplClient.TranslateDocumentAsync(
+            new FileInfo(ExampleDocumentPath()),
+            new FileInfo(OutputDocumentPath()),
+            "EN",
+            "DE",
+            new DocumentTranslateOptions() { OutputFormat = "pdf" }));
+      var exceptionMessageLowercase = exception.Message.ToLower();
+      Assert.Contains("not supported", exceptionMessageLowercase);
+      Assert.Contains("conversion", exceptionMessageLowercase);
+      Assert.Contains("different document types", exceptionMessageLowercase);
+    }
   }
 }

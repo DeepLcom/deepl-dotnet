@@ -29,5 +29,8 @@ namespace DeepL {
 
     /// <summary> Controls whether to use Document Minification for translation, if available.</summary>
     public bool EnableDocumentMinification { get; set; }
+
+    /// <summary>File extension of desired format of translated file, for example: docx. If unspecified, by default the translated file will be in the same format as the input file.</summary>
+    public string? OutputFormat { get; set; }
   }
 }

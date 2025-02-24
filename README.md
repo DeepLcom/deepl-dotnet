@@ -277,6 +277,7 @@ currently only supported for `pptx` and `docx` files. See also [Document minific
 Note that this only works in the high-level `TranslateDocumentDownloadAsync` method, not 
 `TranslateDocumentUploadAsync`. However, the behavior can be emulated by creating a new `DocumentMinifier` 
 object and calling the minifier's methods in between.
+- `OutputFormat`: using the parameter during document upload, you can select alternative output formats. See the [API documentation][api-docs-outputformat-param] for more information and example usage.
 
 #### Document minification
 In some contexts, one can end up with large document files (e.g. PowerPoint presentations
@@ -591,6 +592,8 @@ terminal while executing the tests. Execute the tests using `dotnet test` with t
 [api-docs-csv-format]: https://www.deepl.com/docs-api/managing-glossaries/supported-glossary-formats/?utm_source=github&utm_medium=github-dotnet-readme
 
 [api-docs-glossary-lang-list]: https://www.deepl.com/docs-api/managing-glossaries/?utm_source=github&utm_medium=github-dotnet-readme
+
+[api-docs-outputformat-param]: https://www.deepl.com/docs-api/documents/format-conversions/?utm_source=github&utm_medium=github-dotnet-readme
 
 [api-docs-xml-handling]: https://www.deepl.com/docs-api/handling-xml/?utm_source=github&utm_medium=github-dotnet-readme
 
