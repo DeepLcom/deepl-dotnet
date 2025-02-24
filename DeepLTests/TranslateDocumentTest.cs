@@ -63,8 +63,8 @@ namespace DeepLTests {
             nameof(TestTranslateDocumentWithRetry),
             new SessionOptions { NoResponse = 1 },
             new TranslatorOptions {
-                  PerRetryConnectionTimeout = TimeSpan.FromSeconds(1),
-                  OverallConnectionTimeout = TimeSpan.FromSeconds(10)
+              PerRetryConnectionTimeout = TimeSpan.FromSeconds(1),
+              OverallConnectionTimeout = TimeSpan.FromSeconds(10)
             });
       var outputDocumentPath = OutputDocumentPath();
 
@@ -81,7 +81,8 @@ namespace DeepLTests {
       var translator = CreateTestTranslatorWithMockSession(
             nameof(TestTranslateDocumentWithWaiting),
             new SessionOptions {
-                  DocumentQueueTime = TimeSpan.FromSeconds(2), DocumentTranslateTime = TimeSpan.FromSeconds(2)
+              DocumentQueueTime = TimeSpan.FromSeconds(2),
+              DocumentTranslateTime = TimeSpan.FromSeconds(2)
             });
       var outputDocumentPath = OutputDocumentPath();
       await translator.TranslateDocumentAsync(
@@ -248,7 +249,8 @@ namespace DeepLTests {
       var translator = CreateTestTranslatorWithMockSession(
             nameof(TestTranslateDocumentRequestFields),
             new SessionOptions {
-                  DocumentQueueTime = TimeSpan.FromSeconds(2), DocumentTranslateTime = TimeSpan.FromSeconds(2)
+              DocumentQueueTime = TimeSpan.FromSeconds(2),
+              DocumentTranslateTime = TimeSpan.FromSeconds(2)
             });
       var exampleDocumentPath = ExampleDocumentPath();
 

@@ -1,4 +1,4 @@
-﻿// Copyright 2022 DeepL SE (https://www.deepl.com)
+// Copyright 2022 DeepL SE (https://www.deepl.com)
 // Use of this source code is governed by an MIT
 // license that can be found in the LICENSE file.
 
@@ -403,10 +403,10 @@ namespace DeepL {
   }
 
   /// <summary>
-  ///   Client for the DeepL API. To use the DeepL API, initialize an instance of this class using your DeepL
-  ///   Authentication Key. All functions are thread-safe, aside from <see cref="Translator.Dispose" />.
+  ///   Deprecated client for the DeepL library. Please use <see cref="DeepLClient" /> instead.
+  ///   Do not derive from this class, this class might undergo backward-incompatible changes.
   /// </summary>
-  public sealed class Translator : ITranslator {
+  public class Translator : ITranslator {
     /// <summary>Base URL for DeepL API Pro accounts.</summary>
     private const string DeepLServerUrl = "https://api.deepl.com";
 
@@ -414,7 +414,7 @@ namespace DeepL {
     private const string DeepLServerUrlFree = "https://api-free.deepl.com";
 
     /// <summary>Internal class implementing HTTP requests.</summary>
-    private readonly DeepLClient _client;
+    internal readonly DeepLHttpClient _client;
 
     /// <summary>Initializes a new <see cref="Translator" /> object using your authentication key.</summary>
     /// <param name="authKey">
@@ -455,12 +455,12 @@ namespace DeepL {
       }
 
       var clientFactory = options.ClientFactory ?? (() =>
-            DeepLClient.CreateDefaultHttpClient(
+            DeepLHttpClient.CreateDefaultHttpClient(
                   options.PerRetryConnectionTimeout,
                   options.OverallConnectionTimeout,
                   options.MaximumNetworkRetries));
 
-      _client = new DeepLClient(
+      _client = new DeepLHttpClient(
             serverUrl,
             clientFactory,
             headers);
@@ -493,7 +493,7 @@ namespace DeepL {
     /// <inheritdoc />
     public async Task<Usage> GetUsageAsync(CancellationToken cancellationToken = default) {
       using var responseMessage = await _client.ApiGetAsync("/v2/usage", cancellationToken).ConfigureAwait(false);
-      await DeepLClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       var usageFields = await JsonUtils.DeserializeAsync<Usage.JsonFieldsStruct>(responseMessage)
             .ConfigureAwait(false);
       return new Usage(usageFields);
@@ -515,7 +515,7 @@ namespace DeepL {
       using var responseMessage = await _client
             .ApiPostAsync("/v2/translate", cancellationToken, bodyParams.Concat(textParams)).ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       var translatedTexts =
             await JsonUtils.DeserializeAsync<TextTranslateResult>(responseMessage).ConfigureAwait(false);
       return translatedTexts.Translations;
@@ -546,12 +546,19 @@ namespace DeepL {
           string targetLanguageCode,
           DocumentTranslateOptions? options = null,
           CancellationToken cancellationToken = default) {
-      using var inputFile = inputFileInfo.OpenRead();
+      var willMinify = (options?.EnableDocumentMinification ?? false) && DocumentMinifier.CanMinifyFile(inputFileInfo.Name);
+      var fileToUpload = inputFileInfo;
+      var minifier = new DocumentMinifier();
+      if (willMinify) {
+        minifier.MinifyDocument(inputFileInfo.FullName, true);
+        fileToUpload = new FileInfo(minifier.GetMinifiedDocFile(inputFileInfo.FullName));
+      }
+      using var inputFile = fileToUpload.OpenRead();
       using var outputFile = outputFileInfo.Open(FileMode.CreateNew, FileAccess.Write);
       try {
         await TranslateDocumentAsync(
               inputFile,
-              inputFileInfo.Name,
+              fileToUpload.Name,
               outputFile,
               sourceLanguageCode,
               targetLanguageCode,
@@ -565,6 +572,11 @@ namespace DeepL {
         }
 
         throw;
+      }
+      if (willMinify) {
+        outputFile.Dispose();
+        // Translated minified file is at `outputFileName`. Reinsert media (deminify) before returning
+        minifier.DeminifyDocument(outputFileInfo.FullName, outputFileInfo.FullName, true);
       }
     }
 
@@ -636,7 +648,7 @@ namespace DeepL {
                   inputFile,
                   inputFileName)
             .ConfigureAwait(false);
-      await DeepLClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<DocumentHandle>(responseMessage).ConfigureAwait(false);
     }
 
@@ -651,7 +663,7 @@ namespace DeepL {
                         cancellationToken,
                         bodyParams)
                   .ConfigureAwait(false);
-      await DeepLClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<DocumentStatus>(responseMessage).ConfigureAwait(false);
     }
 
@@ -701,7 +713,7 @@ namespace DeepL {
                   bodyParams)
             .ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage, downloadingDocument: true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, downloadingDocument: true).ConfigureAwait(false);
       await responseMessage.Content.CopyToAsync(outputFile).ConfigureAwait(false);
     }
 
@@ -718,7 +730,7 @@ namespace DeepL {
       using var responseMessage = await _client
             .ApiGetAsync("/v2/glossary-language-pairs", cancellationToken).ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       var languages = await JsonUtils.DeserializeAsync<GlossaryLanguageListResult>(responseMessage)
             .ConfigureAwait(false);
       return languages.GlossaryLanguagePairs;
@@ -762,7 +774,7 @@ namespace DeepL {
             await _client.ApiGetAsync($"/v2/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<GlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 
@@ -784,7 +796,7 @@ namespace DeepL {
       using var responseMessage =
             await _client.ApiGetAsync("/v2/glossaries", cancellationToken).ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
       return (await JsonUtils.DeserializeAsync<GlossaryListResult>(responseMessage).ConfigureAwait(false)).Glossaries;
     }
 
@@ -797,7 +809,7 @@ namespace DeepL {
             cancellationToken,
             acceptHeader: "text/tab-separated-values").ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
       var contentTsv = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
       return GlossaryEntries.FromTsv(contentTsv, true);
     }
@@ -816,7 +828,7 @@ namespace DeepL {
             await _client.ApiDeleteAsync($"/v2/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -841,7 +853,7 @@ namespace DeepL {
             await _client.ApiGetAsync("/v2/languages", cancellationToken, queryParams)
                   .ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<TValue[]>(responseMessage).ConfigureAwait(false);
     }
 
@@ -861,8 +873,8 @@ namespace DeepL {
     private String ConstructUserAgentString(bool sendPlatformInfo = true, AppInfo? appInfo = null) {
       var platformInfoString = $"deepl-dotnet/{Version()}";
       if (sendPlatformInfo) {
-      var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-      var clrVersion = Environment.Version.ToString();
+        var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        var clrVersion = Environment.Version.ToString();
         platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
       }
       if (appInfo != null) {
@@ -893,6 +905,9 @@ namespace DeepL {
             targetLanguageCode,
             options?.Formality,
             options?.GlossaryId);
+
+      // Always send show_billed_characters=1, remove when the API default is changed to true
+      bodyParams.Add(("show_billed_characters", "1"));
 
       if (options == null) {
         return bodyParams;
@@ -929,6 +944,10 @@ namespace DeepL {
 
       if (options.IgnoreTags.Count > 0) {
         bodyParams.Add(("ignore_tags", string.Join(",", options.IgnoreTags)));
+      }
+
+      if (options.ModelType != null) {
+        bodyParams.Add(("model_type", options.ModelType.Value.ToApiValue()));
       }
 
       return bodyParams;
@@ -997,7 +1016,7 @@ namespace DeepL {
     /// <param name="sourceLanguageCode">Language code of translation source language, or null if auto-detection is used.</param>
     /// <param name="targetLanguageCode">Language code of translation target language.</param>
     /// <exception cref="ArgumentException">If source or target language code are not valid.</exception>
-    private static void CheckValidLanguages(string? sourceLanguageCode, string targetLanguageCode) {
+    protected static void CheckValidLanguages(string? sourceLanguageCode, string targetLanguageCode) {
       if (sourceLanguageCode is { Length: 0 }) {
         throw new ArgumentException($"{nameof(sourceLanguageCode)} must not be empty");
       }
@@ -1050,7 +1069,7 @@ namespace DeepL {
       using var responseMessage =
             await _client.ApiPostAsync("/v2/glossaries", cancellationToken, bodyParams).ConfigureAwait(false);
 
-      await DeepLClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<GlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 

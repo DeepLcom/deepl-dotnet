@@ -4,6 +4,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2025-01-28
+### Added
+* Added support for the Write API in the client library, the implementation
+  can be found in the `DeepLClient` class. Please refer to the README for usage
+  instructions.
+### Fixed
+* Fixed code example for getting glossary entries in the README
+  * [#58](https://github.com/DeepLcom/deepl-dotnet/issues/58) thanks to [KurtBildeSDU](https://github.com/KurtBildeSDU)
+### Changed
+* The main functionality of the library is now also exposed via the `DeepLClient`
+  class. Please change your code to use this over the `Translator` class whenever
+  convenient.
+
+## [1.12.0] - 2025-01-09
+### Added
+* Added document minification as a feature before document translation, to 
+  allow translation of large docx or pptx files. For more info check the README.
+
+
+## [1.11.0] - 2024-11-15
+### Added
+* Added `ModelType` option for text translation to use models with higher
+  translation quality (available for some language pairs), or better latency.
+  Options are:
+  - `ModelType.QualityOptimized ('quality_optimized')`,
+  - `ModelType.QualityOptimized ('latency_optimized')`, and
+  - `ModelType.QualityOptimized ('prefer_quality_optimized')`
+* Added the `ModelTypeUsed` field to text translation response, that
+  indicates the translation model used when the `ModelType` option is
+  specified.
+
+
+## [1.10.0] - 2024-09-17
+### Added
+* Added `BilledCharacters` to the translate text response.
+
 
 ## [1.9.0] - 2024-03-15
 ### Added
@@ -151,7 +187,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-11-05
 Initial release.
 
-
+[1.13.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.12.0...v1.13.0
+[1.12.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.11.0...v1.12.0
+[1.11.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.10.0...v1.11.0
+[1.10.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.7.0...v1.7.1

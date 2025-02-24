@@ -19,7 +19,7 @@ using Polly.Timeout;
 
 namespace DeepL.Internal {
   /// <summary>Internal class implementing HTTP requests.</summary>
-  internal class DeepLClient : IDisposable {
+  internal class DeepLHttpClient : IDisposable {
     /// <summary>HTTP status code returned by DeepL API to indicate servers are currently under high load.</summary>
     private const HttpStatusCode HttpStatusCodeTooManyRequests = (HttpStatusCode)429;
 
@@ -38,12 +38,12 @@ namespace DeepL.Internal {
     /// <summary>The base URL for DeepL's API.</summary>
     private readonly Uri _serverUrl;
 
-    /// <summary>Initializes a new <see cref="DeepLClient" />.</summary>
+    /// <summary>Initializes a new <see cref="DeepLHttpClient" />.</summary>
     /// <param name="serverUrl">Base server URL to apply to all relative URLs in requests.</param>
     /// <param name="clientFactory">Factory function to obtain <see cref="HttpClient" /> used for requests.</param>
     /// <param name="headers">HTTP headers applied to all requests.</param>
     /// <exception cref="ArgumentNullException">If any argument is null.</exception>
-    internal DeepLClient(
+    internal DeepLHttpClient(
           Uri serverUrl,
           Func<HttpClientAndDisposeFlag> clientFactory,
           IEnumerable<KeyValuePair<string, string?>> headers) {
@@ -65,7 +65,7 @@ namespace DeepL.Internal {
       _headers = headers.ToArray();
     }
 
-    /// <summary>Releases the unmanaged resources and disposes of the managed resources used by the <see cref="DeepLClient" />.</summary>
+    /// <summary>Releases the unmanaged resources and disposes of the managed resources used by the <see cref="DeepLHttpClient" />.</summary>
     public void Dispose() {
       if (_disposeClient) {
         _httpClient.Dispose();
@@ -126,7 +126,8 @@ namespace DeepL.Internal {
             perRetryConnectionTimeout,
             maximumNetworkRetries);
       return new HttpClientAndDisposeFlag {
-            DisposeClient = true, HttpClient = new HttpClient(handler) { Timeout = overallConnectionTimeout }
+        DisposeClient = true,
+        HttpClient = new HttpClient(handler) { Timeout = overallConnectionTimeout }
       };
     }
 
@@ -203,9 +204,9 @@ namespace DeepL.Internal {
                   queryParams.Select(pair => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(pair.Value)}"));
 
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri + queryString),
-            Method = HttpMethod.Get,
-            Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
+        RequestUri = new Uri(_serverUrl, relativeUri + queryString),
+        Method = HttpMethod.Get,
+        Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
@@ -217,7 +218,8 @@ namespace DeepL.Internal {
     /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiDeleteAsync(string relativeUri, CancellationToken cancellationToken) {
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri), Method = HttpMethod.Delete
+        RequestUri = new Uri(_serverUrl, relativeUri),
+        Method = HttpMethod.Delete
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
@@ -233,9 +235,9 @@ namespace DeepL.Internal {
           CancellationToken cancellationToken,
           IEnumerable<(string Key, string Value)>? bodyParams = null) {
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri),
-            Method = HttpMethod.Post,
-            Content = bodyParams != null
+        RequestUri = new Uri(_serverUrl, relativeUri),
+        Method = HttpMethod.Post,
+        Content = bodyParams != null
                   ? new LargeFormUrlEncodedContent(
                         bodyParams.Select(pair => new KeyValuePair<string, string>(pair.Key, pair.Value)))
                   : null
@@ -265,10 +267,10 @@ namespace DeepL.Internal {
       content.Add(new StreamContent(file), "file", fileName);
 
       using var requestMessage = new HttpRequestMessage {
-            RequestUri = new Uri(_serverUrl, relativeUri),
-            Method = HttpMethod.Post,
-            Content = content,
-            Headers = { Accept = { new MediaTypeWithQualityHeaderValue("application/json") } }
+        RequestUri = new Uri(_serverUrl, relativeUri),
+        Method = HttpMethod.Post,
+        Content = content,
+        Headers = { Accept = { new MediaTypeWithQualityHeaderValue("application/json") } }
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }

@@ -5,9 +5,10 @@
 [![.NET](https://github.com/DeepLcom/deepl-dotnet/actions/workflows/build_default.yml/badge.svg)](https://github.com/DeepLcom/deepl-dotnet/actions/workflows/build_default.yml)
 
 The [DeepL API](https://www.deepl.com/docs-api?utm_source=github&utm_medium=github-dotnet-readme) is a language
-translation API that allows other computer programs to send texts and documents to DeepL's servers and receive
-high-quality translations. This opens a whole universe of opportunities for developers: any translation product you can
-imagine can now be built on top of DeepL's best-in-class translation technology.
+AI API that allows other computer programs to send texts and documents to DeepL's servers and receive
+high-quality translations and improvements to the text. This opens a whole universe of opportunities
+for developers: any translation product you can imagine can now be built on top of DeepL's best-in-class
+translation technology.
 
 The DeepL .NET library offers a convenient way for applications written in .NET to interact with the DeepL API. We
 intend to support all API functions with the library, though support for new features may be added to the library after
@@ -17,7 +18,7 @@ they’re added to the API.
 
 To use the DeepL .NET Library, you'll need an API authentication key. To get a key,
 [please create an account here](https://www.deepl.com/pro?utm_source=github&utm_medium=github-dotnet-readme#developer).
-With a DeepL API Free account you can translate up to 500,000 characters/month for free.
+With a DeepL API Free account you can consume up to 500,000 characters/month for free.
 
 ## Installation
 
@@ -41,19 +42,19 @@ All entities in the DeepL .NET library are in the `DeepL` namespace:
 using DeepL;
 ```
 
-Create a `Translator` object providing your DeepL API authentication key.
+Create a `DeepLClient` object providing your DeepL API authentication key.
 
 Be careful not to expose your key, for example when sharing source code.
 
 ```c#
 var authKey = "f63c02c5-f056-..."; // Replace with your key
-var translator = new Translator(authKey);
+var client = new DeepLClient(authKey);
 ```
 
 This example is for demonstration purposes only. In production code, the authentication key should not be hard-coded,
 but instead fetched from a configuration file or environment variable.
 
-`Translator` accepts options as the second argument, see [Configuration](#configuration) for more information.
+`DeepLClient` accepts options as the second argument, see [Configuration](#configuration) for more information.
 
 ### Translating text
 
@@ -69,11 +70,15 @@ To auto-detect the input text language, specify `null` as the source language.
 Additional `TextTranslateOptions` can also be provided, see [Text translation options](#text-translation-options) below.
 
 `TranslateTextAsync()` returns a `TextResult` or `TextResult` array corresponding to the input text(s).
-The `TextResult` contains the translated text and detected source language code.
+The `TextResult` contains:
+- the translated text,
+- the detected source language code,
+- the number of characters billed for the text, and
+- the translation model type used (only non-null if the ModelType option is specified.)
 
 ```c#
 // Translate text into a target language, in this case, French:
-var translatedText = await translator.TranslateTextAsync(
+var translatedText = await client.TranslateTextAsync(
       "Hello, world!",
       LanguageCode.English,
       LanguageCode.French);
@@ -81,17 +86,19 @@ Console.WriteLine(translatedText); // "Bonjour, le monde !"
 // Note: printing or converting the result to a string uses the output text.
 
 // Translate multiple texts into British English:
-var translations = await translator.TranslateTextAsync(
+var translations = await client.TranslateTextAsync(
       new[] { "お元気ですか？", "¿Cómo estás?" }, null, "EN-GB");
 Console.WriteLine(translations[0].Text); // "How are you?"
 Console.WriteLine(translations[0].DetectedSourceLanguageCode); // "JA"
+Console.WriteLine(translations[0].BilledCharacters); // 7 - the number of characters in the source text "お元気ですか？"
 Console.WriteLine(translations[1].Text); // "How are you?"
 Console.WriteLine(translations[1].DetectedSourceLanguageCode); // "ES"
+Console.WriteLine(translations[1].BilledCharacters); // 12 - the number of characters in the source text "¿Cómo estás?"
 
 // Translate into German with less and more Formality:
 foreach (var formality in new[] { Formality.Less, Formality.More }) {
   Console.WriteLine(
-        await translator.TranslateTextAsync(
+        await client.TranslateTextAsync(
               "How are you?",
               null,
               LanguageCode.German,
@@ -129,6 +136,14 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
   translated itself. Characters in the `context` parameter are not counted toward billing.
   See the [API documentation][api-docs-context-param] for more information and
   example usage.
+- `ModelType`: specifies the type of translation model to use, options are:
+  - `'quality_optimized'` (`ModelType.QualityOptimized`): use a translation
+    model that maximizes translation quality, at the cost of response time.
+    This option may be unavailable for some language pairs.
+  - `'prefer_quality_optimized'` (`ModelType.PreferQualityOptimized`): use
+    the highest-quality translation model for the given language pair.
+  - `'latency_optimized'` (`ModelType.LatencyOptimized`): use a translation
+    model that minimizes response time, at the cost of translation quality.
 - `TagHandling`: type of tags to parse before translation, options are
   `"html"` and `"xml"`.
 
@@ -147,6 +162,60 @@ The following options are only used if `TagHandling` is set to `'xml'`:
 
 For a detailed explanation of the XML handling options, see the [API documentation][api-docs-xml-handling].
 
+### Improving text (Write API)
+
+You can use the Write API to improve or rephrase text. This is implemented in
+the `RephraseTextAsync()` method. The first argument is a string containing the text
+you want to translate, or a list of strings if you want to translate multiple texts.
+
+`targetLanguageCode` optionally specifies the target language, e.g. when you want to change
+the variant of a text (for example, you can send an english text to the write API and
+use `targetLanguageCode` to turn it into British or American English). Please note that the
+Write API itself does NOT translate. If you wish to translate and improve a text, you
+will need to make multiple calls in a chain.
+
+Language codes are the same as for translating text.
+
+Example call:
+
+```c#
+WriteResult result = await client.RephraseTextAsync("A rainbouw has seven colours.", "EN-US");
+Console.WriteLine(result);
+```
+
+Additionally, you can optionally specify a style OR a tone (not both at once) that the
+improvement should be in. The following styles are supported (`default` will be used if
+nothing is selected):
+
+- `academic`
+- `business`
+- `casual`
+- `default`
+- `simple`
+
+The following tones are supported (`default` will be used if nothing is selected):
+
+- `confident`
+- `default`
+- `diplomatic`
+- `enthusiastic`
+- `friendly`
+
+You can also prefix any non-default style or tone with `prefer_` (`prefer_academic`, etc.),
+in which case the style/tone will only be applied if the language supports it. If you do not
+use `prefer_`, requests with `targetLanguageCode`s or detected languages that do not support
+styles and tones will fail. The current list of supported languages can be found in our
+[API documentation][api-docs]. We plan to also expose this information via an API endpoint
+in the future.
+
+You can pass a style like so:
+
+```c#
+var options = new TextRephraseOptions { WritingStyle = "business" }
+var result = await client.RephraseTextAsync("A rainbouw has seven colours.", "EN-US", options);
+Console.WriteLine(result);
+```
+
 ### Translating documents
 
 To translate documents, call `TranslateDocumentAsync()` with the input and output files as `FileInfo`
@@ -158,7 +227,7 @@ Note that file paths are not accepted as strings, to avoid mixing up the file an
 ```c#
 // Translate a formal document from English to German
 try {
-  await translator.TranslateDocumentAsync(
+  await client.TranslateDocumentAsync(
         new FileInfo("Instruction Manual.docx"),
         new FileInfo("Bedienungsanleitung.docx"),
         "EN",
@@ -180,8 +249,8 @@ that case the input file name (or extension) is required, so the DeepL API can
 determine the file type:
 ```c#
 ...
-  using outputFile = File.OpenWrite(outputDocumentPath);
-  await translator.TranslateDocumentAsync(
+  using var outputFile = File.OpenWrite(outputDocumentPath);
+  await client.TranslateDocumentAsync(
         new MemoryStream(buffer),
         "Input file.docx", // An extension like ".docx" is also sufficient
         outputFile,
@@ -203,6 +272,63 @@ application needs to execute these steps individually, you can instead use the f
 
 - `Formality`:  same as in [Text translation options](#text-translation-options).
 - `GlossaryId`:  same as in [Text translation options](#text-translation-options).
+- `EnableDocumentMinification`: A `bool` value. If set to `true`, the library will try to minify a document 
+before translating it through the API, sending a smaller document if the file contains a lot of media. This is 
+currently only supported for `pptx` and `docx` files. See also [Document minification](#document-minification). 
+Note that this only works in the high-level `TranslateDocumentDownloadAsync` method, not 
+`TranslateDocumentUploadAsync`. However, the behavior can be emulated by creating a new `DocumentMinifier` 
+object and calling the minifier's methods in between.
+
+#### Document minification
+In some contexts, one can end up with large document files (e.g. PowerPoint presentations
+or Word files with many contributors, especially in a larger organization). However, the
+DeepL API enforces a limit of 30 MB for most of these files (see Usage Limits in the docs).
+In the case that most of this size comes from media included in the documents (e.g. images,
+videos, animations), document minification can help.
+In this case, the library will create a temporary directory to extract the document into,
+replace the large media with tiny placeholders, create a minified document, translate that
+via the API, and re-insert the original media into the original file. Please note that this
+requires a bit of additional (temporary) disk space, we recommend at least 2x the file size
+of the document to be translated.
+To use document minification, simply pass the option to the `TranslateDocumentAsync` function:
+```c#
+await client.TranslateDocumentAsync(
+    inFile, outFile, "EN", "DE", new DocumentTranslateOptions { EnableDocumentMinification = true }
+);
+```
+In order to use document minification with the lower-level `TranslateDocumentUploadAsync`,
+`TranslateDocumentWaitUntilDoneAsync` and `TranslateDocumentDownloadAsync` methods as well as other details,
+see the `DocumentMinifier` class.
+Currently supported document types for minification:
+1. `pptx`
+2. `docx`
+   Currently supported media types for minification:
+1. `png`
+2. `jpg`
+3. `jpeg`
+4. `emf`
+5. `bmp`
+6. `tiff`
+7. `wdp`
+8. `svg`
+9. `gif`
+10. `mp4`
+11. `asf`
+12. `avi`
+13. `m4v`
+14. `mpg`
+15. `mpeg`
+16. `wmv`
+17. `mov`
+18. `aiff`
+19. `au`
+20. `mid`
+21. `midi`
+22. `mp3`
+23. `m4a`
+24. `wav`
+25. `wma`
+
 
 ### Glossaries
 
@@ -224,7 +350,7 @@ count.
 ```c#
 // Create an English to German glossary with two terms:
 var entriesDictionary = new Dictionary<string, string>{{"artist", "Maler"}, {"prize", "Gewinn"}};
-var glossaryEnToDe = await translator.CreateGlossaryAsync(
+var glossaryEnToDe = await client.CreateGlossaryAsync(
     "My glossary", "EN", "DE",
     new GlossaryEntries(entriesDictionary));
 
@@ -241,7 +367,7 @@ specify the CSV data as a `Stream` containing file content:
 
 ```c#
 var csvStream =  File.OpenRead("myGlossary.csv");
-var csvGlossary = await translator.CreateGlossaryFromCsvAsync("My CSV glossary", "EN", "DE", csvStream);
+var csvGlossary = await client.CreateGlossaryFromCsvAsync("My CSV glossary", "EN", "DE", csvStream);
 ```
 
 The [API documentation][api-docs-csv-format] explains the expected CSV format in detail.
@@ -259,13 +385,13 @@ Functions to get, list, and delete stored glossaries are also provided:
 
 ```c#
 // Retrieve a stored glossary using the ID
-var myGlossary = await translator.GetGlossaryAsync("559192ed-8e23-...");
+var myGlossary = await client.GetGlossaryAsync("559192ed-8e23-...");
 
 // Find and delete glossaries named 'Old glossary'
-var glossaries = await translator.ListGlossariesAsync();
+var glossaries = await client.ListGlossariesAsync();
 foreach (var glossaryInfo in glossaries) {
   if (glossaryInfo.Name == "Old glossary")
-    await translator.DeleteGlossaryAsync(glossaryInfo);
+    await client.DeleteGlossaryAsync(glossaryInfo);
 }
 ```
 
@@ -278,7 +404,7 @@ To list the entries contained within a stored glossary, use
 `GetGlossaryEntriesAsync()` providing either the `GlossaryInfo` object or glossary ID:
 
 ```c#
-var entries = translator.GetGlossaryEntriesAsync(myGlossary);
+var entries = await client.GetGlossaryEntriesAsync(myGlossary);
 
 foreach (KeyValuePair<string, string> entry in entries.ToDictionary()) {
   Console.WriteLine($"{entry.Key}: {entry.Value}");
@@ -296,7 +422,7 @@ to the glossary ID. You must also specify the `source_lang` argument (it is
 required when using a glossary):
 
 ```c#
-var resultWithGlossary = await translator.TranslateTextAsync(
+var resultWithGlossary = await client.TranslateTextAsync(
     "The artist was awarded a prize.",
     "EN",
     "DE",
@@ -308,7 +434,7 @@ var resultWithGlossary = await translator.TranslateTextAsync(
 ### Check account usage
 
 ```c#
-var usage = await translator.GetUsageAsync();
+var usage = await client.GetUsageAsync();
 if (usage.AnyLimitReached) {
   Console.WriteLine("Translation limit exceeded.");
 } else if (usage.Character != null) {
@@ -331,11 +457,11 @@ optional `Formality` parameter.
 
 ```c#
 // Source and target languages
-var sourceLanguages = await translator.GetSourceLanguagesAsync();
+var sourceLanguages = await client.GetSourceLanguagesAsync();
 foreach (var lang in sourceLanguages) {
   Console.WriteLine($"{lang.Name} ({lang.Code})"); // Example: "English (EN)"
 }
-var targetLanguages = await translator.GetTargetLanguagesAsync();
+var targetLanguages = await client.GetTargetLanguagesAsync();
 foreach (var lang in targetLanguages) {
   if (lang.SupportsFormality ?? false) {
     Console.WriteLine($"{lang.Name} ({lang.Code}) supports formality");
@@ -354,7 +480,7 @@ of `GlossaryLanguagePair` objects. Use the `SourceLanguage` and
 ```c#
 
 // Glossary languages
-var glossaryLanguages = await translator.GetGlossaryLanguagesAsync();
+var glossaryLanguages = await client.GetGlossaryLanguagesAsync();
 foreach (var languagePair in glossaryLanguages) {
   Console.WriteLine($"{languagePair.SourceLanguage} to {languagePair.TargetLanguage}");
   // Example: "EN to DE", "DE to EN", etc.
@@ -377,34 +503,34 @@ invalid arguments are provided, they may raise the standard exceptions
 ### Writing a Plugin
 
 If you use this library in an application, please identify the application with
-`TranslatorOptions.appInfo`, which needs the name and version of the app:
+`DeepLClientOptions.appInfo`, which needs the name and version of the app:
 
 ```c#
-var options = new TranslatorOptions {
+var options = new DeepLClientOptions {
   appInfo =  new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3"}
 };
-var translator = new Translator(AuthKey, options);
+var client = new DeepLClient(AuthKey, options);
 ```
 
 This information is passed along when the library makes calls to the DeepL API.
 Both name and version are required. Please note that setting the `User-Agent` header
-via `TranslatorOptions.Headers` will override this setting, if you need to use this,
+via `DeepLClientOptions.Headers` will override this setting, if you need to use this,
 please manually identify your Application in the `User-Agent` header.
 
 ### Configuration
 
-The `Translator` constructor accepts `TranslatorOptions` as a second argument,
+The `DeepLClient` constructor accepts `DeepLClientOptions` as a second argument,
 for example:
 
 ```c#
-var options = new TranslatorOptions {
+var options = new DeepLClientOptions {
       MaximumNetworkRetries = 5,
       PerRetryConnectionTimeout = TimeSpan.FromSeconds(10),
 };
-var translator = new Translator(authKey, options);
+var client = new DeepLClient(authKey, options);
 ```
 
-See the `TranslatorOptions` class for details about the available options.
+See the `DeepLClientOptions` class for details about the available options.
 
 #### Proxy configuration
 
@@ -415,12 +541,12 @@ var proxyUrl = "http://localhost:3001";
 var handler = new System.Net.Http.HttpClientHandler {
       Proxy = new System.Net.WebProxy(proxyUrl), UseProxy = true,
 };
-var options = new TranslatorOptions {
+var options = new DeepLClientOptions {
       ClientFactory = () => new HttpClientAndDisposeFlag {
             HttpClient = new HttpClient(handler), DisposeClient = true,
       }
 };
-var translator = new Translator(authKey, options);
+var client = new DeepLClient(authKey, options);
 ```
 
 #### Anonymous platform information
@@ -429,12 +555,12 @@ By default, we send some basic information about the platform the client library
 on with each request, see [here for an explanation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent).
 This data is completely anonymous and only used to improve our product, not track any
 individual users. If you do not wish to send this data, you can opt-out when creating
-your `Translator` object by setting the `sendPlatformInfo` flag in the
-`TranslatorOptions` to `false` like so:
+your `DeepLClient` object by setting the `sendPlatformInfo` flag in the
+`DeepLClientOptions` to `false` like so:
 
 ```c#
-var options = new TranslatorOptions { sendPlatformInfo = false };
-var translator = new Translator(authKey, options);
+var options = new DeepLClientOptions { sendPlatformInfo = false };
+var client = new DeepLClient(authKey, options);
 ```
 
 ## Issues

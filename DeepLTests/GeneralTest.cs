@@ -3,12 +3,13 @@
 // license that can be found in the LICENSE file.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DeepL;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace DeepLTests {
   public sealed class GeneralTest : BaseDeepLTest {
@@ -17,7 +18,7 @@ namespace DeepLTests {
     /// </summary>
     [Fact]
     public void TestVersion() {
-      Assert.Equal("1.9.0", Translator.Version());
+      Assert.Equal("1.13.0", Translator.Version());
 
       // Note the assembly version must remain unchanged for binary compatibility, excepting the major version.
       Assert.Equal("1.0.0.0", typeof(Translator).Assembly.GetName().Version?.ToString());
@@ -33,31 +34,21 @@ namespace DeepLTests {
       foreach (var sourceLanguage in ExpectedSourceLanguages()) {
         var inputText = ExampleText(sourceLanguage);
         var sourceLang = LanguageCode.RemoveRegionalVariant(sourceLanguage);
-        var resultText = (await translator.TranslateTextAsync(inputText, sourceLang, "en-US")).Text.ToLowerInvariant();
-        Assert.Contains("proton", resultText);
+        var result = await translator.TranslateTextAsync(inputText, sourceLang, "en-US");
+        Assert.Contains("proton", result.Text.ToLowerInvariant());
+        Assert.Equal(inputText.Length, result.BilledCharacters);
       }
     }
 
     [Fact]
     public async Task TestDefaultUserAgentHeader() {
       var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
-      var translator = new Translator(AuthKey, new TranslatorOptions { ClientFactory = () => new HttpClientAndDisposeFlag {
-            HttpClient = new HttpClient(mockHandler), DisposeClient = true,
-      } });
-      var usage = await translator.GetUsageAsync();
-      Assert.Single(mockHandler.requests);
-      var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
-      Assert.Contains("deepl-dotnet/", userAgentHeader.ToString());
-      Assert.Contains("(", userAgentHeader.ToString());
-      Assert.Contains("dotnet-clr/", userAgentHeader.ToString());
-    }
-    
-    [Fact]
-    public async Task TestOptInUserAgentHeader() {
-      var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
-      var translator = new Translator(AuthKey, new TranslatorOptions { sendPlatformInfo = true, ClientFactory = () => new HttpClientAndDisposeFlag {
-            HttpClient = new HttpClient(mockHandler), DisposeClient = true,
-      } });
+      var translator = new Translator(
+            AuthKey,
+            new TranslatorOptions {
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+            });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
       var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
@@ -66,13 +57,34 @@ namespace DeepLTests {
       Assert.Contains("dotnet-clr/", userAgentHeader.ToString());
     }
 
+    [Fact]
+    public async Task TestOptInUserAgentHeader() {
+      var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
+      var translator = new Translator(
+            AuthKey,
+            new TranslatorOptions {
+              sendPlatformInfo = true,
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+            });
+      var usage = await translator.GetUsageAsync();
+      Assert.Single(mockHandler.requests);
+      var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
+      Assert.Contains("deepl-dotnet/", userAgentHeader.ToString());
+      Assert.Contains("(", userAgentHeader.ToString());
+      Assert.Contains("dotnet-clr/", userAgentHeader.ToString());
+    }
 
     [Fact]
     public async Task TestOptOutUserAgentHeader() {
       var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
-      var translator = new Translator(AuthKey, new TranslatorOptions { sendPlatformInfo = false, ClientFactory = () => new HttpClientAndDisposeFlag {
-            HttpClient = new HttpClient(mockHandler), DisposeClient = true,
-      } });
+      var translator = new Translator(
+            AuthKey,
+            new TranslatorOptions {
+              sendPlatformInfo = false,
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+            });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
       var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
@@ -84,24 +96,14 @@ namespace DeepLTests {
     [Fact]
     public async Task TestDefaultUserAgentHeaderWithAppInfo() {
       var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
-      var translator = new Translator(AuthKey, new TranslatorOptions {sendPlatformInfo = true, appInfo =  new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3"}, ClientFactory = () => new HttpClientAndDisposeFlag {
-            HttpClient = new HttpClient(mockHandler), DisposeClient = true,
-      }});
-      var usage = await translator.GetUsageAsync();
-      Assert.Single(mockHandler.requests);
-      var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
-      Assert.Contains("deepl-dotnet/", userAgentHeader.ToString());
-      Assert.Contains("(", userAgentHeader.ToString());
-      Assert.Contains("dotnet-clr/", userAgentHeader.ToString());
-      Assert.Contains("my-dotnet-test-app/1.2.3", userAgentHeader.ToString());
-    }
-    
-    [Fact]
-    public async Task TestOptInUserAgentHeaderWithAppInfo() {
-      var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
-      var translator = new Translator(AuthKey, new TranslatorOptions { sendPlatformInfo = true, appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" }, ClientFactory = () => new HttpClientAndDisposeFlag {
-            HttpClient = new HttpClient(mockHandler), DisposeClient = true,
-      } });
+      var translator = new Translator(
+            AuthKey,
+            new TranslatorOptions {
+              sendPlatformInfo = true,
+              appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+            });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
       var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
@@ -111,13 +113,37 @@ namespace DeepLTests {
       Assert.Contains("my-dotnet-test-app/1.2.3", userAgentHeader.ToString());
     }
 
+    [Fact]
+    public async Task TestOptInUserAgentHeaderWithAppInfo() {
+      var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
+      var translator = new Translator(
+            AuthKey,
+            new TranslatorOptions {
+              sendPlatformInfo = true,
+              appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+            });
+      var usage = await translator.GetUsageAsync();
+      Assert.Single(mockHandler.requests);
+      var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
+      Assert.Contains("deepl-dotnet/", userAgentHeader.ToString());
+      Assert.Contains("(", userAgentHeader.ToString());
+      Assert.Contains("dotnet-clr/", userAgentHeader.ToString());
+      Assert.Contains("my-dotnet-test-app/1.2.3", userAgentHeader.ToString());
+    }
 
     [Fact]
     public async Task TestOptOutUserAgentHeaderWithAppInfo() {
       var mockHandler = getMockHandler("{\"character_count\": 180118,\"character_limit\": 1250000}");
-      var translator = new Translator(AuthKey, new TranslatorOptions { sendPlatformInfo = false, appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" }, ClientFactory = () => new HttpClientAndDisposeFlag {
-            HttpClient = new HttpClient(mockHandler), DisposeClient = true,
-      } });
+      var translator = new Translator(
+            AuthKey,
+            new TranslatorOptions {
+              sendPlatformInfo = false,
+              appInfo = new AppInfo { AppName = "my-dotnet-test-app", AppVersion = "1.2.3" },
+              ClientFactory = () =>
+                    new HttpClientAndDisposeFlag { HttpClient = new HttpClient(mockHandler), DisposeClient = true, }
+            });
       var usage = await translator.GetUsageAsync();
       Assert.Single(mockHandler.requests);
       var userAgentHeader = mockHandler.requests[0].Headers.UserAgent;
@@ -148,6 +174,17 @@ namespace DeepLTests {
       Assert.Contains(arIgnorePart, enResult.Text);
       var arResult = await translator.TranslateTextAsync(arSentenceWithEnIgnorePart, null, "ar", options);
       Assert.Contains(enIgnorePart, arResult.Text);
+    }
+
+    [Fact]
+    public void TestModelTypeEnum() {
+      var apiValueSet = new HashSet<string>();
+      // Check each enum value gives a valid, distinct ApiValue
+      foreach (ModelType? i in Enum.GetValues(typeof(ModelType))) {
+        var apiValue = i!.Value.ToApiValue();
+        Assert.DoesNotContain(apiValue, apiValueSet);
+        apiValueSet.Add(apiValue);
+      }
     }
 
     [Fact]
@@ -211,15 +248,14 @@ namespace DeepLTests {
             nameof(TestUsageNoResponse),
             new SessionOptions { ExpectProxy = true },
             new TranslatorOptions {
-                  ServerUrl = ServerUrl,
-                  ClientFactory =
+              ServerUrl = ServerUrl,
+              ClientFactory =
                         () => {
-                          var handler = new System.Net.Http.HttpClientHandler() {
-                                Proxy = new System.Net.WebProxy(ProxyUrl), UseProxy = true,
-                          };
+                          var handler = new HttpClientHandler() { Proxy = new WebProxy(ProxyUrl), UseProxy = true, };
 
                           return new HttpClientAndDisposeFlag {
-                                HttpClient = new HttpClient(handler), DisposeClient = true,
+                            HttpClient = new HttpClient(handler),
+                            DisposeClient = true,
                           };
                         }
             });
@@ -234,7 +270,8 @@ namespace DeepLTests {
             nameof(TestUsageNoResponse),
             new SessionOptions { NoResponse = 2 },
             new TranslatorOptions {
-                  PerRetryConnectionTimeout = TimeSpan.FromMilliseconds(1), MaximumNetworkRetries = 0
+              PerRetryConnectionTimeout = TimeSpan.FromMilliseconds(1),
+              MaximumNetworkRetries = 0
             });
 
       await Assert.ThrowsAsync<ConnectionException>(() => translator.GetUsageAsync());
@@ -308,7 +345,9 @@ namespace DeepLTests {
       var translator = CreateTestTranslatorWithMockSession(
             nameof(TestUsageOverrun),
             new SessionOptions {
-                  InitCharacterLimit = 0, InitDocumentLimit = 0, InitTeamDocumentLimit = teamDocumentLimit
+              InitCharacterLimit = 0,
+              InitDocumentLimit = 0,
+              InitTeamDocumentLimit = teamDocumentLimit
             },
             randomAuthKey: true);
 

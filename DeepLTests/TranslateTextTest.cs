@@ -19,6 +19,21 @@ namespace DeepLTests {
       Assert.Equal(ExampleText("de"), result.Text);
       Assert.Equal("en", result.DetectedSourceLanguageCode);
       Assert.Equal(ExampleText("de"), $"{result}");
+      Assert.Equal(ExampleText("en").Length, result.BilledCharacters);
+    }
+
+    [Theory]
+    [InlineData(ModelType.LatencyOptimized, "latency_optimized")]
+    [InlineData(ModelType.QualityOptimized, "quality_optimized")]
+    [InlineData(ModelType.PreferQualityOptimized, "quality_optimized")]
+    public async Task TestTranslateWithModelType(ModelType modelType, string expectedModelTypeUsed) {
+      var translator = CreateTestTranslator();
+      var result = await translator.TranslateTextAsync(
+            ExampleText("en"),
+            null,
+            LanguageCode.German,
+            new TextTranslateOptions { ModelType = modelType });
+      Assert.Equal(expectedModelTypeUsed, result.ModelTypeUsed);
     }
 
     [Fact]
@@ -244,11 +259,11 @@ namespace DeepLTests {
             null,
             "DE",
             new TextTranslateOptions {
-                  TagHandling = "xml",
-                  OutlineDetection = false,
-                  NonSplittingTags = { "span" },
-                  SplittingTags = { "title", "par" },
-                  IgnoreTags = { "raw" }
+              TagHandling = "xml",
+              OutlineDetection = false,
+              NonSplittingTags = { "span" },
+              SplittingTags = { "title", "par" },
+              IgnoreTags = { "raw" }
             });
       Assert.Contains("<raw>This sentence will not be translated.</raw>", result.Text);
       Assert.Matches("<title>.*Der Titel.*</title>", result.Text);
