@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2025-02-25
+### Added
+* Added support for the `output_format` parameter when translating documents.
+  * [#50](https://github.com/DeepLcom/deepl-dotnet/pull/50) thanks for [JuergenRB](https://github.com/JuergenRB)
+
 ## [1.13.0] - 2025-01-28
 ### Added
 * Added support for the Write API in the client library, the implementation
@@ -187,6 +192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-11-05
 Initial release.
 
+[1.14.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.10.0...v1.11.0
