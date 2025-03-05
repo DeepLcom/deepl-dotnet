@@ -6,6 +6,7 @@ include:
   - project: 'deepl/ops/ci-cd-infrastructure/gitlab-ci-lib'
     file:
       - '/templates/.secret-detection.yml'
+  - template: Security/SAST.gitlab-ci.yml
 
 # Global --------------------------
 
@@ -26,6 +27,7 @@ stages:
 variables:
   DOTNET_CLI_HOME: ${CI_PROJECT_DIR}
   XDG_DATA_HOME: ${CI_PROJECT_DIR}
+  GITLAB_ADVANCED_SAST_ENABLED: 'true'
 
 # stage: check ----------------------
 
@@ -54,6 +56,22 @@ secret_detection:
     - echo "overriding default before_script..."
   rules:
     - if: $CI_MERGE_REQUEST_ID
+
+gitlab-advanced-sast:
+  stage: check
+  rules:
+    - when: always
+  variables:
+    SAST_EXCLUDED_PATHS: '$DEFAULT_SAST_EXCLUDED_PATHS'
+    GIT_STRATEGY: clone
+
+semgrep-sast:
+  stage: check
+  rules:
+    - when: always
+  variables:
+    SAST_EXCLUDED_PATHS: '$DEFAULT_SAST_EXCLUDED_PATHS'
+    GIT_STRATEGY: clone
 
 # stage: build ----------------------
 
