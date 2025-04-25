@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,9 +15,7 @@ using DeepL.Internal;
 using DeepL.Model;
 
 namespace DeepL {
-
   public interface ITranslator : IDisposable {
-
     /// <summary>Retrieves the usage in the current billing period for this DeepL account.</summary>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns><see cref="Usage" /> object containing account usage information.</returns>
@@ -263,10 +262,10 @@ namespace DeepL {
     Task<GlossaryLanguagePair[]> GetGlossaryLanguagesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///   Creates a glossary in your DeepL account with the specified details and returns a <see cref="GlossaryInfo" />
-    ///   object with details about the newly created glossary. The glossary can be used in translations to override
-    ///   translations for specific terms (words). The glossary source and target languages must match the languages of
-    ///   translations for which it will be used.
+    ///   Creates a v2 glossary in your DeepL account with the specified details and returns a
+    ///   <see cref="GlossaryInfo" /> object with details about the newly created glossary. The glossary can be used
+    ///   in translations to override translations for specific terms (words). The glossary source and target languages
+    ///   must match the languages of translations for which it will be used.
     /// </summary>
     /// <param name="name">User-defined name to assign to the glossary; must not be empty.</param>
     /// <param name="sourceLanguageCode">Language code of the source terms language.</param>
@@ -287,10 +286,10 @@ namespace DeepL {
           CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///   Creates a glossary in your DeepL account with the specified details and returns a <see cref="GlossaryInfo" />
-    ///   object with details about the newly created glossary. The glossary can be used in translations to override
-    ///   translations for specific terms (words). The glossary source and target languages must match the languages of
-    ///   translations for which it will be used.
+    ///   Creates a v2 glossary in your DeepL account with the specified details and returns a
+    ///   <see cref="GlossaryInfo" /> object with details about the newly created glossary. The glossary can be used
+    ///   in translations to override translations for specific terms (words). The glossary source and target languages
+    ///   must match the languages of translations for which it will be used.
     /// </summary>
     /// <param name="name">User-defined name to assign to the glossary; must not be empty.</param>
     /// <param name="sourceLanguageCode">Language code of the source terms language.</param>
@@ -499,7 +498,6 @@ namespace DeepL {
       return new Usage(usageFields);
     }
 
-
     /// <inheritdoc />
     public async Task<TextResult[]> TranslateTextAsync(
           IEnumerable<string> texts,
@@ -521,7 +519,6 @@ namespace DeepL {
       return translatedTexts.Translations;
     }
 
-
     /// <inheritdoc />
     public async Task<TextResult> TranslateTextAsync(
           string text,
@@ -537,7 +534,6 @@ namespace DeepL {
                   cancellationToken)
             .ConfigureAwait(false))[0];
 
-
     /// <inheritdoc />
     public async Task TranslateDocumentAsync(
           FileInfo inputFileInfo,
@@ -546,13 +542,15 @@ namespace DeepL {
           string targetLanguageCode,
           DocumentTranslateOptions? options = null,
           CancellationToken cancellationToken = default) {
-      var willMinify = (options?.EnableDocumentMinification ?? false) && DocumentMinifier.CanMinifyFile(inputFileInfo.Name);
+      var willMinify = (options?.EnableDocumentMinification ?? false) &&
+                       DocumentMinifier.CanMinifyFile(inputFileInfo.Name);
       var fileToUpload = inputFileInfo;
       var minifier = new DocumentMinifier();
       if (willMinify) {
         minifier.MinifyDocument(inputFileInfo.FullName, true);
         fileToUpload = new FileInfo(minifier.GetMinifiedDocFile(inputFileInfo.FullName));
       }
+
       using var inputFile = fileToUpload.OpenRead();
       using var outputFile = outputFileInfo.Open(FileMode.CreateNew, FileAccess.Write);
       try {
@@ -573,13 +571,13 @@ namespace DeepL {
 
         throw;
       }
+
       if (willMinify) {
         outputFile.Dispose();
         // Translated minified file is at `outputFileName`. Reinsert media (deminify) before returning
         minifier.DeminifyDocument(outputFileInfo.FullName, outputFileInfo.FullName, true);
       }
     }
-
 
     /// <inheritdoc />
     public async Task TranslateDocumentAsync(
@@ -877,13 +875,15 @@ namespace DeepL {
     private String ConstructUserAgentString(bool sendPlatformInfo = true, AppInfo? appInfo = null) {
       var platformInfoString = $"deepl-dotnet/{Version()}";
       if (sendPlatformInfo) {
-        var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        var osDescription = RuntimeInformation.OSDescription;
         var clrVersion = Environment.Version.ToString();
         platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
       }
+
       if (appInfo != null) {
         platformInfoString += $" {appInfo?.AppName}/{appInfo?.AppVersion}";
       }
+
       return platformInfoString;
     }
 
@@ -903,7 +903,6 @@ namespace DeepL {
           string? sourceLanguageCode,
           string targetLanguageCode,
           TextTranslateOptions? options) {
-
       var bodyParams = CreateCommonHttpParams(
             sourceLanguageCode,
             targetLanguageCode,

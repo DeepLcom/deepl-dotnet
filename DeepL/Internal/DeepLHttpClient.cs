@@ -65,7 +65,10 @@ namespace DeepL.Internal {
       _headers = headers.ToArray();
     }
 
-    /// <summary>Releases the unmanaged resources and disposes of the managed resources used by the <see cref="DeepLHttpClient" />.</summary>
+    /// <summary>
+    ///   Releases the unmanaged resources and disposes of the managed resources used by the
+    ///   <see cref="DeepLHttpClient" />.
+    /// </summary>
     public void Dispose() {
       if (_disposeClient) {
         _httpClient.Dispose();
@@ -126,8 +129,7 @@ namespace DeepL.Internal {
             perRetryConnectionTimeout,
             maximumNetworkRetries);
       return new HttpClientAndDisposeFlag {
-        DisposeClient = true,
-        HttpClient = new HttpClient(handler) { Timeout = overallConnectionTimeout }
+            DisposeClient = true, HttpClient = new HttpClient(handler) { Timeout = overallConnectionTimeout }
       };
     }
 
@@ -138,6 +140,7 @@ namespace DeepL.Internal {
     /// <exception cref="AuthorizationException">If authorization failed.</exception>
     /// <exception cref="QuotaExceededException">If the translation quota has been exceeded.</exception>
     /// <exception cref="GlossaryNotFoundException">If the specified glossary was not found.</exception>
+    /// <exception cref="GlossaryDictionaryNotFoundException">If the specified glossary dictionary was not found.</exception>
     /// <exception cref="TooManyRequestsException">If the DeepL servers are currently receiving too many requests.</exception>
     /// <exception cref="DeepLException">If some other error occurred.</exception>
     internal static async Task CheckStatusCodeAsync(
@@ -204,22 +207,30 @@ namespace DeepL.Internal {
                   queryParams.Select(pair => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(pair.Value)}"));
 
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri + queryString),
-        Method = HttpMethod.Get,
-        Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
+            RequestUri = new Uri(_serverUrl, relativeUri + queryString),
+            Method = HttpMethod.Get,
+            Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
 
     /// <summary>Internal function to perform HTTP DELETE requests.</summary>
     /// <param name="relativeUri">Endpoint URL relative to server base URL.</param>
+    /// <param name="queryParams">Parameters to embed in the HTTP request query string.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
     /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
-    public async Task<HttpResponseMessage> ApiDeleteAsync(string relativeUri, CancellationToken cancellationToken) {
+    public async Task<HttpResponseMessage> ApiDeleteAsync(
+          string relativeUri,
+          CancellationToken cancellationToken,
+          IEnumerable<(string Key, string Value)>? queryParams = null) {
+      var queryString = queryParams == null
+            ? string.Empty
+            : "?" + string.Join(
+                  "&",
+                  queryParams.Select(pair => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(pair.Value)}"));
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
-        Method = HttpMethod.Delete
+            RequestUri = new Uri(_serverUrl, relativeUri + queryString), Method = HttpMethod.Delete
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
@@ -235,9 +246,51 @@ namespace DeepL.Internal {
           CancellationToken cancellationToken,
           IEnumerable<(string Key, string Value)>? bodyParams = null) {
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
-        Method = HttpMethod.Post,
-        Content = bodyParams != null
+            RequestUri = new Uri(_serverUrl, relativeUri),
+            Method = HttpMethod.Post,
+            Content = bodyParams != null
+                  ? new LargeFormUrlEncodedContent(
+                        bodyParams.Select(pair => new KeyValuePair<string, string>(pair.Key, pair.Value)))
+                  : null
+      };
+      return await ApiCallAsync(requestMessage, cancellationToken);
+    }
+
+    /// <summary>Internal function to perform HTTP PUT requests.</summary>
+    /// <param name="relativeUri">Endpoint URL relative to server base URL.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <param name="bodyParams">Parameters to embed in the HTTP request body.</param>
+    /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
+    /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
+    public async Task<HttpResponseMessage> ApiPutAsync(
+          string relativeUri,
+          CancellationToken cancellationToken,
+          IEnumerable<(string Key, string Value)>? bodyParams = null) {
+      using var requestMessage = new HttpRequestMessage {
+            RequestUri = new Uri(_serverUrl, relativeUri),
+            Method = HttpMethod.Put,
+            Content = bodyParams != null
+                  ? new LargeFormUrlEncodedContent(
+                        bodyParams.Select(pair => new KeyValuePair<string, string>(pair.Key, pair.Value)))
+                  : null
+      };
+      return await ApiCallAsync(requestMessage, cancellationToken);
+    }
+
+    /// <summary>Internal function to perform HTTP PATCH requests.</summary>
+    /// <param name="relativeUri">Endpoint URL relative to server base URL.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <param name="bodyParams">Parameters to embed in the HTTP request body.</param>
+    /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
+    /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
+    public async Task<HttpResponseMessage> ApiPatchAsync(
+          string relativeUri,
+          CancellationToken cancellationToken,
+          IEnumerable<(string Key, string Value)>? bodyParams = null) {
+      using var requestMessage = new HttpRequestMessage {
+            RequestUri = new Uri(_serverUrl, relativeUri),
+            Method = new HttpMethod("PATCH"),
+            Content = bodyParams != null
                   ? new LargeFormUrlEncodedContent(
                         bodyParams.Select(pair => new KeyValuePair<string, string>(pair.Key, pair.Value)))
                   : null
@@ -267,10 +320,10 @@ namespace DeepL.Internal {
       content.Add(new StreamContent(file), "file", fileName);
 
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
-        Method = HttpMethod.Post,
-        Content = content,
-        Headers = { Accept = { new MediaTypeWithQualityHeaderValue("application/json") } }
+            RequestUri = new Uri(_serverUrl, relativeUri),
+            Method = HttpMethod.Post,
+            Content = content,
+            Headers = { Accept = { new MediaTypeWithQualityHeaderValue("application/json") } }
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }

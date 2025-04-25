@@ -14,16 +14,22 @@ namespace DeepL {
     /// <summary>Initializes a new <see cref="TextTranslateOptions" /> object.</summary>
     public TextTranslateOptions() { }
 
-    /// <summary>Initializes a new <see cref="TextTranslateOptions" /> object including the given glossary.</summary>
+    /// <summary>Initializes a new <see cref="TextTranslateOptions" /> object including the given v2 glossary.</summary>
     /// <param name="glossary">Glossary to use in translation.</param>
     public TextTranslateOptions(GlossaryInfo glossary) : this() {
       GlossaryId = glossary.GlossaryId;
     }
 
+    /// <summary>Initializes a new <see cref="TextTranslateOptions" /> object including the given multilingual glossary.</summary>
+    /// <param name="glossary">Glossary to use in translation.</param>
+    public TextTranslateOptions(MultilingualGlossaryInfo glossary) : this() {
+      GlossaryId = glossary.GlossaryId;
+    }
+
     /// <summary>
-    /// Specifies additional context to influence translations, that is not translated itself.
-    /// Characters in the `context` parameter are not counted toward billing.
-    /// See the API documentation for more information and example usage.
+    ///   Specifies additional context to influence translations, that is not translated itself.
+    ///   Characters in the `context` parameter are not counted toward billing.
+    ///   See the API documentation for more information and example usage.
     /// </summary>
     public string? Context { get; set; }
 
@@ -61,8 +67,8 @@ namespace DeepL {
     public string? TagHandling { get; set; }
 
     /// <summary>
-    /// Sets whether the translation engine should use a newer model type that
-    /// offers higher quality translations at the cost of translation time.
+    ///   Sets whether the translation engine should use a newer model type that
+    ///   offers higher quality translations at the cost of translation time.
     /// </summary>
     /// <seealso cref="ModelType" />
     public ModelType? ModelType { get; set; }

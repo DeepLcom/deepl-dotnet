@@ -13,9 +13,15 @@ namespace DeepL {
     /// <summary>Initializes a new <see cref="DocumentTranslateOptions" /> object.</summary>
     public DocumentTranslateOptions() { }
 
-    /// <summary>Initializes a new <see cref="DocumentTranslateOptions" /> object including the given glossary.</summary>
+    /// <summary>Initializes a new <see cref="DocumentTranslateOptions" /> object including the given v2 glossary.</summary>
     /// <param name="glossary">Glossary to use in translation.</param>
     public DocumentTranslateOptions(GlossaryInfo glossary) : this() {
+      GlossaryId = glossary.GlossaryId;
+    }
+
+    /// <summary>Initializes a new <see cref="DocumentTranslateOptions" /> object including the given v3 glossary.</summary>
+    /// <param name="glossary">Glossary to use in translation.</param>
+    public DocumentTranslateOptions(MultilingualGlossaryInfo glossary) : this() {
       GlossaryId = glossary.GlossaryId;
     }
 
@@ -30,7 +36,10 @@ namespace DeepL {
     /// <summary> Controls whether to use Document Minification for translation, if available.</summary>
     public bool EnableDocumentMinification { get; set; }
 
-    /// <summary>File extension of desired format of translated file, for example: docx. If unspecified, by default the translated file will be in the same format as the input file.</summary>
+    /// <summary>
+    ///   File extension of desired format of translated file, for example: docx. If unspecified, by default the
+    ///   translated file will be in the same format as the input file.
+    /// </summary>
     public string? OutputFormat { get; set; }
   }
 }

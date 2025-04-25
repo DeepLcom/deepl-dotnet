@@ -71,6 +71,7 @@ Additional `TextTranslateOptions` can also be provided, see [Text translation op
 
 `TranslateTextAsync()` returns a `TextResult` or `TextResult` array corresponding to the input text(s).
 The `TextResult` contains:
+
 - the translated text,
 - the detected source language code,
 - the number of characters billed for the text, and
@@ -221,7 +222,8 @@ Console.WriteLine(result);
 To translate documents, call `TranslateDocumentAsync()` with the input and output files as `FileInfo`
 objects, and provide the source and target language as above.
 
-Additional `DocumentTranslateOptions` are also available, see [Document translation options](#document-translation-options) below.
+Additional `DocumentTranslateOptions` are also available,
+see [Document translation options](#document-translation-options) below.
 Note that file paths are not accepted as strings, to avoid mixing up the file and language arguments.
 
 ```c#
@@ -247,6 +249,7 @@ try {
 Alternatively the input and output files may be provided as `Stream` objects; in
 that case the input file name (or extension) is required, so the DeepL API can
 determine the file type:
+
 ```c#
 ...
   await client.TranslateDocumentAsync(
@@ -271,15 +274,17 @@ application needs to execute these steps individually, you can instead use the f
 
 - `Formality`:  same as in [Text translation options](#text-translation-options).
 - `GlossaryId`:  same as in [Text translation options](#text-translation-options).
-- `EnableDocumentMinification`: A `bool` value. If set to `true`, the library will try to minify a document 
-before translating it through the API, sending a smaller document if the file contains a lot of media. This is 
-currently only supported for `pptx` and `docx` files. See also [Document minification](#document-minification). 
-Note that this only works in the high-level `TranslateDocumentDownloadAsync` method, not 
-`TranslateDocumentUploadAsync`. However, the behavior can be emulated by creating a new `DocumentMinifier` 
-object and calling the minifier's methods in between.
-- `OutputFormat`: using the parameter during document upload, you can select alternative output formats. See the [API documentation][api-docs-outputformat-param] for more information and example usage.
+- `EnableDocumentMinification`: A `bool` value. If set to `true`, the library will try to minify a document
+  before translating it through the API, sending a smaller document if the file contains a lot of media. This is
+  currently only supported for `pptx` and `docx` files. See also [Document minification](#document-minification).
+  Note that this only works in the high-level `TranslateDocumentDownloadAsync` method, not
+  `TranslateDocumentUploadAsync`. However, the behavior can be emulated by creating a new `DocumentMinifier`
+  object and calling the minifier's methods in between.
+- `OutputFormat`: using the parameter during document upload, you can select alternative output formats. See
+  the [API documentation][api-docs-outputformat-param] for more information and example usage.
 
 #### Document minification
+
 In some contexts, one can end up with large document files (e.g. PowerPoint presentations
 or Word files with many contributors, especially in a larger organization). However, the
 DeepL API enforces a limit of 30 MB for most of these files (see Usage Limits in the docs).
@@ -291,15 +296,18 @@ via the API, and re-insert the original media into the original file. Please not
 requires a bit of additional (temporary) disk space, we recommend at least 2x the file size
 of the document to be translated.
 To use document minification, simply pass the option to the `TranslateDocumentAsync` function:
+
 ```c#
 await client.TranslateDocumentAsync(
     inFile, outFile, "EN", "DE", new DocumentTranslateOptions { EnableDocumentMinification = true }
 );
 ```
+
 In order to use document minification with the lower-level `TranslateDocumentUploadAsync`,
 `TranslateDocumentWaitUntilDoneAsync` and `TranslateDocumentDownloadAsync` methods as well as other details,
 see the `DocumentMinifier` class.
 Currently supported document types for minification:
+
 1. `pptx`
 2. `docx`
    Currently supported media types for minification:
@@ -329,45 +337,63 @@ Currently supported document types for minification:
 24. `wav`
 25. `wma`
 
-
 ### Glossaries
 
 Glossaries allow you to customize your translations using defined terms.
 Multiple glossaries can be stored with your account, each with a user-specified name and a uniquely-assigned ID.
 
+### v2 versus v3 glossary APIs
+
+The newest version of the glossary APIs are the `/v3` endpoints, allowing both
+editing functionality plus support for multilingual glossaries. New methods and
+objects have been created to support interacting with these new glossaries.
+Due to this new functionality, users are recommended to utilize these
+multilingual glossary methods. However, to continue using the `v2` glossary API
+endpoints, please continue to use the existing endpoints in the `Translator.cs`
+(e.g. `CreateGlossaryAsync()`, `GetGlossaryAsync()`, etc).
+
+To migrate to use the new multilingual glossary methods from the current
+monolingual glossary methods, please refer to
+[this migration guide](upgrade_to_multilingual_glossaries.md).
+
+The following sections describe how to interact with multilingual glossaries
+using the new functionality:
+
 #### Creating a glossary
 
 You can create a glossary with your desired terms and name using
-`CreateGlossaryAsync()`. Each glossary applies to a single source-target language
+`CreateMultilingualGlossaryAsync()`. Each glossary applies to a single source-target language
 pair. Note: Glossaries are only supported for some language pairs, see
 [Listing available glossary languages](#listing-available-glossary-languages)
 for more information. The entries should be specified as a `Dictionary`.
 
 If successful, the glossary is created and stored with your DeepL account, and
-a `GlossaryInfo` object is returned including the ID, name, languages and entry
+a `MultilingualGlossaryInfo` object is returned including the ID, name, languages and entry
 count.
 
 ```c#
-// Create an English to German glossary with two terms:
+// Create a glossary with an English to German dictionary containing two terms:
 var entriesDictionary = new Dictionary<string, string>{{"artist", "Maler"}, {"prize", "Gewinn"}};
-var glossaryEnToDe = await client.CreateGlossaryAsync(
-    "My glossary", "EN", "DE",
-    new GlossaryEntries(entriesDictionary));
+var glossaryDicts = new[] {new MultilingualGlossaryDictionaryEntries(
+  "EN", "DE", new GlossaryEntries(entriesDictionary))};
+var glossaryEnToDe = await client.CreateMultilingualGlossaryAsync("My glossary", glossaryDicts);
 
+var glossaryDictEnToDe = glossaryEnToDe.Dictionaries[0]
 Console.WriteLine($"Created {glossaryEnToDe.Name}' ({glossaryEnToDe.GlossaryId}) " +
-    $"{glossaryEnToDe.SourceLanguageCode}->{glossaryEnToDe.TargetLanguageCode} " +
-    $"containing {glossaryEnToDe.EntryCount} entries"
+    $"with {glossaryEnToDe.Dictionaries.Length} dictionary where its language pair is "
+    $"{glossaryDictEnToDe.SourceLanguageCode}->{glossaryDictEnToDe.TargetLanguageCode} " +
+    $"containing {glossaryDictEnToDe.EntryCount} entries"
 );
-// Example: Created 'My glossary' (559192ed-8e23-...) en->de containing 2 entries
- ```
+// Example: Created 'My glossary' (559192ed-8e23-...) with 1 dictionary where
+// its language pair is EN->DE containing 2 entries
 
 You can also upload a glossary downloaded from the DeepL website using
-`CreateGlossaryFromCsvAsync()`. Instead of supplying the entries as a dictionary,
+`CreateMultilingualGlossaryFromCsvAsync()`. Instead of supplying the entries as a dictionary,
 specify the CSV data as a `Stream` containing file content:
 
 ```c#
 var csvStream =  File.OpenRead("myGlossary.csv");
-var csvGlossary = await client.CreateGlossaryFromCsvAsync("My CSV glossary", "EN", "DE", csvStream);
+var csvGlossary = await client.CreateMultilingualGlossaryFromCsvAsync("My CSV glossary", "EN", "DE", csvStream);
 ```
 
 The [API documentation][api-docs-csv-format] explains the expected CSV format in detail.
@@ -376,42 +402,126 @@ The [API documentation][api-docs-csv-format] explains the expected CSV format in
 
 Functions to get, list, and delete stored glossaries are also provided:
 
-- `GetGlossaryAsync()` takes a glossary ID and returns a `GlossaryInfo` object for a
-  stored glossary, or raises an exception if no such glossary is found.
-- `ListGlossariesAsync()` returns a `List` of `GlossaryInfo` objects corresponding to
-  all of your stored glossaries.
-- `DeleteGlossaryAsync()` takes a glossary ID or `GlossaryInfo` object and deletes
-  the stored glossary from the server, or raises an exception if no such glossary is found.
+- `GetMultilingualGlossaryAsync()` takes a glossary ID and returns a
+  `MultilingualGlossaryInfo` object for a stored glossary, or raises an
+  exception if no such glossary is found.
+- `ListMultilingualGlossariesAsync()` returns a `List` of
+  `MultilingualGlossaryInfo` objects corresponding to all of your stored
+  glossaries.
+- `DeleteMultilingualGlossaryAsync()` takes a glossary ID or
+  `MultilingualGlossaryInfo` object and deletes the stored glossary from the
+  server, or raises an exception if no such glossary is found.
+- `DeleteMultilingualGlossaryDictionaryAsync()` takes a glossary ID or
+  `MultilingualGlossaryInfo` object to identify the glossary. Additionally
+  takes in a source and target language or a
+  `MultilingualGlossaryDictionaryInfo` object and deletes the stored dictionary
+  from the server, or raises an exception if no such glossary dictionary is
+  found.
 
 ```c#
 // Retrieve a stored glossary using the ID
-var myGlossary = await client.GetGlossaryAsync("559192ed-8e23-...");
+var myGlossary = await client.GetMultilingualGlossaryAsync("559192ed-8e23-...");
+
+// Delete a glossary dictionary from a stored glossary
+await client.DeleteMultilingualGlossaryDictionaryAsync(myGlossary, myGlossary.Dictionaries[0]);
 
 // Find and delete glossaries named 'Old glossary'
-var glossaries = await client.ListGlossariesAsync();
+var glossaries = await client.ListMultilingualGlossariesAsync();
 foreach (var glossaryInfo in glossaries) {
   if (glossaryInfo.Name == "Old glossary")
-    await client.DeleteGlossaryAsync(glossaryInfo);
+    await client.DeleteMultilingualGlossaryAsync(glossaryInfo);
 }
 ```
 
 #### Listing entries in a stored glossary
 
-The `GlossaryInfo` object does not contain the glossary entries, but instead
+The `MultilingualGlossaryDictionaryInfo` object does not contain the glossary entries, but instead
 only the number of entries in the `EntryCount` property.
 
 To list the entries contained within a stored glossary, use
-`GetGlossaryEntriesAsync()` providing either the `GlossaryInfo` object or glossary ID:
+`GetMultilingualGlossaryDictionaryEntriesAsync()` providing either the `MultilingualGlossaryInfo` object or glossary ID
+and either a `MultilingualGlossaryDictionaryInfo` or source and target language pair:
 
 ```c#
-var entries = await client.GetGlossaryEntriesAsync(myGlossary);
+var glossaryDicts = await client.GetMultilingualGlossaryDictionaryEntriesAsync(myGlossary, "en", "de");
 
-foreach (KeyValuePair<string, string> entry in entries.ToDictionary()) {
+foreach (KeyValuePair<string, string> entry in glossaryDicts[0].Entries.ToDictionary()) {
   Console.WriteLine($"{entry.Key}: {entry.Value}");
 }
 // prints:
 //   artist: Maler
 //   prize: Gewinn
+```
+
+#### Editing a glossary
+
+Functions to edit stored glossaries are also provided:
+
+- `UpdateMultilingualGlossaryDictionaryAsync()` takes a glossary ID or `MultilingualGlossaryInfo`
+  object, plus a source language, target language, and a dictionary of entries.
+  It will then either update the list of entries for that dictionary (either
+  inserting new entires or replacing the target phrase for any existing
+  entries) or will insert a new glossary dictionary if that language pair is
+  not currently in the stored glossary.
+- `ReplaceMultilingualGlossaryDictionaryAsync()` takes a glossary ID or `MultilingualGlossaryInfo`
+  object, plus a source language, target language, and a dictionary of entries.
+  It will then either set the entries to the parameter value, completely
+  replacing any pre-existing entries for that language pair.
+- `UpdateMultilingualGlossaryNameAsync()` takes a glossary ID or `MultilingualGlossaryInfo`
+  object, plus the new name of the glossary.
+
+```c#
+// Update glossary dictionary
+var entries = new Dictionary<string, string>{{"artist", "Maler"}, {"hello", "guten tag"}};
+var dictionaries = new[] {new MultilingualGlossaryDictionaryEntries("EN", "DE", entries)};
+var myGlossary = await client.CreateMultilingualGlossaryAsync(
+    "My glossary",
+    dictionaries
+);
+var newEntries = new Dictionary<string, string>{{"hello", "hallo"}, {"prize", "Gewinn"}};
+var glossaryDict = new MultilingualGlossaryDictionaryEntries("EN", "DE", newEntries);
+var updatedGlossary = await client.UpdateMultilingualGlossaryDictionaryAsync(
+    myGlossary,
+    glossaryDict
+);
+
+var entriesResponse = await client.GetMultilingualGlossaryEntriesAsync(myGlossary, "EN", "DE");
+
+foreach (KeyValuePair<string, string> entry in entriesResponse.Dictionaries[0].Entries.ToDictionary()) {
+  Console.WriteLine($"{entry.Key}: {entry.Value}");
+}
+// prints:
+//   artist: Maler
+//   hello: hallo
+//   prize: Gewinn
+
+// Update a glossary dictionary from CSV
+var csvStream =  File.OpenRead("myGlossary.csv");
+var csvGlossary = await client.UpdateMultilingualGlossaryDictionaryFromCsvAsync("4c81ffb4-2e...", "EN", "DE", csvStream);
+
+// Replace glossary dictionary
+var replacementEntries = new Dictionary<string, string>{{"goodbye", "Auf Wiedersehen"}};
+var glossaryDict = new MultilingualGlossaryDictionaryEntries("EN", "DE", new GlossaryEntries(replacementEntries));
+var updatedGlossary = await client.ReplaceMultilingualGlossaryDictionaryAsync(
+  myGlossary,
+  glossaryDict);
+var entriesResponse = await client.GetMultilingualGlossaryEntries(myGlossary, "EN", "DE");
+foreach (KeyValuePair<string, string> entry in entriesResponse.Dictionaries[0].Entries.ToDictionary()) {
+  Console.WriteLine($"{entry.Key}: {entry.Value}");
+}
+// prints:
+//   goodbye: Auf Wiedersehen
+
+// Replace a glossary dictionary from CSV
+var csvStream =  File.OpenRead("myGlossary.csv");
+var csvGlossary = await client.ReplaceMultilingualGlossaryDictionaryFromCsvAsync("4c81ffb4-2e...", "EN", "DE", csvStream);
+
+// Update the glossary name
+var updatedGlossary = await client.UpdateMultilingualGlossaryNameAsync(
+  myGlossary,
+  "My new glossary name"
+);
+Console.WriteLine(updatedGlossary.Name); // 'My new glossary name'
 ```
 
 #### Using a stored glossary
@@ -552,7 +662,8 @@ var client = new DeepLClient(authKey, options);
 #### Anonymous platform information
 
 By default, we send some basic information about the platform the client library is running
-on with each request, see [here for an explanation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent).
+on with each request,
+see [here for an explanation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent).
 This data is completely anonymous and only used to improve our product, not track any
 individual users. If you do not wish to send this data, you can opt-out when creating
 your `DeepLClient` object by setting the `sendPlatformInfo` flag in the

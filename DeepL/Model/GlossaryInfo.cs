@@ -6,7 +6,11 @@ using System;
 using System.Text.Json.Serialization;
 
 namespace DeepL.Model {
-  /// <summary>Information about a glossary, excluding the entry list.</summary>
+  /// <summary>
+  ///   Information about a glossary, excluding the entry list. <see cref="GlossaryInfo" /> is compatible with the
+  ///   /v2 glossary endpoints and can only support mono-lingual glossaries (e.g. a glossary with only one source and
+  ///   target language defined).
+  /// </summary>
   public sealed class GlossaryInfo {
     /// <summary>Initializes a new <see cref="GlossaryInfo" /> containing information about a glossary.</summary>
     /// <param name="glossaryId">ID of the associated glossary.</param>
