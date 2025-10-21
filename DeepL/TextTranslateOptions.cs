@@ -10,7 +10,7 @@ namespace DeepL {
   ///   Options to control text translation behaviour. These options may be provided to <see cref="Translator" /> text
   ///   translate functions.
   /// </summary>
-  public sealed class TextTranslateOptions {
+  public sealed class TextTranslateOptions : BaseRequestOptions {
     /// <summary>Initializes a new <see cref="TextTranslateOptions" /> object.</summary>
     public TextTranslateOptions() { }
 

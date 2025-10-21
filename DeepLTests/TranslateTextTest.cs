@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -338,6 +339,20 @@ namespace DeepLTests {
       result = await translator.TranslateTextAsync(ExampleText("de"), "dE", "EN-US");
       Assert.Equal(ExampleText("en-US"), result.Text.ToLower());
       Assert.Equal("de", result.DetectedSourceLanguageCode);
+    }
+
+    [Fact]
+    public async Task TestExtraBodyParametersAllowsOverride() {
+      var translator = CreateTestTranslator();
+      var extraParams = new Dictionary<string, string> { { "target_lang", "FR" }, { "debug", "1" } };
+      var result = await translator.TranslateTextAsync(
+            ExampleText("en"),
+            null,
+            LanguageCode.German,
+            new TextTranslateOptions { ExtraBodyParameters = extraParams });
+      Assert.Equal(ExampleText("fr"), result.Text);
+      Assert.Equal("en", result.DetectedSourceLanguageCode);
+      Assert.Equal(ExampleText("en").Length, result.BilledCharacters);
     }
   }
 }

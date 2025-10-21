@@ -160,6 +160,7 @@ The following options are only used if `TagHandling` is set to `'xml'`:
   text into sentences. Format and default are the same as for splitting tags.
 - `IgnoreTags`: `List` of XML tags that containing content that should not be
   translated. Format and default are the same as for splitting tags.
+- `ExtraBodyParameters`: `Dictionary<string, string>` of extra parameters to pass in the body of the HTTP request. Keys in this dictionary will be added to the request body and can override built-in parameters. Mostly used by DeepL employees to test functionality, or for beta programs.
 
 For a detailed explanation of the XML handling options, see the [API documentation][api-docs-xml-handling].
 
@@ -282,6 +283,7 @@ application needs to execute these steps individually, you can instead use the f
   object and calling the minifier's methods in between.
 - `OutputFormat`: using the parameter during document upload, you can select alternative output formats. See
   the [API documentation][api-docs-outputformat-param] for more information and example usage.
+- `ExtraBodyParameters`: `Dictionary<string, string>` of extra parameters to pass in the body of the HTTP request. Keys in this dictionary will be added to the request body and can override built-in parameters. Mostly used by DeepL employees to test functionality, or for beta programs.
 
 #### Document minification
 

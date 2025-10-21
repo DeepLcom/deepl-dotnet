@@ -9,7 +9,7 @@ namespace DeepL {
   ///   Options to control document translation behaviour. These options may be provided to <see cref="Translator" />
   ///   document translate functions.
   /// </summary>
-  public sealed class DocumentTranslateOptions {
+  public sealed class DocumentTranslateOptions : BaseRequestOptions {
     /// <summary>Initializes a new <see cref="DocumentTranslateOptions" /> object.</summary>
     public DocumentTranslateOptions() { }
 

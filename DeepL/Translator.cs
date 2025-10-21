@@ -643,6 +643,8 @@ namespace DeepL {
         bodyParams.Add(("output_format", options?.OutputFormat!));
       }
 
+      AddExtraBodyParameters(bodyParams, options?.ExtraBodyParameters);
+
       using var responseMessage = await _client.ApiUploadAsync(
                   "/v2/document",
                   cancellationToken,
@@ -953,6 +955,8 @@ namespace DeepL {
         bodyParams.Add(("model_type", options.ModelType.Value.ToApiValue()));
       }
 
+      AddExtraBodyParameters(bodyParams, options.ExtraBodyParameters);
+
       return bodyParams;
     }
 
@@ -1048,6 +1052,25 @@ namespace DeepL {
       // hintSecondsRemaining is currently unreliable, so just poll equidistantly
       const int POLLING_TIME_SECS = 5;
       return TimeSpan.FromSeconds(POLLING_TIME_SECS);
+    }
+
+    /// <summary>
+    ///   Adds extra body parameters from options to the request body parameters list. Extra parameters can override
+    ///   existing parameters.
+    /// </summary>
+    /// <param name="bodyParams">List of body parameters to add to.</param>
+    /// <param name="extraBodyParameters">Dictionary of extra parameters to add.</param>
+    private static void AddExtraBodyParameters(
+          List<(string Key, string Value)> bodyParams,
+          Dictionary<string, string>? extraBodyParameters) {
+      if (extraBodyParameters == null) {
+        return;
+      }
+
+      foreach (var kvp in extraBodyParameters) {
+        bodyParams.RemoveAll(p => p.Key == kvp.Key);
+        bodyParams.Add((kvp.Key, kvp.Value));
+      }
     }
 
     /// <summary>Creates a glossary with given details.</summary>
