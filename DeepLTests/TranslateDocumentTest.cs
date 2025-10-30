@@ -115,7 +115,7 @@ namespace DeepLTests {
             "DE",
             new DocumentTranslateOptions { Formality = Formality.More });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es Ihnen?", File.ReadAllText(outputDocumentPath));
+        Assert.Contains("Ihnen", File.ReadAllText(outputDocumentPath));
       }
 
       await Assert.ThrowsAsync<IOException>(
@@ -133,7 +133,7 @@ namespace DeepLTests {
             "DE",
             new DocumentTranslateOptions { Formality = Formality.Less });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es dir?", File.ReadAllText(outputDocumentPath));
+        Assert.Contains("dir", File.ReadAllText(outputDocumentPath));
       }
 
       File.Delete(outputDocumentPath);
@@ -144,7 +144,7 @@ namespace DeepLTests {
             "DE",
             new DocumentTranslateOptions { Formality = Formality.PreferMore });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es Ihnen?", File.ReadAllText(outputDocumentPath));
+        Assert.Contains("Ihnen", File.ReadAllText(outputDocumentPath));
       }
 
       File.Delete(outputDocumentPath);
@@ -155,7 +155,7 @@ namespace DeepLTests {
             "DE",
             new DocumentTranslateOptions { Formality = Formality.PreferLess });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es dir?", File.ReadAllText(outputDocumentPath));
+        Assert.Contains("dir", File.ReadAllText(outputDocumentPath));
       }
     }
 

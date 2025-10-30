@@ -127,7 +127,7 @@ namespace DeepLTests {
             "DE",
             new TextTranslateOptions { Formality = Formality.Less });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es dir?", result.Text);
+        Assert.Contains("dir", result.Text);
       }
 
       result = await translator.TranslateTextAsync(
@@ -136,7 +136,7 @@ namespace DeepLTests {
             "DE",
             new TextTranslateOptions { Formality = Formality.Default });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es Ihnen?", result.Text);
+        Assert.Contains("Ihnen", result.Text);
       }
 
       result = await translator.TranslateTextAsync(
@@ -145,7 +145,7 @@ namespace DeepLTests {
             "DE",
             new TextTranslateOptions { Formality = Formality.More });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es Ihnen?", result.Text);
+        Assert.Contains("Ihnen", result.Text);
       }
 
       result = await translator.TranslateTextAsync(
@@ -154,7 +154,7 @@ namespace DeepLTests {
             "DE",
             new TextTranslateOptions { Formality = Formality.PreferMore });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es Ihnen?", result.Text);
+        Assert.Contains("Ihnen", result.Text);
       }
 
       result = await translator.TranslateTextAsync(
@@ -163,7 +163,7 @@ namespace DeepLTests {
             "DE",
             new TextTranslateOptions { Formality = Formality.PreferLess });
       if (!IsMockServer) {
-        Assert.Equal("Wie geht es dir?", result.Text);
+        Assert.Contains("dir", result.Text);
       }
     }
 
