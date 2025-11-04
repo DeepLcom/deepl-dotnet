@@ -1,0 +1,19 @@
+# Configuration file for bumpversion
+# See https://github.com/callowayproject/bump-my-version
+[tool.bumpversion]
+current_version = "1.15.0"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+tag = false
+allow_dirty = false
+commit = false
+
+[[tool.bumpversion.files]]
+filename = "DeepL/DeepL.csproj"
+
+[[tool.bumpversion.files]]
+filename = "DeepLTests/GeneralTest.cs"
