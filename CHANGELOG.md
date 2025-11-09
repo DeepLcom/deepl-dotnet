@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.0] - 2025-11-12
+### Added
+- Added support for style rules in text translation via the `StyleId` property in `TextTranslateOptions`.
+- Added `GetAllStyleRulesAsync()` method to `DeepLClient` to retrieve all available style rules with optional pagination and detailed configuration.
+- Added new model classes: `StyleRuleInfo`, `ConfiguredRules`, and `CustomInstruction` to support style rules functionality.
+
 ## [1.16.0] - 2025-11-04
 ### Added
 - Added `ExtraBodyParameters` option to text and document translation methods to pass arbitrary parameters in the request body. This can be used to access beta features or override built-in parameters (such as `target_lang`, `source_lang`, etc.).
@@ -198,7 +204,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-11-05
 Initial release.
 
-[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.17.0...HEAD
+[1.17.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/DeepLcom/deepl-dotnet/compare/v1.13.0...v1.14.0
