@@ -53,7 +53,7 @@ namespace DeepL {
   ///   Client for the DeepL API. To use the DeepL API, initialize an instance of this class using your DeepL
   ///   Authentication Key. All functions are thread-safe, aside from <see cref="DeepLClient.Dispose" />.
   /// </summary>
-  public sealed class DeepLClient : Translator, IWriter, IGlossaryManager {
+  public sealed class DeepLClient : Translator, IWriter, IGlossaryManager, IStyleRuleManager {
     /// <summary>Initializes a new instance of the <see cref="AuthorizationException" /> class.</summary>
     /// <param name="message">The message that describes the error.</param>
     public DeepLClient(string authKey, DeepLClientOptions? options = null) : base(authKey, options) { }
@@ -102,6 +102,35 @@ namespace DeepL {
       var rephrasedTexts =
             await JsonUtils.DeserializeAsync<TextRephraseResult>(responseMessage).ConfigureAwait(false);
       return rephrasedTexts.Improvements;
+    }
+
+    /// <inheritdoc />
+    public async Task<StyleRuleInfo[]> GetAllStyleRulesAsync(
+          int? page = null,
+          int? pageSize = null,
+          bool? detailed = null,
+          CancellationToken cancellationToken = default) {
+      var queryParams = new List<(string Key, string Value)>();
+
+      if (page != null) {
+        queryParams.Add(("page", page.Value.ToString()));
+      }
+
+      if (pageSize != null) {
+        queryParams.Add(("page_size", pageSize.Value.ToString()));
+      }
+
+      if (detailed != null) {
+        queryParams.Add(("detailed", detailed.Value.ToString().ToLower()));
+      }
+
+      using var responseMessage = await _client
+            .ApiGetAsync("/v3/style_rules", cancellationToken, queryParams.ToArray()).ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      var styleRuleList = await JsonUtils.DeserializeAsync<StyleRuleListResult>(responseMessage)
+            .ConfigureAwait(false);
+      return styleRuleList.StyleRules;
     }
 
     /// <inheritdoc />
@@ -693,6 +722,19 @@ namespace DeepL {
       };
 
       return bodyParams;
+    }
+
+    /// <summary>Class used for JSON-deserialization of style rule list results.</summary>
+    private readonly struct StyleRuleListResult {
+      /// <summary>Initializes a new instance of <see cref="StyleRuleListResult" />, used for JSON deserialization.</summary>
+      [JsonConstructor]
+      public StyleRuleListResult(StyleRuleInfo[] styleRules) {
+        StyleRules = styleRules;
+      }
+
+      /// <summary>Array of <see cref="StyleRuleInfo" /> objects holding style rule information.</summary>
+      [JsonPropertyName("style_rules")]
+      public StyleRuleInfo[] StyleRules { get; }
     }
   }
 }

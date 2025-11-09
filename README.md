@@ -133,6 +133,8 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
   - `Formality.PreferMore`: more formality, if available for the specified target language, otherwise default.
 - `GlossaryId`: specifies a glossary to use with translation, as a string
   containing the glossary ID.
+- `StyleId`: specifies a style rule to use with translation, as a string
+  containing the ID of the style rule.
 - `Context`: specifies additional context to influence translations, that is not
   translated itself. Characters in the `context` parameter are not counted toward billing.
   See the [API documentation][api-docs-context-param] for more information and
@@ -160,7 +162,9 @@ The following options are only used if `TagHandling` is set to `'xml'`:
   text into sentences. Format and default are the same as for splitting tags.
 - `IgnoreTags`: `List` of XML tags that containing content that should not be
   translated. Format and default are the same as for splitting tags.
-- `ExtraBodyParameters`: `Dictionary<string, string>` of extra parameters to pass in the body of the HTTP request. Keys in this dictionary will be added to the request body and can override built-in parameters. Mostly used by DeepL employees to test functionality, or for beta programs.
+- `ExtraBodyParameters`: `Dictionary<string, string>` of extra parameters to pass in the body of the HTTP request. Keys
+  in this dictionary will be added to the request body and can override built-in parameters. Mostly used by DeepL
+  employees to test functionality, or for beta programs.
 
 For a detailed explanation of the XML handling options, see the [API documentation][api-docs-xml-handling].
 
@@ -283,7 +287,9 @@ application needs to execute these steps individually, you can instead use the f
   object and calling the minifier's methods in between.
 - `OutputFormat`: using the parameter during document upload, you can select alternative output formats. See
   the [API documentation][api-docs-outputformat-param] for more information and example usage.
-- `ExtraBodyParameters`: `Dictionary<string, string>` of extra parameters to pass in the body of the HTTP request. Keys in this dictionary will be added to the request body and can override built-in parameters. Mostly used by DeepL employees to test functionality, or for beta programs.
+- `ExtraBodyParameters`: `Dictionary<string, string>` of extra parameters to pass in the body of the HTTP request. Keys
+  in this dictionary will be added to the request body and can override built-in parameters. Mostly used by DeepL
+  employees to test functionality, or for beta programs.
 
 #### Document minification
 
@@ -541,6 +547,42 @@ var resultWithGlossary = await client.TranslateTextAsync(
     new TextTranslateOptions { GlossaryId = glossaryEnToDe.GlossaryId });
 // resultWithGlossary.Text == "Der Maler wurde mit einem Gewinn ausgezeichnet."
 // Without using a glossary: "Der Künstler wurde mit einem Preis ausgezeichnet."
+```
+
+### Style Rules
+
+Style rules allow you to customize your translations using a managed, shared list
+of rules for style, formatting, and more. Multiple style rules can be stored with
+your account, each with a user-specified name and a uniquely-assigned ID.
+
+#### Creating and managing style rules
+
+Currently style rules must be created and managed in the DeepL UI via
+https://www.deepl.com/en/custom-rules. Full CRUD functionality via the APIs will
+come shortly.
+
+#### Listing all style rules
+
+`GetAllStyleRulesAsync()` returns a list of `StyleRuleInfo` objects
+corresponding to all of your stored style rules. The method accepts optional
+parameters: `page` (page number for pagination, 0-indexed), `pageSize` (number
+of items per page), and `detailed` (whether to include detailed configuration
+rules in the `ConfiguredRules` property).
+
+```c#
+// Get all style rules
+var styleRules = await client.GetAllStyleRulesAsync();
+foreach (var rule in styleRules) {
+  Console.WriteLine($"{rule.Name} ({rule.StyleId})");
+}
+
+// Get style rules with detailed configuration
+var styleRulesDetailed = await client.GetAllStyleRulesAsync(detailed: true);
+foreach (var rule in styleRulesDetailed) {
+  if (rule.ConfiguredRules?.Numbers != null) {
+    Console.WriteLine($"  Number formatting rules: {string.Join(", ", rule.ConfiguredRules.Numbers.Keys)}");
+  }
+}
 ```
 
 ### Check account usage

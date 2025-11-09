@@ -26,6 +26,12 @@ namespace DeepL {
       GlossaryId = glossary.GlossaryId;
     }
 
+    /// <summary>Initializes a new <see cref="TextTranslateOptions" /> object including the given style rule.</summary>
+    /// <param name="styleRule">Style rule to use in translation.</param>
+    public TextTranslateOptions(StyleRuleInfo styleRule) : this() {
+      StyleId = styleRule.StyleId;
+    }
+
     /// <summary>
     ///   Specifies additional context to influence translations, that is not translated itself.
     ///   Characters in the `context` parameter are not counted toward billing.
@@ -40,6 +46,9 @@ namespace DeepL {
 
     /// <summary>Specifies the ID of a glossary to use with the translation.</summary>
     public string? GlossaryId { get; set; }
+
+    /// <summary>Specifies the ID of a style rule to use with the translation.</summary>
+    public string? StyleId { get; set; }
 
     /// <summary>Specifies a list of XML tags containing content that should not be translated.</summary>
     public List<string> IgnoreTags { get; } = new List<string>();

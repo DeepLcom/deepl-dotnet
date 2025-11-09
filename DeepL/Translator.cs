@@ -909,7 +909,8 @@ namespace DeepL {
             sourceLanguageCode,
             targetLanguageCode,
             options?.Formality,
-            options?.GlossaryId);
+            options?.GlossaryId,
+            options?.StyleId);
 
       // Always send show_billed_characters=1, remove when the API default is changed to true
       bodyParams.Add(("show_billed_characters", "1"));
@@ -971,13 +972,15 @@ namespace DeepL {
     /// <param name="targetLanguageCode">Language code of translation target language.</param>
     /// <param name="formality">Formality option for translation.</param>
     /// <param name="glossaryId">Optional ID of glossary to use for translation.</param>
+    /// <param name="styleId">Optional ID of style rule to use for translation.</param>
     /// <returns>List of tuples containing the parameters to include in HTTP request.</returns>
     /// <exception cref="ArgumentException">If the specified languages or options are invalid.</exception>
     private static List<(string Key, string Value)> CreateCommonHttpParams(
           string? sourceLanguageCode,
           string targetLanguageCode,
           Formality? formality,
-          string? glossaryId) {
+          string? glossaryId,
+          string? styleId = null) {
       targetLanguageCode = LanguageCode.Standardize(targetLanguageCode);
       sourceLanguageCode = sourceLanguageCode == null ? null : LanguageCode.Standardize(sourceLanguageCode);
 
@@ -994,6 +997,10 @@ namespace DeepL {
         }
 
         bodyParams.Add(("glossary_id", glossaryId));
+      }
+
+      if (styleId != null) {
+        bodyParams.Add(("style_id", styleId));
       }
 
       switch (formality) {
