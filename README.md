@@ -139,6 +139,13 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
   translated itself. Characters in the `context` parameter are not counted toward billing.
   See the [API documentation][api-docs-context-param] for more information and
   example usage.
+- `CustomInstructions`: an array of instructions to customize the translation behavior.
+  Up to 10 custom instructions can be specified, each with a maximum of 300 characters.
+  Important: The target language must be `de`, `en`, `es`, `fr`, `it`, `ja`, `ko`, `zh`
+  or any variants of these languages.
+  Note: Any request with the `CustomInstructions` parameter enabled will use
+  `quality_optimized` models as the default. Requests combining 
+  `CustomInstructions` and `ModelType: latency_optimized` will be rejected.
 - `ModelType`: specifies the type of translation model to use, options are:
   - `'quality_optimized'` (`ModelType.QualityOptimized`): use a translation
     model that maximizes translation quality, at the cost of response time.

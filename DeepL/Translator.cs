@@ -956,6 +956,12 @@ namespace DeepL {
         bodyParams.Add(("model_type", options.ModelType.Value.ToApiValue()));
       }
 
+      if (options.CustomInstructions.Count > 0) {
+        foreach (var instruction in options.CustomInstructions) {
+          bodyParams.Add(("custom_instructions", instruction));
+        }
+      }
+
       AddExtraBodyParameters(bodyParams, options.ExtraBodyParameters);
 
       return bodyParams;

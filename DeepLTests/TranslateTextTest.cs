@@ -354,5 +354,29 @@ namespace DeepLTests {
       Assert.Equal("en", result.DetectedSourceLanguageCode);
       Assert.Equal(ExampleText("en").Length, result.BilledCharacters);
     }
+
+    [RealServerOnlyFact]
+    public async Task TestCustomInstructions() {
+      var translator = CreateTestTranslator();
+      var options = new TextTranslateOptions();
+      var text = "I am testing if custom instructions are working correctly.";
+      options.CustomInstructions.Add("Use informal language");
+      options.CustomInstructions.Add("Be concise");
+
+      var result_with_custom_instructions = await translator.TranslateTextAsync(
+            text,
+            null,
+            "DE",
+            options);
+
+      var result_without_custom_instructions = await translator.TranslateTextAsync(
+            text,
+            null,
+            "DE");
+
+      Assert.NotNull(result_with_custom_instructions);
+      Assert.NotNull(result_with_custom_instructions.Text);
+      Assert.NotEqual(result_with_custom_instructions.Text, result_without_custom_instructions.Text);
+    }
   }
 }

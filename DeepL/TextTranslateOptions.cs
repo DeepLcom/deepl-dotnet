@@ -81,5 +81,11 @@ namespace DeepL {
     /// </summary>
     /// <seealso cref="ModelType" />
     public ModelType? ModelType { get; set; }
+
+    /// <summary>
+    ///   A list of custom instructions to guide the translation.
+    ///   Maximum of 10 instructions, each with a maximum length of 300 characters.
+    /// </summary>
+    public List<string> CustomInstructions { get; } = new List<string>();
   }
 }
