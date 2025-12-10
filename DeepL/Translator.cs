@@ -936,6 +936,10 @@ namespace DeepL {
         bodyParams.Add(("tag_handling", options.TagHandling));
       }
 
+      if (options.TagHandlingVersion != null) {
+        bodyParams.Add(("tag_handling_version", options.TagHandlingVersion));
+      }
+
       if (!options.OutlineDetection) {
         bodyParams.Add(("outline_detection", "0"));
       }

@@ -241,6 +241,28 @@ namespace DeepLTests {
             new TextTranslateOptions { TagHandling = "html" });
     }
 
+    [Fact]
+    public async Task TestTagHandlingVersion() {
+      const string text = "<p>Hello world</p>";
+      var translator = CreateTestTranslator();
+
+      var resultV1 = await translator.TranslateTextAsync(
+            text,
+            null,
+            "DE",
+            new TextTranslateOptions { TagHandling = "html", TagHandlingVersion = "v1" });
+      Assert.NotNull(resultV1.Text);
+      Assert.NotEmpty(resultV1.Text);
+
+      var resultV2 = await translator.TranslateTextAsync(
+            text,
+            null,
+            "DE",
+            new TextTranslateOptions { TagHandling = "html", TagHandlingVersion = "v2" });
+      Assert.NotNull(resultV2.Text);
+      Assert.NotEmpty(resultV2.Text);
+    }
+
     [RealServerOnlyFact]
     public async Task TestTagHandlingXml() {
       var translator = CreateTestTranslator();

@@ -156,6 +156,9 @@ foreach (var formality in new[] { Formality.Less, Formality.More }) {
     model that minimizes response time, at the cost of translation quality.
 - `TagHandling`: type of tags to parse before translation, options are
   `"html"` and `"xml"`.
+- `TagHandlingVersion`: specifies which version of the tag handling algorithm
+  to use. Options are `"v1"` and `"v2"`. This parameter is only used if
+  `TagHandling` is set to `"html"` or `"xml"`.
 
 The following options are only used if `TagHandling` is set to `'xml'`:
 
