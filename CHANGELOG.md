@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated `TestTranslateWithModelType()` to expect the `model_type_used` to be non-null if the `model_type` is specified in the request
 - Updated `TestMixedDirectionText()` to add a missing `</p>` tag
+- Improved `NotFoundException` error message by removing the misleading "check ServerUrl" suggestion.
 
 ## [1.19.0] - 2025-12-10
 ### Added

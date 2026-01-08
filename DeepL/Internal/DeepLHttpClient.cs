@@ -171,7 +171,7 @@ namespace DeepL.Internal {
           if (usingGlossary) {
             throw new GlossaryNotFoundException("Glossary not found" + message);
           } else {
-            throw new NotFoundException("Not found, check ServerUrl" + message);
+            throw new NotFoundException("Not found" + message);
           }
         case HttpStatusCode.BadRequest:
           throw new DeepLException("Bad request" + message);
