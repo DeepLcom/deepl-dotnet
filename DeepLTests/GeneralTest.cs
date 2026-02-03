@@ -165,7 +165,7 @@ namespace DeepLTests {
       var options = new TextTranslateOptions { TagHandling = "xml", IgnoreTags = { "ignore" } };
       const string arIgnorePart = "<ignore>يجب تجاهل هذا الجزء.</ignore>";
       const string enSentenceWithArIgnorePart =
-            "<p>This is a <b>short</b> <i>sentence</i>. " + arIgnorePart + " This is another sentence.";
+            "<p>This is a <b>short</b> <i>sentence</i>.</p>" + arIgnorePart + " This is another sentence.";
       const string enIgnorePart = "<ignore>This part should be ignored.</ignore>";
       const string arSentenceWithEnIgnorePart =
             "<p>هذه <i>جملة</i> <b>قصيرة</b>. " + enIgnorePart + " هذه جملة أخرى.</p>";

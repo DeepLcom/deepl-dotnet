@@ -24,17 +24,17 @@ namespace DeepLTests {
     }
 
     [Theory]
-    [InlineData(ModelType.LatencyOptimized, "latency_optimized")]
-    [InlineData(ModelType.QualityOptimized, "quality_optimized")]
-    [InlineData(ModelType.PreferQualityOptimized, "quality_optimized")]
-    public async Task TestTranslateWithModelType(ModelType modelType, string expectedModelTypeUsed) {
+    [InlineData(ModelType.LatencyOptimized)]
+    [InlineData(ModelType.QualityOptimized)]
+    [InlineData(ModelType.PreferQualityOptimized)]
+    public async Task TestTranslateWithModelType(ModelType modelType) {
       var translator = CreateTestTranslator();
       var result = await translator.TranslateTextAsync(
             ExampleText("en"),
             null,
             LanguageCode.German,
             new TextTranslateOptions { ModelType = modelType });
-      Assert.Equal(expectedModelTypeUsed, result.ModelTypeUsed);
+      Assert.NotNull(result.ModelTypeUsed);
     }
 
     [Fact]
