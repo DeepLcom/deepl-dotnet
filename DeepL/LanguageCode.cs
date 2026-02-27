@@ -9,14 +9,62 @@ namespace DeepL {
   ///   <see cref="ITranslator.GetTargetLanguagesAsync" />.
   /// </summary>
   public static class LanguageCode {
+    /// <summary>Acehnese language code, may be used as source or target language.</summary>
+    public const string Acehnese = "ace";
+
+    /// <summary>Afrikaans language code, may be used as source or target language.</summary>
+    public const string Afrikaans = "af";
+
+    /// <summary>Aragonese language code, may be used as source or target language.</summary>
+    public const string Aragonese = "an";
+
     /// <summary>Arabic (MSA) language code, may be used as source or target language.</summary>
     public const string Arabic = "ar";
+
+    /// <summary>Assamese language code, may be used as source or target language.</summary>
+    public const string Assamese = "as";
+
+    /// <summary>Aymara language code, may be used as source or target language.</summary>
+    public const string Aymara = "ay";
+
+    /// <summary>Azerbaijani language code, may be used as source or target language.</summary>
+    public const string Azerbaijani = "az";
+
+    /// <summary>Bashkir language code, may be used as source or target language.</summary>
+    public const string Bashkir = "ba";
+
+    /// <summary>Belarusian language code, may be used as source or target language.</summary>
+    public const string Belarusian = "be";
 
     /// <summary>Bulgarian language code, may be used as source or target language.</summary>
     public const string Bulgarian = "bg";
 
+    /// <summary>Bhojpuri language code, may be used as source or target language.</summary>
+    public const string Bhojpuri = "bho";
+
+    /// <summary>Bengali language code, may be used as source or target language.</summary>
+    public const string Bengali = "bn";
+
+    /// <summary>Breton language code, may be used as source or target language.</summary>
+    public const string Breton = "br";
+
+    /// <summary>Bosnian language code, may be used as source or target language.</summary>
+    public const string Bosnian = "bs";
+
+    /// <summary>Catalan language code, may be used as source or target language.</summary>
+    public const string Catalan = "ca";
+
+    /// <summary>Cebuano language code, may be used as source or target language.</summary>
+    public const string Cebuano = "ceb";
+
+    /// <summary>Kurdish (Sorani) language code, may be used as source or target language.</summary>
+    public const string KurdishSorani = "ckb";
+
     /// <summary>Czech language code, may be used as source or target language.</summary>
     public const string Czech = "cs";
+
+    /// <summary>Welsh language code, may be used as source or target language.</summary>
+    public const string Welsh = "cy";
 
     /// <summary>Danish language code, may be used as source or target language.</summary>
     public const string Danish = "da";
@@ -36,11 +84,23 @@ namespace DeepL {
     /// <summary>American English language code, may only be used as a target language.</summary>
     public const string EnglishAmerican = "en-US";
 
+    /// <summary>Esperanto language code, may be used as source or target language.</summary>
+    public const string Esperanto = "eo";
+
     /// <summary>Spanish language code, may be used as source or target language.</summary>
     public const string Spanish = "es";
 
+    /// <summary>Latin American Spanish language code, may only be used as a target language.</summary>
+    public const string SpanishLatinAmerican = "es-419";
+
     /// <summary>Estonian language code, may be used as source or target language.</summary>
     public const string Estonian = "et";
+
+    /// <summary>Basque language code, may be used as source or target language.</summary>
+    public const string Basque = "eu";
+
+    /// <summary>Persian language code, may be used as source or target language.</summary>
+    public const string Persian = "fa";
 
     /// <summary>Finnish language code, may be used as source or target language.</summary>
     public const string Finnish = "fi";
@@ -48,11 +108,50 @@ namespace DeepL {
     /// <summary>French language code, may be used as source or target language.</summary>
     public const string French = "fr";
 
+    /// <summary>Irish language code, may be used as source or target language.</summary>
+    public const string Irish = "ga";
+
+    /// <summary>Galician language code, may be used as source or target language.</summary>
+    public const string Galician = "gl";
+
+    /// <summary>Guarani language code, may be used as source or target language.</summary>
+    public const string Guarani = "gn";
+
+    /// <summary>Konkani language code, may be used as source or target language.</summary>
+    public const string Konkani = "gom";
+
+    /// <summary>Gujarati language code, may be used as source or target language.</summary>
+    public const string Gujarati = "gu";
+
+    /// <summary>Hausa language code, may be used as source or target language.</summary>
+    public const string Hausa = "ha";
+
+    /// <summary>Hebrew language code, may be used as source or target language.</summary>
+    public const string Hebrew = "he";
+
+    /// <summary>Hindi language code, may be used as source or target language.</summary>
+    public const string Hindi = "hi";
+
+    /// <summary>Croatian language code, may be used as source or target language.</summary>
+    public const string Croatian = "hr";
+
+    /// <summary>Haitian Creole language code, may be used as source or target language.</summary>
+    public const string HaitianCreole = "ht";
+
     /// <summary>Hungarian language code, may be used as source or target language.</summary>
     public const string Hungarian = "hu";
 
+    /// <summary>Armenian language code, may be used as source or target language.</summary>
+    public const string Armenian = "hy";
+
     /// <summary>Indonesian language code, may be used as source or target language.</summary>
     public const string Indonesian = "id";
+
+    /// <summary>Igbo language code, may be used as source or target language.</summary>
+    public const string Igbo = "ig";
+
+    /// <summary>Icelandic language code, may be used as source or target language.</summary>
+    public const string Icelandic = "is";
 
     /// <summary>Italian language code, may be used as source or target language.</summary>
     public const string Italian = "it";
@@ -60,8 +159,35 @@ namespace DeepL {
     /// <summary>Japanese language code, may be used as source or target language.</summary>
     public const string Japanese = "ja";
 
+    /// <summary>Javanese language code, may be used as source or target language.</summary>
+    public const string Javanese = "jv";
+
+    /// <summary>Georgian language code, may be used as source or target language.</summary>
+    public const string Georgian = "ka";
+
+    /// <summary>Kazakh language code, may be used as source or target language.</summary>
+    public const string Kazakh = "kk";
+
+    /// <summary>Kurdish (Kurmanji) language code, may be used as source or target language.</summary>
+    public const string KurdishKurmanji = "kmr";
+
     /// <summary>Korean language code, may be used as source or target language.</summary>
     public const string Korean = "ko";
+
+    /// <summary>Kyrgyz language code, may be used as source or target language.</summary>
+    public const string Kyrgyz = "ky";
+
+    /// <summary>Latin language code, may be used as source or target language.</summary>
+    public const string Latin = "la";
+
+    /// <summary>Luxembourgish language code, may be used as source or target language.</summary>
+    public const string Luxembourgish = "lb";
+
+    /// <summary>Lombard language code, may be used as source or target language.</summary>
+    public const string Lombard = "lmo";
+
+    /// <summary>Lingala language code, may be used as source or target language.</summary>
+    public const string Lingala = "ln";
 
     /// <summary>Lithuanian language code, may be used as source or target language.</summary>
     public const string Lithuanian = "lt";
@@ -69,14 +195,68 @@ namespace DeepL {
     /// <summary>Latvian language code, may be used as source or target language.</summary>
     public const string Latvian = "lv";
 
+    /// <summary>Maithili language code, may be used as source or target language.</summary>
+    public const string Maithili = "mai";
+
+    /// <summary>Malagasy language code, may be used as source or target language.</summary>
+    public const string Malagasy = "mg";
+
+    /// <summary>Maori language code, may be used as source or target language.</summary>
+    public const string Maori = "mi";
+
+    /// <summary>Macedonian language code, may be used as source or target language.</summary>
+    public const string Macedonian = "mk";
+
+    /// <summary>Malayalam language code, may be used as source or target language.</summary>
+    public const string Malayalam = "ml";
+
+    /// <summary>Mongolian language code, may be used as source or target language.</summary>
+    public const string Mongolian = "mn";
+
+    /// <summary>Marathi language code, may be used as source or target language.</summary>
+    public const string Marathi = "mr";
+
+    /// <summary>Malay language code, may be used as source or target language.</summary>
+    public const string Malay = "ms";
+
+    /// <summary>Maltese language code, may be used as source or target language.</summary>
+    public const string Maltese = "mt";
+
+    /// <summary>Burmese language code, may be used as source or target language.</summary>
+    public const string Burmese = "my";
+
     /// <summary>Norwegian (bokmål) language code, may be used as source or target language.</summary>
     public const string Norwegian = "nb";
+
+    /// <summary>Nepali language code, may be used as source or target language.</summary>
+    public const string Nepali = "ne";
 
     /// <summary>Dutch language code, may be used as source or target language.</summary>
     public const string Dutch = "nl";
 
+    /// <summary>Occitan language code, may be used as source or target language.</summary>
+    public const string Occitan = "oc";
+
+    /// <summary>Oromo language code, may be used as source or target language.</summary>
+    public const string Oromo = "om";
+
+    /// <summary>Punjabi language code, may be used as source or target language.</summary>
+    public const string Punjabi = "pa";
+
+    /// <summary>Pangasinan language code, may be used as source or target language.</summary>
+    public const string Pangasinan = "pag";
+
+    /// <summary>Kapampangan language code, may be used as source or target language.</summary>
+    public const string Kapampangan = "pam";
+
     /// <summary>Polish language code, may be used as source or target language.</summary>
     public const string Polish = "pl";
+
+    /// <summary>Dari language code, may be used as source or target language.</summary>
+    public const string Dari = "prs";
+
+    /// <summary>Pashto language code, may be used as source or target language.</summary>
+    public const string Pashto = "ps";
 
     /// <summary>Portuguese language code, may only be used as a source language.</summary>
     public const string Portuguese = "pt";
@@ -87,11 +267,20 @@ namespace DeepL {
     /// <summary>European Portuguese language code, may only be used as a target language.</summary>
     public const string PortugueseEuropean = "pt-PT";
 
+    /// <summary>Quechua language code, may be used as source or target language.</summary>
+    public const string Quechua = "qu";
+
     /// <summary>Romanian language code, may be used as source or target language.</summary>
     public const string Romanian = "ro";
 
     /// <summary>Russian language code, may be used as source or target language.</summary>
     public const string Russian = "ru";
+
+    /// <summary>Sanskrit language code, may be used as source or target language.</summary>
+    public const string Sanskrit = "sa";
+
+    /// <summary>Sicilian language code, may be used as source or target language.</summary>
+    public const string Sicilian = "scn";
 
     /// <summary>Slovak language code, may be used as source or target language.</summary>
     public const string Slovak = "sk";
@@ -99,17 +288,89 @@ namespace DeepL {
     /// <summary>Slovenian language code, may be used as source or target language.</summary>
     public const string Slovenian = "sl";
 
+    /// <summary>Albanian language code, may be used as source or target language.</summary>
+    public const string Albanian = "sq";
+
+    /// <summary>Serbian language code, may be used as source or target language.</summary>
+    public const string Serbian = "sr";
+
+    /// <summary>Sesotho language code, may be used as source or target language.</summary>
+    public const string Sesotho = "st";
+
+    /// <summary>Sundanese language code, may be used as source or target language.</summary>
+    public const string Sundanese = "su";
+
     /// <summary>Swedish language code, may be used as source or target language.</summary>
     public const string Swedish = "sv";
+
+    /// <summary>Swahili language code, may be used as source or target language.</summary>
+    public const string Swahili = "sw";
+
+    /// <summary>Tamil language code, may be used as source or target language.</summary>
+    public const string Tamil = "ta";
+
+    /// <summary>Telugu language code, may be used as source or target language.</summary>
+    public const string Telugu = "te";
+
+    /// <summary>Tajik language code, may be used as source or target language.</summary>
+    public const string Tajik = "tg";
+
+    /// <summary>Thai language code, may be used as source or target language.</summary>
+    public const string Thai = "th";
+
+    /// <summary>Turkmen language code, may be used as source or target language.</summary>
+    public const string Turkmen = "tk";
+
+    /// <summary>Tagalog language code, may be used as source or target language.</summary>
+    public const string Tagalog = "tl";
+
+    /// <summary>Tswana language code, may be used as source or target language.</summary>
+    public const string Tswana = "tn";
 
     /// <summary>Turkish language code, may be used as source or target language.</summary>
     public const string Turkish = "tr";
 
+    /// <summary>Tsonga language code, may be used as source or target language.</summary>
+    public const string Tsonga = "ts";
+
+    /// <summary>Tatar language code, may be used as source or target language.</summary>
+    public const string Tatar = "tt";
+
     /// <summary>Ukrainian language code, may be used as source or target language.</summary>
     public const string Ukrainian = "uk";
 
+    /// <summary>Urdu language code, may be used as source or target language.</summary>
+    public const string Urdu = "ur";
+
+    /// <summary>Uzbek language code, may be used as source or target language.</summary>
+    public const string Uzbek = "uz";
+
+    /// <summary>Vietnamese language code, may be used as source or target language.</summary>
+    public const string Vietnamese = "vi";
+
+    /// <summary>Wolof language code, may be used as source or target language.</summary>
+    public const string Wolof = "wo";
+
+    /// <summary>Xhosa language code, may be used as source or target language.</summary>
+    public const string Xhosa = "xh";
+
+    /// <summary>Yiddish language code, may be used as source or target language.</summary>
+    public const string Yiddish = "yi";
+
+    /// <summary>Cantonese language code, may be used as source or target language.</summary>
+    public const string Cantonese = "yue";
+
     /// <summary>Chinese language code, may be used as source or target language.</summary>
     public const string Chinese = "zh";
+
+    /// <summary>Chinese (simplified) language code, may only be used as a target language.</summary>
+    public const string ChineseSimplified = "zh-HANS";
+
+    /// <summary>Chinese (traditional) language code, may only be used as a target language.</summary>
+    public const string ChineseTraditional = "zh-HANT";
+
+    /// <summary>Zulu language code, may be used as source or target language.</summary>
+    public const string Zulu = "zu";
 
     /// <summary>Removes the regional variant (if any) from the given language code</summary>
     /// <param name="code">Language code possibly containing a regional variant.</param>
