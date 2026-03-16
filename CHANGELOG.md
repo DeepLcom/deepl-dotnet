@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new language constants from January 2026 API release of 81 new languages.
 
 ### Changed
+- Updated formality tests to accept either formal or informal output when using default formality,
+  since the default formality is automatic.
 - Updated `TestTranslateWithModelType()` to expect the `model_type_used` to be non-null if the `model_type` is specified in the request
 - Updated `TestMixedDirectionText()` to add a missing `</p>` tag
 - Improved `NotFoundException` error message by removing the misleading "check ServerUrl" suggestion.
