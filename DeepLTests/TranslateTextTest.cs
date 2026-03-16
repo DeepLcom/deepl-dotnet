@@ -131,13 +131,14 @@ namespace DeepLTests {
         Assert.Contains("dir", result.Text);
       }
 
+      // Default formality is automatic, so the output may be either formal or informal
       result = await translator.TranslateTextAsync(
             "How are you?",
             null,
             "DE",
             new TextTranslateOptions { Formality = Formality.Default });
       if (!IsMockServer) {
-        Assert.Contains("Ihnen", result.Text);
+        Assert.True(result.Text.Contains("Ihnen") || result.Text.Contains("dir"));
       }
 
       result = await translator.TranslateTextAsync(
