@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new language constants from January 2026 API release of 81 new languages.
 - Added `ApiPostJsonAsync()`, `ApiPutJsonAsync()`, and `ApiPatchJsonAsync()` methods to
   `DeepLHttpClient`, enabling JSON-encoded API calls.
+- Added support for style rules CRUD endpoints in the `DeepLClient` class:
+  `CreateStyleRuleAsync()`, `GetStyleRuleAsync()`, `UpdateStyleRuleNameAsync()`,
+  `UpdateStyleRuleConfiguredRulesAsync()`, and `DeleteStyleRuleAsync()`.
+- Added support for style rule custom instruction CRUD endpoints in the
+  `DeepLClient` class: `CreateStyleRuleCustomInstructionAsync()`,
+  `GetStyleRuleCustomInstructionAsync()`, `UpdateStyleRuleCustomInstructionAsync()`,
+  and `DeleteStyleRuleCustomInstructionAsync()`.
+  Please refer to the README for usage instructions.
 
 ### Changed
 - Updated formality tests to accept either formal or informal output when using default formality,
