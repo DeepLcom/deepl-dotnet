@@ -565,34 +565,95 @@ Style rules allow you to customize your translations using a managed, shared lis
 of rules for style, formatting, and more. Multiple style rules can be stored with
 your account, each with a user-specified name and a uniquely-assigned ID.
 
-#### Creating and managing style rules
+#### Creating a style rule
 
-Currently style rules must be created and managed in the DeepL UI via
-https://www.deepl.com/en/custom-rules. Full CRUD functionality via the APIs will
-come shortly.
-
-#### Listing all style rules
-
-`GetAllStyleRulesAsync()` returns a list of `StyleRuleInfo` objects
-corresponding to all of your stored style rules. The method accepts optional
-parameters: `page` (page number for pagination, 0-indexed), `pageSize` (number
-of items per page), and `detailed` (whether to include detailed configuration
-rules in the `ConfiguredRules` property).
+Use `CreateStyleRuleAsync()` to create a new style rule with a name and language
+code. You can optionally provide `configuredRules` and `customInstructions`.
 
 ```c#
-// Get all style rules
+var rule = await client.CreateStyleRuleAsync("My Style Rule", "en");
+Console.WriteLine($"Created: {rule.Name} ({rule.StyleId})");
+```
+
+#### Retrieving and listing style rules
+
+Use `GetStyleRuleAsync()` to retrieve a single style rule by ID, or
+`GetAllStyleRulesAsync()` to list all style rules.
+
+`GetAllStyleRulesAsync()` returns an array of `StyleRuleInfo` objects
+corresponding to all of your stored style rules. The method accepts optional
+parameters: `page` (page number for pagination, 0-indexed), `pageSize` (number
+of items per page), and `detailed`. When `true`, the response includes
+`ConfiguredRules` and `CustomInstructions` for each style rule. When `false`
+(default), these fields are omitted for faster responses.
+
+```c#
+// Get a single style rule by ID
+var rule = await client.GetStyleRuleAsync("YOUR_STYLE_ID");
+Console.WriteLine($"{rule.Name} ({rule.Language})");
+
+// List all style rules
 var styleRules = await client.GetAllStyleRulesAsync();
-foreach (var rule in styleRules) {
-  Console.WriteLine($"{rule.Name} ({rule.StyleId})");
+foreach (var r in styleRules) {
+  Console.WriteLine($"{r.Name} ({r.StyleId})");
 }
 
-// Get style rules with detailed configuration
+// List with detailed configuration
 var styleRulesDetailed = await client.GetAllStyleRulesAsync(detailed: true);
-foreach (var rule in styleRulesDetailed) {
-  if (rule.ConfiguredRules?.Numbers != null) {
-    Console.WriteLine($"  Number formatting rules: {string.Join(", ", rule.ConfiguredRules.Numbers.Keys)}");
+foreach (var r in styleRulesDetailed) {
+  if (r.ConfiguredRules?.Numbers != null) {
+    Console.WriteLine($"  Number formatting: {string.Join(", ", r.ConfiguredRules.Numbers.Keys)}");
   }
 }
+```
+
+#### Updating a style rule
+
+Use `UpdateStyleRuleNameAsync()` to rename a style rule, and
+`UpdateStyleRuleConfiguredRulesAsync()` to update its configured rules.
+
+```c#
+// Update the name
+var updated = await client.UpdateStyleRuleNameAsync("YOUR_STYLE_ID", "New Name");
+
+// Update configured rules
+var configuredRules = new ConfiguredRules(
+    styleAndTone: new Dictionary<string, string> { ["formality"] = "formal" });
+var updatedRules = await client.UpdateStyleRuleConfiguredRulesAsync("YOUR_STYLE_ID", configuredRules);
+```
+
+#### Managing custom instructions
+
+Custom instructions allow you to add free-text prompts to a style rule. Use
+`CreateStyleRuleCustomInstructionAsync()`, `GetStyleRuleCustomInstructionAsync()`,
+`UpdateStyleRuleCustomInstructionAsync()`, and
+`DeleteStyleRuleCustomInstructionAsync()` to manage them.
+
+```c#
+// Create a custom instruction
+var instruction = await client.CreateStyleRuleCustomInstructionAsync(
+    "YOUR_STYLE_ID", "Formal tone", "Always use formal language");
+Console.WriteLine($"Created instruction: {instruction.Id}");
+
+// Get a custom instruction
+var retrieved = await client.GetStyleRuleCustomInstructionAsync(
+    "YOUR_STYLE_ID", instruction.Id);
+
+// Update a custom instruction
+var updated = await client.UpdateStyleRuleCustomInstructionAsync(
+    "YOUR_STYLE_ID", instruction.Id, "Updated label", "Use very formal language");
+
+// Delete a custom instruction
+await client.DeleteStyleRuleCustomInstructionAsync(
+    "YOUR_STYLE_ID", instruction.Id);
+```
+
+#### Deleting a style rule
+
+Use `DeleteStyleRuleAsync()` to delete a style rule by ID.
+
+```c#
+await client.DeleteStyleRuleAsync("YOUR_STYLE_ID");
 ```
 
 ### Check account usage

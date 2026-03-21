@@ -12,13 +12,13 @@ namespace DeepL.Model {
     /// <summary>Initializes a new instance of <see cref="ConfiguredRules" />.</summary>
     [JsonConstructor]
     public ConfiguredRules(
-          Dictionary<string, string>? datesAndTimes,
-          Dictionary<string, string>? formatting,
-          Dictionary<string, string>? numbers,
-          Dictionary<string, string>? punctuation,
-          Dictionary<string, string>? spellingAndGrammar,
-          Dictionary<string, string>? styleAndTone,
-          Dictionary<string, string>? vocabulary) {
+          Dictionary<string, string>? datesAndTimes = null,
+          Dictionary<string, string>? formatting = null,
+          Dictionary<string, string>? numbers = null,
+          Dictionary<string, string>? punctuation = null,
+          Dictionary<string, string>? spellingAndGrammar = null,
+          Dictionary<string, string>? styleAndTone = null,
+          Dictionary<string, string>? vocabulary = null) {
       DatesAndTimes = datesAndTimes;
       Formatting = formatting;
       Numbers = numbers;
@@ -61,11 +61,16 @@ namespace DeepL.Model {
   public sealed class CustomInstruction {
     /// <summary>Initializes a new instance of <see cref="CustomInstruction" />.</summary>
     [JsonConstructor]
-    public CustomInstruction(string label, string prompt, string? sourceLanguage) {
+    public CustomInstruction(string label, string prompt, string? sourceLanguage = null, string? id = null) {
+      Id = id;
       Label = label;
       Prompt = prompt;
       SourceLanguage = sourceLanguage;
     }
+
+    /// <summary>Unique ID assigned to the custom instruction.</summary>
+    [JsonPropertyName("id")]
+    public string? Id { get; }
 
     /// <summary>Label for the custom instruction.</summary>
     [JsonPropertyName("label")]

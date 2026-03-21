@@ -2,8 +2,11 @@
 // Use of this source code is governed by an MIT
 // license that can be found in the LICENSE file.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DeepL;
+using DeepL.Model;
 using Xunit;
 
 namespace DeepLTests {
@@ -50,6 +53,133 @@ namespace DeepLTests {
             new TextTranslateOptions { StyleId = DefaultStyleId });
 
       Assert.NotNull(result);
+    }
+
+    [Fact]
+    public async Task TestStyleRuleCrud() {
+      var client = CreateTestClient();
+
+      // Create a style rule with configuredRules and customInstructions
+      var configuredRules = new ConfiguredRules(
+            datesAndTimes: new Dictionary<string, string> { { "calendar_era", "use_bc_and_ad" } });
+      var customInstructions = new[] {
+            new CustomInstruction("Tone", "Use formal tone")
+      };
+      var rule = await client.CreateStyleRuleAsync(
+            "Test Rule", "en", configuredRules, customInstructions);
+      Assert.NotNull(rule.StyleId);
+      Assert.Equal("Test Rule", rule.Name);
+
+      // Get the style rule
+      var retrieved = await client.GetStyleRuleAsync(rule.StyleId);
+      Assert.Equal(rule.StyleId, retrieved.StyleId);
+
+      // Update the style rule name
+      var updated = await client.UpdateStyleRuleNameAsync(rule.StyleId, "Updated");
+      Assert.Equal("Updated", updated.Name);
+
+      // Update configured rules
+      var newConfiguredRules = new ConfiguredRules(
+            datesAndTimes: new Dictionary<string, string> { { "calendar_era", "use_bc_and_ad" } });
+      var configuredResult = await client.UpdateStyleRuleConfiguredRulesAsync(rule.StyleId, newConfiguredRules);
+      Assert.Equal(rule.StyleId, configuredResult.StyleId);
+
+      // Create a custom instruction with sourceLanguage
+      var instruction = await client.CreateStyleRuleCustomInstructionAsync(
+            rule.StyleId, "Label", "Prompt", "de");
+      Assert.NotNull(instruction.Id);
+
+      // Get the custom instruction
+      var gotInstruction = await client.GetStyleRuleCustomInstructionAsync(
+            rule.StyleId, instruction.Id!);
+      Assert.Equal("Label", gotInstruction.Label);
+
+      // Update the custom instruction with sourceLanguage
+      var updatedInstruction = await client.UpdateStyleRuleCustomInstructionAsync(
+            rule.StyleId, instruction.Id!, "New Label", "New Prompt", "fr");
+      Assert.Equal("New Label", updatedInstruction.Label);
+
+      // Delete the custom instruction and style rule
+      await client.DeleteStyleRuleCustomInstructionAsync(rule.StyleId, instruction.Id!);
+      await client.DeleteStyleRuleAsync(rule.StyleId);
+    }
+
+    [Fact]
+    public async Task TestStyleRuleNotFound() {
+      var client = CreateTestClient();
+      var nonexistentId = "96ab91fd-e715-41a1-adeb-5d701f84a483";
+
+      var ex = await Assert.ThrowsAsync<NotFoundException>(
+            () => client.GetStyleRuleAsync(nonexistentId));
+      Assert.Contains("Style rule not found", ex.Message);
+
+      ex = await Assert.ThrowsAsync<NotFoundException>(
+            () => client.DeleteStyleRuleAsync(nonexistentId));
+      Assert.Contains("Style rule not found", ex.Message);
+
+      ex = await Assert.ThrowsAsync<NotFoundException>(
+            () => client.UpdateStyleRuleNameAsync(nonexistentId, "New Name"));
+      Assert.Contains("Style rule not found", ex.Message);
+    }
+
+    [Fact]
+    public async Task TestStyleRuleValidation() {
+      var client = CreateTestClient();
+
+      // CreateStyleRuleAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.CreateStyleRuleAsync("", "en"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.CreateStyleRuleAsync("Test", ""));
+
+      // GetStyleRuleAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.GetStyleRuleAsync(""));
+
+      // UpdateStyleRuleNameAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.UpdateStyleRuleNameAsync("", "New Name"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.UpdateStyleRuleNameAsync("some-id", ""));
+
+      // DeleteStyleRuleAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.DeleteStyleRuleAsync(""));
+
+      // UpdateStyleRuleConfiguredRulesAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.UpdateStyleRuleConfiguredRulesAsync(
+                  "", new ConfiguredRules()));
+
+      // CreateStyleRuleCustomInstructionAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.CreateStyleRuleCustomInstructionAsync("", "L", "P"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.CreateStyleRuleCustomInstructionAsync("some-id", "", "P"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.CreateStyleRuleCustomInstructionAsync("some-id", "L", ""));
+
+      // GetStyleRuleCustomInstructionAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.GetStyleRuleCustomInstructionAsync("", "instr-id"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.GetStyleRuleCustomInstructionAsync("some-id", ""));
+
+      // UpdateStyleRuleCustomInstructionAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.UpdateStyleRuleCustomInstructionAsync("", "instr-id", "L", "P"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.UpdateStyleRuleCustomInstructionAsync("some-id", "", "L", "P"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.UpdateStyleRuleCustomInstructionAsync("some-id", "instr-id", "", "P"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.UpdateStyleRuleCustomInstructionAsync("some-id", "instr-id", "L", ""));
+
+      // DeleteStyleRuleCustomInstructionAsync
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.DeleteStyleRuleCustomInstructionAsync("", "instr-id"));
+      await Assert.ThrowsAsync<ArgumentException>(
+            () => client.DeleteStyleRuleCustomInstructionAsync("some-id", ""));
     }
 
     [MockServerOnlyFact]

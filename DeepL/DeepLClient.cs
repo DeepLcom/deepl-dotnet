@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -127,10 +128,219 @@ namespace DeepL {
       using var responseMessage = await _client
             .ApiGetAsync("v3/style_rules", cancellationToken, queryParams.ToArray()).ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
       var styleRuleList = await JsonUtils.DeserializeAsync<StyleRuleListResult>(responseMessage)
             .ConfigureAwait(false);
       return styleRuleList.StyleRules;
+    }
+
+    /// <inheritdoc />
+    public async Task<StyleRuleInfo> CreateStyleRuleAsync(
+          string name,
+          string language,
+          ConfiguredRules? configuredRules = null,
+          CustomInstruction[]? customInstructions = null,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(name)) {
+        throw new ArgumentException($"Parameter {nameof(name)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(language)) {
+        throw new ArgumentException($"Parameter {nameof(language)} must not be empty");
+      }
+
+      var requestData = new Dictionary<string, object> { ["name"] = name, ["language"] = language };
+      if (configuredRules != null) requestData["configured_rules"] = configuredRules;
+      if (customInstructions != null) requestData["custom_instructions"] = customInstructions;
+      using var responseMessage = await _client
+            .ApiPostJsonAsync("v3/style_rules", cancellationToken, requestData, SerializationOptions).ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<StyleRuleInfo>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<StyleRuleInfo> GetStyleRuleAsync(
+          string styleId,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      using var responseMessage =
+            await _client.ApiGetAsync($"v3/style_rules/{Uri.EscapeDataString(styleId)}", cancellationToken)
+                  .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<StyleRuleInfo>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<StyleRuleInfo> UpdateStyleRuleNameAsync(
+          string styleId,
+          string name,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(name)) {
+        throw new ArgumentException($"Parameter {nameof(name)} must not be empty");
+      }
+
+      var requestData = new Dictionary<string, object> { ["name"] = name };
+      using var responseMessage =
+            await _client.ApiPatchJsonAsync($"v3/style_rules/{Uri.EscapeDataString(styleId)}", cancellationToken, requestData, SerializationOptions)
+                  .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<StyleRuleInfo>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteStyleRuleAsync(
+          string styleId,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      using var responseMessage =
+            await _client.ApiDeleteAsync($"v3/style_rules/{Uri.EscapeDataString(styleId)}", cancellationToken)
+                  .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<StyleRuleInfo> UpdateStyleRuleConfiguredRulesAsync(
+          string styleId,
+          ConfiguredRules configuredRules,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      if (configuredRules == null) {
+        throw new ArgumentNullException(nameof(configuredRules));
+      }
+
+      using var responseMessage = await _client
+            .ApiPutJsonAsync($"v3/style_rules/{Uri.EscapeDataString(styleId)}/configured_rules", cancellationToken, configuredRules, SerializationOptions)
+            .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<StyleRuleInfo>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<CustomInstruction> CreateStyleRuleCustomInstructionAsync(
+          string styleId,
+          string label,
+          string prompt,
+          string? sourceLanguage = null,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(label)) {
+        throw new ArgumentException($"Parameter {nameof(label)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(prompt)) {
+        throw new ArgumentException($"Parameter {nameof(prompt)} must not be empty");
+      }
+
+      var requestData = new Dictionary<string, object> { ["label"] = label, ["prompt"] = prompt };
+      if (sourceLanguage != null) requestData["source_language"] = sourceLanguage;
+      using var responseMessage = await _client
+            .ApiPostJsonAsync($"v3/style_rules/{Uri.EscapeDataString(styleId)}/custom_instructions", cancellationToken, requestData, SerializationOptions)
+            .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<CustomInstruction>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<CustomInstruction> GetStyleRuleCustomInstructionAsync(
+          string styleId,
+          string instructionId,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(instructionId)) {
+        throw new ArgumentException($"Parameter {nameof(instructionId)} must not be empty");
+      }
+
+      using var responseMessage =
+            await _client.ApiGetAsync(
+                  $"v3/style_rules/{Uri.EscapeDataString(styleId)}/custom_instructions/{Uri.EscapeDataString(instructionId)}", cancellationToken)
+                  .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<CustomInstruction>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<CustomInstruction> UpdateStyleRuleCustomInstructionAsync(
+          string styleId,
+          string instructionId,
+          string label,
+          string prompt,
+          string? sourceLanguage = null,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(instructionId)) {
+        throw new ArgumentException($"Parameter {nameof(instructionId)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(label)) {
+        throw new ArgumentException($"Parameter {nameof(label)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(prompt)) {
+        throw new ArgumentException($"Parameter {nameof(prompt)} must not be empty");
+      }
+
+      var requestData = new Dictionary<string, object> { ["label"] = label, ["prompt"] = prompt };
+      if (sourceLanguage != null) requestData["source_language"] = sourceLanguage;
+      using var responseMessage = await _client
+            .ApiPutJsonAsync(
+                  $"v3/style_rules/{Uri.EscapeDataString(styleId)}/custom_instructions/{Uri.EscapeDataString(instructionId)}",
+                  cancellationToken,
+                  requestData,
+                  SerializationOptions)
+            .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
+      return await JsonUtils.DeserializeAsync<CustomInstruction>(responseMessage).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteStyleRuleCustomInstructionAsync(
+          string styleId,
+          string instructionId,
+          CancellationToken cancellationToken = default) {
+      if (string.IsNullOrWhiteSpace(styleId)) {
+        throw new ArgumentException($"Parameter {nameof(styleId)} must not be empty");
+      }
+
+      if (string.IsNullOrWhiteSpace(instructionId)) {
+        throw new ArgumentException($"Parameter {nameof(instructionId)} must not be empty");
+      }
+
+      using var responseMessage =
+            await _client.ApiDeleteAsync(
+                  $"v3/style_rules/{Uri.EscapeDataString(styleId)}/custom_instructions/{Uri.EscapeDataString(instructionId)}", cancellationToken)
+                  .ConfigureAwait(false);
+
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.StyleRule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -195,7 +405,7 @@ namespace DeepL {
             await _client.ApiGetAsync($"v3/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<MultilingualGlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 
@@ -217,7 +427,7 @@ namespace DeepL {
                   cancellationToken,
                   queryParams).ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       var dictionaryEntriesList = await JsonUtils
             .DeserializeAsync<MultilingualGlossaryDictionaryEntriesListResult>(responseMessage)
             .ConfigureAwait(false);
@@ -269,7 +479,7 @@ namespace DeepL {
       using var responseMessage =
             await _client.ApiGetAsync("v3/glossaries", cancellationToken).ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return (await JsonUtils.DeserializeAsync<MultilingualGlossaryListResult>(responseMessage).ConfigureAwait(false))
             .Glossaries;
     }
@@ -286,7 +496,7 @@ namespace DeepL {
             await _client.ApiDeleteAsync($"v3/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -311,7 +521,7 @@ namespace DeepL {
             await _client.ApiDeleteAsync($"v3/glossaries/{glossaryId}/dictionaries", cancellationToken, queryParams)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -461,7 +671,7 @@ namespace DeepL {
             await _client.ApiPutAsync($"v3/glossaries/{glossaryId}/dictionaries", cancellationToken, bodyParams)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<MultilingualGlossaryDictionaryInfo>(responseMessage)
             .ConfigureAwait(false);
     }
@@ -480,7 +690,7 @@ namespace DeepL {
             await _client.ApiPatchAsync($"v3/glossaries/{glossaryId}", cancellationToken, bodyParams)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<MultilingualGlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 
@@ -598,7 +808,7 @@ namespace DeepL {
             await _client.ApiPatchAsync($"v3/glossaries/{glossaryId}", cancellationToken, bodyParams)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<MultilingualGlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 
@@ -723,6 +933,11 @@ namespace DeepL {
 
       return bodyParams;
     }
+
+    /// <summary>JSON serializer options for JSON-encoded request bodies.</summary>
+    private static readonly JsonSerializerOptions SerializationOptions = new JsonSerializerOptions {
+      DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     /// <summary>Class used for JSON-deserialization of style rule list results.</summary>
     private readonly struct StyleRuleListResult {

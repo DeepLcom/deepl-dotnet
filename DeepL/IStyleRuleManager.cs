@@ -24,5 +24,147 @@ namespace DeepL {
           int? pageSize = null,
           bool? detailed = null,
           CancellationToken cancellationToken = default);
+
+    /// <summary>Creates a new style rule.</summary>
+    /// <param name="name">Name for the new style rule.</param>
+    /// <param name="language">Language code for the style rule.</param>
+    /// <param name="configuredRules">Optional configured rules.</param>
+    /// <param name="customInstructions">Optional custom instructions.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>A <see cref="StyleRuleInfo" /> object for the newly created style rule.</returns>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<StyleRuleInfo> CreateStyleRuleAsync(
+          string name,
+          string language,
+          ConfiguredRules? configuredRules = null,
+          CustomInstruction[]? customInstructions = null,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Retrieves a single style rule by its ID.</summary>
+    /// <param name="styleId">The ID of the style rule to retrieve.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>A <see cref="StyleRuleInfo" /> object for the requested style rule.</returns>
+    /// <exception cref="NotFoundException">If the specified style rule was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<StyleRuleInfo> GetStyleRuleAsync(
+          string styleId,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Updates the name of a style rule.</summary>
+    /// <param name="styleId">The ID of the style rule to update.</param>
+    /// <param name="name">The new name for the style rule.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>A <see cref="StyleRuleInfo" /> object for the updated style rule.</returns>
+    /// <exception cref="NotFoundException">If the specified style rule was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<StyleRuleInfo> UpdateStyleRuleNameAsync(
+          string styleId,
+          string name,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Deletes a style rule.</summary>
+    /// <param name="styleId">The ID of the style rule to delete.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <exception cref="NotFoundException">If the specified style rule was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task DeleteStyleRuleAsync(
+          string styleId,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Updates the configured rules of a style rule.</summary>
+    /// <param name="styleId">The ID of the style rule to update.</param>
+    /// <param name="configuredRules">The new configured rules.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>A <see cref="StyleRuleInfo" /> object for the updated style rule.</returns>
+    /// <exception cref="NotFoundException">If the specified style rule was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<StyleRuleInfo> UpdateStyleRuleConfiguredRulesAsync(
+          string styleId,
+          ConfiguredRules configuredRules,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Creates a custom instruction for a style rule.</summary>
+    /// <param name="styleId">The ID of the style rule.</param>
+    /// <param name="label">Label for the custom instruction.</param>
+    /// <param name="prompt">Prompt text for the custom instruction.</param>
+    /// <param name="sourceLanguage">Optional source language code.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>A <see cref="CustomInstruction" /> object for the newly created instruction.</returns>
+    /// <exception cref="NotFoundException">If the specified style rule was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<CustomInstruction> CreateStyleRuleCustomInstructionAsync(
+          string styleId,
+          string label,
+          string prompt,
+          string? sourceLanguage = null,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Retrieves a custom instruction for a style rule.</summary>
+    /// <param name="styleId">The ID of the style rule.</param>
+    /// <param name="instructionId">The ID of the custom instruction.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>A <see cref="CustomInstruction" /> object for the requested instruction.</returns>
+    /// <exception cref="NotFoundException">If the specified style rule or custom instruction was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<CustomInstruction> GetStyleRuleCustomInstructionAsync(
+          string styleId,
+          string instructionId,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Updates a custom instruction for a style rule.</summary>
+    /// <param name="styleId">The ID of the style rule.</param>
+    /// <param name="instructionId">The ID of the custom instruction to update.</param>
+    /// <param name="label">New label for the custom instruction.</param>
+    /// <param name="prompt">New prompt text for the custom instruction.</param>
+    /// <param name="sourceLanguage">Optional source language code.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>A <see cref="CustomInstruction" /> object for the updated instruction.</returns>
+    /// <exception cref="NotFoundException">If the specified style rule or custom instruction was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task<CustomInstruction> UpdateStyleRuleCustomInstructionAsync(
+          string styleId,
+          string instructionId,
+          string label,
+          string prompt,
+          string? sourceLanguage = null,
+          CancellationToken cancellationToken = default);
+
+    /// <summary>Deletes a custom instruction from a style rule.</summary>
+    /// <param name="styleId">The ID of the style rule.</param>
+    /// <param name="instructionId">The ID of the custom instruction to delete.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <exception cref="NotFoundException">If the specified style rule or custom instruction was not found.</exception>
+    /// <exception cref="DeepLException">
+    ///   If any error occurs while communicating with the DeepL API, a
+    ///   <see cref="DeepLException" /> or a derived class will be thrown.
+    /// </exception>
+    Task DeleteStyleRuleCustomInstructionAsync(
+          string styleId,
+          string instructionId,
+          CancellationToken cancellationToken = default);
   }
 }

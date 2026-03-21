@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -18,6 +19,21 @@ using Polly;
 using Polly.Timeout;
 
 namespace DeepL.Internal {
+  /// <summary>Identifies the type of resource being accessed, used for contextual error messages.</summary>
+  internal enum ResourceType {
+    Glossary,
+    StyleRule
+  }
+
+  internal static class ResourceTypeExtensions {
+    internal static string ToDisplayString(this ResourceType resourceType) =>
+          resourceType switch {
+            ResourceType.Glossary => "Glossary",
+            ResourceType.StyleRule => "Style rule",
+            _ => resourceType.ToString()
+          };
+  }
+
   /// <summary>Internal class implementing HTTP requests.</summary>
   internal class DeepLHttpClient : IDisposable {
     /// <summary>HTTP status code returned by DeepL API to indicate servers are currently under high load.</summary>
@@ -150,7 +166,7 @@ namespace DeepL.Internal {
     /// <exception cref="DeepLException">If some other error occurred.</exception>
     internal static async Task CheckStatusCodeAsync(
           HttpResponseMessage responseMessage,
-          bool usingGlossary = false,
+          ResourceType? resourceType = null,
           bool downloadingDocument = false) {
       var statusCode = responseMessage.StatusCode;
       if (statusCode >= HttpStatusCode.OK && statusCode < HttpStatusCode.BadRequest) {
@@ -172,11 +188,13 @@ namespace DeepL.Internal {
         case HttpStatusCodeQuotaExceeded:
           throw new QuotaExceededException("Quota for this billing period has been exceeded" + message);
         case HttpStatusCode.NotFound:
-          if (usingGlossary) {
-            throw new GlossaryNotFoundException("Glossary not found" + message);
-          } else {
-            throw new NotFoundException("Not found" + message);
+          var notFoundMessage = resourceType != null
+                ? $"{resourceType.Value.ToDisplayString()} not found" + message
+                : "Not found" + message;
+          if (resourceType == ResourceType.Glossary) {
+            throw new GlossaryNotFoundException(notFoundMessage);
           }
+          throw new NotFoundException(notFoundMessage);
         case HttpStatusCode.BadRequest:
           throw new DeepLException("Bad request" + message);
         case HttpStatusCodeTooManyRequests:
@@ -265,17 +283,20 @@ namespace DeepL.Internal {
     /// <summary>Internal function to perform HTTP POST requests with JSON body.</summary>
     /// <param name="relativeUri">Endpoint URL relative to server base URL.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
-    /// <param name="jsonBody">JSON string to send as the request body.</param>
+    /// <param name="body">Object to serialize as JSON for the request body.</param>
+    /// <param name="jsonOptions">Optional JSON serializer options.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
     /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiPostJsonAsync(
           string relativeUri,
           CancellationToken cancellationToken,
-          string jsonBody) {
+          object body,
+          JsonSerializerOptions? jsonOptions = null) {
+      var jsonBody = JsonSerializer.Serialize(body, jsonOptions);
       using var requestMessage = new HttpRequestMessage {
         RequestUri = new Uri(_serverUrl, relativeUri),
         Method = HttpMethod.Post,
-        Content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json")
+        Content = new StringContent(jsonBody, Encoding.UTF8, "application/json")
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
@@ -304,17 +325,20 @@ namespace DeepL.Internal {
     /// <summary>Internal function to perform HTTP PUT requests with JSON body.</summary>
     /// <param name="relativeUri">Endpoint URL relative to server base URL.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
-    /// <param name="jsonBody">JSON string to send as the request body.</param>
+    /// <param name="body">Object to serialize as JSON for the request body.</param>
+    /// <param name="jsonOptions">Optional JSON serializer options.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
     /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiPutJsonAsync(
           string relativeUri,
           CancellationToken cancellationToken,
-          string jsonBody) {
+          object body,
+          JsonSerializerOptions? jsonOptions = null) {
+      var jsonBody = JsonSerializer.Serialize(body, jsonOptions);
       using var requestMessage = new HttpRequestMessage {
         RequestUri = new Uri(_serverUrl, relativeUri),
         Method = HttpMethod.Put,
-        Content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json")
+        Content = new StringContent(jsonBody, Encoding.UTF8, "application/json")
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }
@@ -343,17 +367,20 @@ namespace DeepL.Internal {
     /// <summary>Internal function to perform HTTP PATCH requests with JSON body.</summary>
     /// <param name="relativeUri">Endpoint URL relative to server base URL.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
-    /// <param name="jsonBody">JSON string to send as the request body.</param>
+    /// <param name="body">Object to serialize as JSON for the request body.</param>
+    /// <param name="jsonOptions">Optional JSON serializer options.</param>
     /// <returns><see cref="HttpResponseMessage" /> received from DeepL API.</returns>
     /// <exception cref="ConnectionException">If any failure occurs while sending the request.</exception>
     public async Task<HttpResponseMessage> ApiPatchJsonAsync(
           string relativeUri,
           CancellationToken cancellationToken,
-          string jsonBody) {
+          object body,
+          JsonSerializerOptions? jsonOptions = null) {
+      var jsonBody = JsonSerializer.Serialize(body, jsonOptions);
       using var requestMessage = new HttpRequestMessage {
         RequestUri = new Uri(_serverUrl, relativeUri),
         Method = new HttpMethod("PATCH"),
-        Content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json")
+        Content = new StringContent(jsonBody, Encoding.UTF8, "application/json")
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
     }

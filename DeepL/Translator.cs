@@ -778,7 +778,7 @@ namespace DeepL {
             await _client.ApiGetAsync($"v2/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<GlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 
@@ -800,7 +800,7 @@ namespace DeepL {
       using var responseMessage =
             await _client.ApiGetAsync("v2/glossaries", cancellationToken).ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return (await JsonUtils.DeserializeAsync<GlossaryListResult>(responseMessage).ConfigureAwait(false)).Glossaries;
     }
 
@@ -813,7 +813,7 @@ namespace DeepL {
             cancellationToken,
             acceptHeader: "text/tab-separated-values").ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       var contentTsv = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
       return GlossaryEntries.FromTsv(contentTsv, true);
     }
@@ -832,7 +832,7 @@ namespace DeepL {
             await _client.ApiDeleteAsync($"v2/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -1112,7 +1112,7 @@ namespace DeepL {
       using var responseMessage =
             await _client.ApiPostAsync("v2/glossaries", cancellationToken, bodyParams).ConfigureAwait(false);
 
-      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
+      await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, ResourceType.Glossary).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<GlossaryInfo>(responseMessage).ConfigureAwait(false);
     }
 
