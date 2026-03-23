@@ -51,7 +51,11 @@ namespace DeepL.Internal {
         throw new ArgumentNullException($"{nameof(serverUrl)}");
       }
 
-      _serverUrl = serverUrl;
+      // Ensure the server URL ends with a trailing slash so that relative URI resolution
+      // (RFC 3986 §5.2.2) appends path segments rather than replacing the last segment.
+      // This is important when ServerUrl contains a path prefix such as a reverse-proxy base path.
+      var serverUrlStr = serverUrl.ToString();
+      _serverUrl = serverUrlStr.EndsWith("/") ? serverUrl : new Uri(serverUrlStr + "/");
       var clientAndDisposeFlag = clientFactory();
       _httpClient = clientAndDisposeFlag.HttpClient;
       _disposeClient = clientAndDisposeFlag.DisposeClient;

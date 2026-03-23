@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `TestMixedDirectionText()` to add a missing `</p>` tag
 - Improved `NotFoundException` error message by removing the misleading "check ServerUrl" suggestion.
 
+### Fixed
+- Fixed relative URI resolution so that a `ServerUrl` with a path prefix (e.g. a
+  reverse-proxy base path like `https://proxy.example.com/deepl/`) is correctly
+  preserved when constructing API request URLs. Previously, API paths starting with
+  `/` were treated as absolute paths by RFC 3986 URI resolution, causing the base
+  path to be silently discarded.
+  - Thanks to [vernou](https://github.com/vernou) for the report in [#73](https://github.com/DeepLcom/deepl-dotnet/issues/73)
+
 ## [1.19.0] - 2025-12-10
 ### Added
 - Added `TagHandlingVersion` parameter to `TextTranslateOptions` to specify which version of the tag handling algorithm to use. Options are `v1` and `v2`.

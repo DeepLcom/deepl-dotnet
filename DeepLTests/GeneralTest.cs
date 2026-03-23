@@ -193,6 +193,27 @@ namespace DeepLTests {
                 () => new Translator(AuthKey, new TranslatorOptions { ServerUrl = "http:/api.deepl.com" }));
 
     [Fact]
+    public async Task TestServerUrlWithPathPrefix() {
+      // Verify that a ServerUrl with a path prefix (e.g. a reverse-proxy base path) is preserved
+      // when constructing API request URLs. Previously, relative URIs starting with "/" caused
+      // RFC 3986 URI resolution to discard the base path.
+      const string usageResponseJson = "{\"character_count\": 0, \"character_limit\": 0}";
+      var handler = getMockHandler(usageResponseJson);
+      var options = new TranslatorOptions {
+        ServerUrl = "https://external-api.example.com/deepl/",
+        ClientFactory = () => new HttpClientAndDisposeFlag {
+              HttpClient = new HttpClient(handler), DisposeClient = true
+        }
+      };
+      var translator = new Translator("test-auth-key:fx", options);
+      await translator.GetUsageAsync();
+
+      Assert.Single(handler.requests);
+      var requestUri = handler.requests[0].RequestUri!.ToString();
+      Assert.StartsWith("https://external-api.example.com/deepl/", requestUri);
+    }
+
+    [Fact]
     public async Task TestUsage() {
       var translator = CreateTestTranslator();
       var usage = await translator.GetUsageAsync();

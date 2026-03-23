@@ -491,7 +491,7 @@ namespace DeepL {
 
     /// <inheritdoc />
     public async Task<Usage> GetUsageAsync(CancellationToken cancellationToken = default) {
-      using var responseMessage = await _client.ApiGetAsync("/v2/usage", cancellationToken).ConfigureAwait(false);
+      using var responseMessage = await _client.ApiGetAsync("v2/usage", cancellationToken).ConfigureAwait(false);
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       var usageFields = await JsonUtils.DeserializeAsync<Usage.JsonFieldsStruct>(responseMessage)
             .ConfigureAwait(false);
@@ -511,7 +511,7 @@ namespace DeepL {
             .Select(text => ("text", text));
 
       using var responseMessage = await _client
-            .ApiPostAsync("/v2/translate", cancellationToken, bodyParams.Concat(textParams)).ConfigureAwait(false);
+            .ApiPostAsync("v2/translate", cancellationToken, bodyParams.Concat(textParams)).ConfigureAwait(false);
 
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       var translatedTexts =
@@ -646,7 +646,7 @@ namespace DeepL {
       AddExtraBodyParameters(bodyParams, options?.ExtraBodyParameters);
 
       using var responseMessage = await _client.ApiUploadAsync(
-                  "/v2/document",
+                  "v2/document",
                   cancellationToken,
                   bodyParams,
                   inputFile,
@@ -663,7 +663,7 @@ namespace DeepL {
       var bodyParams = new (string Key, string Value)[] { ("document_key", handle.DocumentKey) };
       using var responseMessage =
             await _client.ApiPostAsync(
-                        $"/v2/document/{handle.DocumentId}",
+                        $"v2/document/{handle.DocumentId}",
                         cancellationToken,
                         bodyParams)
                   .ConfigureAwait(false);
@@ -712,7 +712,7 @@ namespace DeepL {
           CancellationToken cancellationToken = default) {
       var bodyParams = new (string Key, string Value)[] { ("document_key", handle.DocumentKey) };
       using var responseMessage = await _client.ApiPostAsync(
-                  $"/v2/document/{handle.DocumentId}/result",
+                  $"v2/document/{handle.DocumentId}/result",
                   cancellationToken,
                   bodyParams)
             .ConfigureAwait(false);
@@ -732,7 +732,7 @@ namespace DeepL {
     /// <inheritdoc />
     public async Task<GlossaryLanguagePair[]> GetGlossaryLanguagesAsync(CancellationToken cancellationToken = default) {
       using var responseMessage = await _client
-            .ApiGetAsync("/v2/glossary-language-pairs", cancellationToken).ConfigureAwait(false);
+            .ApiGetAsync("v2/glossary-language-pairs", cancellationToken).ConfigureAwait(false);
 
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
       var languages = await JsonUtils.DeserializeAsync<GlossaryLanguageListResult>(responseMessage)
@@ -775,7 +775,7 @@ namespace DeepL {
           string glossaryId,
           CancellationToken cancellationToken = default) {
       using var responseMessage =
-            await _client.ApiGetAsync($"/v2/glossaries/{glossaryId}", cancellationToken)
+            await _client.ApiGetAsync($"v2/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
@@ -798,7 +798,7 @@ namespace DeepL {
     /// <inheritdoc />
     public async Task<GlossaryInfo[]> ListGlossariesAsync(CancellationToken cancellationToken = default) {
       using var responseMessage =
-            await _client.ApiGetAsync("/v2/glossaries", cancellationToken).ConfigureAwait(false);
+            await _client.ApiGetAsync("v2/glossaries", cancellationToken).ConfigureAwait(false);
 
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
       return (await JsonUtils.DeserializeAsync<GlossaryListResult>(responseMessage).ConfigureAwait(false)).Glossaries;
@@ -809,7 +809,7 @@ namespace DeepL {
           string glossaryId,
           CancellationToken cancellationToken = default) {
       using var responseMessage = await _client.ApiGetAsync(
-            $"/v2/glossaries/{glossaryId}/entries",
+            $"v2/glossaries/{glossaryId}/entries",
             cancellationToken,
             acceptHeader: "text/tab-separated-values").ConfigureAwait(false);
 
@@ -829,7 +829,7 @@ namespace DeepL {
           string glossaryId,
           CancellationToken cancellationToken = default) {
       using var responseMessage =
-            await _client.ApiDeleteAsync($"/v2/glossaries/{glossaryId}", cancellationToken)
+            await _client.ApiDeleteAsync($"v2/glossaries/{glossaryId}", cancellationToken)
                   .ConfigureAwait(false);
 
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
@@ -854,7 +854,7 @@ namespace DeepL {
           CancellationToken cancellationToken = default) {
       var queryParams = new (string Key, string Value)[] { ("type", target ? "target" : "source") };
       using var responseMessage =
-            await _client.ApiGetAsync("/v2/languages", cancellationToken, queryParams)
+            await _client.ApiGetAsync("v2/languages", cancellationToken, queryParams)
                   .ConfigureAwait(false);
 
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage).ConfigureAwait(false);
@@ -1110,7 +1110,7 @@ namespace DeepL {
             ("entries_format", entriesFormat), ("entries", entries)
       };
       using var responseMessage =
-            await _client.ApiPostAsync("/v2/glossaries", cancellationToken, bodyParams).ConfigureAwait(false);
+            await _client.ApiPostAsync("v2/glossaries", cancellationToken, bodyParams).ConfigureAwait(false);
 
       await DeepLHttpClient.CheckStatusCodeAsync(responseMessage, true).ConfigureAwait(false);
       return await JsonUtils.DeserializeAsync<GlossaryInfo>(responseMessage).ConfigureAwait(false);
