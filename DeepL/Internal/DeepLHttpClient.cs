@@ -109,7 +109,7 @@ namespace DeepL.Internal {
 
       // Prepend "/" so that RFC 3986 resolution treats it as an absolute path,
       // effectively ignoring any base path in _serverUrl.
-      var absolutePath = relativeUri.StartsWith("/") ? relativeUri : "/" + relativeUri;
+      var absolutePath = relativeUri.StartsWith("/") ? relativeUri : $"/{relativeUri}";
       return new Uri(_serverUrl, absolutePath);
     }
 
