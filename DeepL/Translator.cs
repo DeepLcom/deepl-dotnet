@@ -462,7 +462,8 @@ namespace DeepL {
       _client = new DeepLHttpClient(
             serverUrl,
             clientFactory,
-            headers);
+            headers,
+            options.PreserveServerUrlPath);
     }
 
     /// <summary>Releases the unmanaged resources and disposes of the managed resources used by the <see cref="Translator" />.</summary>

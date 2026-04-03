@@ -54,18 +54,28 @@ namespace DeepL.Internal {
     /// <summary>The base URL for DeepL's API.</summary>
     private readonly Uri _serverUrl;
 
+    /// <summary>Whether to preserve the path component of the server URL when resolving API request URIs.</summary>
+    private readonly bool _preserveServerUrlPath;
+
     /// <summary>Initializes a new <see cref="DeepLHttpClient" />.</summary>
     /// <param name="serverUrl">Base server URL to apply to all relative URLs in requests.</param>
     /// <param name="clientFactory">Factory function to obtain <see cref="HttpClient" /> used for requests.</param>
     /// <param name="headers">HTTP headers applied to all requests.</param>
+    /// <param name="preserveServerUrlPath">
+    ///   When <c>true</c>, the path component of <paramref name="serverUrl" /> is preserved in request URIs.
+    ///   When <c>false</c>, API paths are resolved from the server root, ignoring any base path.
+    /// </param>
     /// <exception cref="ArgumentNullException">If any argument is null.</exception>
     internal DeepLHttpClient(
           Uri serverUrl,
           Func<HttpClientAndDisposeFlag> clientFactory,
-          IEnumerable<KeyValuePair<string, string?>> headers) {
+          IEnumerable<KeyValuePair<string, string?>> headers,
+          bool preserveServerUrlPath = true) {
       if (serverUrl == null) {
         throw new ArgumentNullException($"{nameof(serverUrl)}");
       }
+
+      _preserveServerUrlPath = preserveServerUrlPath;
 
       // Ensure the server URL ends with a trailing slash so that relative URI resolution
       // (RFC 3986 §5.2.2) appends path segments rather than replacing the last segment.
@@ -83,6 +93,24 @@ namespace DeepL.Internal {
       }
 
       _headers = headers.ToArray();
+    }
+
+    /// <summary>
+    ///   Resolves a relative URI against the server URL.
+    ///   When <see cref="_preserveServerUrlPath" /> is <c>true</c>, the path component of the server URL is preserved.
+    ///   When <c>false</c>, a leading slash is prepended to the relative URI so that it is resolved from the server root.
+    /// </summary>
+    /// <param name="relativeUri">Relative URI to resolve against the server URL.</param>
+    /// <returns>Resolved absolute <see cref="Uri" />.</returns>
+    private Uri ResolveUri(string relativeUri) {
+      if (_preserveServerUrlPath) {
+        return new Uri(_serverUrl, relativeUri);
+      }
+
+      // Prepend "/" so that RFC 3986 resolution treats it as an absolute path,
+      // effectively ignoring any base path in _serverUrl.
+      var absolutePath = relativeUri.StartsWith("/") ? relativeUri : $"/{relativeUri}";
+      return new Uri(_serverUrl, absolutePath);
     }
 
     /// <summary>
@@ -230,7 +258,7 @@ namespace DeepL.Internal {
                   queryParams.Select(pair => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(pair.Value)}"));
 
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri + queryString),
+        RequestUri = ResolveUri(relativeUri + queryString),
         Method = HttpMethod.Get,
         Headers = { Accept = { new MediaTypeWithQualityHeaderValue(acceptHeader ?? "application/json") } }
       };
@@ -253,7 +281,7 @@ namespace DeepL.Internal {
                   "&",
                   queryParams.Select(pair => $"{Uri.EscapeDataString(pair.Key)}={Uri.EscapeDataString(pair.Value)}"));
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri + queryString),
+        RequestUri = ResolveUri(relativeUri + queryString),
         Method = HttpMethod.Delete
       };
       return await ApiCallAsync(requestMessage, cancellationToken);
@@ -270,7 +298,7 @@ namespace DeepL.Internal {
           CancellationToken cancellationToken,
           IEnumerable<(string Key, string Value)>? bodyParams = null) {
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
+        RequestUri = ResolveUri(relativeUri),
         Method = HttpMethod.Post,
         Content = bodyParams != null
                   ? new LargeFormUrlEncodedContent(
@@ -294,7 +322,7 @@ namespace DeepL.Internal {
           JsonSerializerOptions? jsonOptions = null) {
       var jsonBody = JsonSerializer.Serialize(body, jsonOptions);
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
+        RequestUri = ResolveUri(relativeUri),
         Method = HttpMethod.Post,
         Content = new StringContent(jsonBody, Encoding.UTF8, "application/json")
       };
@@ -312,7 +340,7 @@ namespace DeepL.Internal {
           CancellationToken cancellationToken,
           IEnumerable<(string Key, string Value)>? bodyParams = null) {
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
+        RequestUri = ResolveUri(relativeUri),
         Method = HttpMethod.Put,
         Content = bodyParams != null
                   ? new LargeFormUrlEncodedContent(
@@ -336,7 +364,7 @@ namespace DeepL.Internal {
           JsonSerializerOptions? jsonOptions = null) {
       var jsonBody = JsonSerializer.Serialize(body, jsonOptions);
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
+        RequestUri = ResolveUri(relativeUri),
         Method = HttpMethod.Put,
         Content = new StringContent(jsonBody, Encoding.UTF8, "application/json")
       };
@@ -354,7 +382,7 @@ namespace DeepL.Internal {
           CancellationToken cancellationToken,
           IEnumerable<(string Key, string Value)>? bodyParams = null) {
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
+        RequestUri = ResolveUri(relativeUri),
         Method = new HttpMethod("PATCH"),
         Content = bodyParams != null
                   ? new LargeFormUrlEncodedContent(
@@ -378,7 +406,7 @@ namespace DeepL.Internal {
           JsonSerializerOptions? jsonOptions = null) {
       var jsonBody = JsonSerializer.Serialize(body, jsonOptions);
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
+        RequestUri = ResolveUri(relativeUri),
         Method = new HttpMethod("PATCH"),
         Content = new StringContent(jsonBody, Encoding.UTF8, "application/json")
       };
@@ -407,7 +435,7 @@ namespace DeepL.Internal {
       content.Add(new StreamContent(file), "file", fileName);
 
       using var requestMessage = new HttpRequestMessage {
-        RequestUri = new Uri(_serverUrl, relativeUri),
+        RequestUri = ResolveUri(relativeUri),
         Method = HttpMethod.Post,
         Content = content,
         Headers = { Accept = { new MediaTypeWithQualityHeaderValue("application/json") } }

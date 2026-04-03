@@ -45,6 +45,14 @@ namespace DeepL {
     public string? ServerUrl { get; set; }
 
     /// <summary>
+    ///   Controls whether the path component of <see cref="ServerUrl" /> is preserved when constructing API request URLs.
+    ///   Set to <c>true</c> (default) to preserve the base path, which is required when accessing the DeepL API through
+    ///   a reverse proxy with a path prefix (e.g. <c>https://proxy.example.com/deepl/</c>). Set to <c>false</c> to ignore
+    ///   the path component and resolve API paths from the server root.
+    /// </summary>
+    public bool PreserveServerUrlPath { get; set; } = true;
+
+    /// <summary>
     ///   Factory function returning an <see cref="HttpClient" /> to be used by <see cref="Translator" /> for HTTP requests,
     ///   and a flag whether to call <see cref="HttpClient.Dispose" /> in <see cref="Translator.Dispose" />.
     ///   Override this function to provide your own <see cref="HttpClient" />. Note that overriding this function will disable

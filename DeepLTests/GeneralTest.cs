@@ -214,6 +214,67 @@ namespace DeepLTests {
     }
 
     [Fact]
+    public async Task TestServerUrlPathIgnoredWhenPreserveDisabled() {
+      // Verify that when PreserveServerUrlPath is false, the path component of ServerUrl is ignored
+      // and API paths are resolved from the server root.
+      const string usageResponseJson = "{\"character_count\": 0, \"character_limit\": 0}";
+      var handler = getMockHandler(usageResponseJson);
+      var options = new TranslatorOptions {
+        ServerUrl = "https://external-api.example.com/deepl/",
+        PreserveServerUrlPath = false,
+        ClientFactory = () => new HttpClientAndDisposeFlag {
+              HttpClient = new HttpClient(handler), DisposeClient = true
+        }
+      };
+      var translator = new Translator("test-auth-key:fx", options);
+      await translator.GetUsageAsync();
+
+      Assert.Single(handler.requests);
+      var requestUri = handler.requests[0].RequestUri!.ToString();
+      Assert.StartsWith("https://external-api.example.com/v2/", requestUri);
+    }
+
+    [Fact]
+    public async Task TestServerUrlPathPreservedByDefault() {
+      // Verify that PreserveServerUrlPath defaults to true and the path prefix is preserved.
+      const string usageResponseJson = "{\"character_count\": 0, \"character_limit\": 0}";
+      var handler = getMockHandler(usageResponseJson);
+      var options = new TranslatorOptions {
+        ServerUrl = "https://external-api.example.com/deepl/",
+        ClientFactory = () => new HttpClientAndDisposeFlag {
+              HttpClient = new HttpClient(handler), DisposeClient = true
+        }
+      };
+      // Note: PreserveServerUrlPath is not explicitly set, relying on the default (true)
+      var translator = new Translator("test-auth-key:fx", options);
+      await translator.GetUsageAsync();
+
+      Assert.Single(handler.requests);
+      var requestUri = handler.requests[0].RequestUri!.ToString();
+      Assert.Equal("https://external-api.example.com/deepl/v2/usage", requestUri);
+    }
+
+    [Fact]
+    public async Task TestDeepLClientOptionsPreserveServerUrlPath() {
+      // Verify that the option works through DeepLClientOptions as well
+      const string usageResponseJson = "{\"character_count\": 0, \"character_limit\": 0}";
+      var handler = getMockHandler(usageResponseJson);
+      var options = new DeepLClientOptions {
+        ServerUrl = "https://external-api.example.com/deepl/",
+        PreserveServerUrlPath = false,
+        ClientFactory = () => new HttpClientAndDisposeFlag {
+              HttpClient = new HttpClient(handler), DisposeClient = true
+        }
+      };
+      var client = new DeepLClient("test-auth-key:fx", options);
+      await client.GetUsageAsync();
+
+      Assert.Single(handler.requests);
+      var requestUri = handler.requests[0].RequestUri!.ToString();
+      Assert.StartsWith("https://external-api.example.com/v2/", requestUri);
+    }
+
+    [Fact]
     public async Task TestUsage() {
       var translator = CreateTestTranslator();
       var usage = await translator.GetUsageAsync();
