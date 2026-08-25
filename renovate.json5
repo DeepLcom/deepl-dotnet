@@ -1,0 +1,20 @@
+// Renovate configuration for the GitLab repository where this library is
+// developed. Dependency updates do not run on the GitHub mirror, so users of
+// the library can ignore this file.
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "local>deepl-org/deepl/backend/oss-client-libs/ci-libs-for-client-libraries:renovate-client-libraries.json5",
+  ],
+  packageRules: [
+    {
+      // NuGet has no dev dependency type, so scope by path: the test project
+      // is not part of the published DeepL.net package.
+      description: "The test project is not published, non-major updates merge when CI is green",
+      matchFileNames: ["DeepLTests/**"],
+      matchUpdateTypes: ["minor", "patch"],
+      groupName: "dev dependencies",
+      addLabels: ["automerge"],
+    },
+  ],
+}
