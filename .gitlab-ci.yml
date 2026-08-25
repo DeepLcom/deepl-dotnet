@@ -96,7 +96,10 @@ package:
   stage: build
   needs: ["build"]
   script:
-    - dotnet pack --no-restore --configuration Release -o package/Release
+    # No --no-restore: DOTNET_CLI_HOME puts the NuGet cache inside the
+    # workspace and the build artifacts do not include it, so this job
+    # only had packages when a runner slot reused a leftover workspace.
+    - dotnet pack --configuration Release -o package/Release
   artifacts:
     paths:
       - package/
